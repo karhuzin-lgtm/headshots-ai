@@ -18,7 +18,7 @@ const steps = [
   {
     n: "2",
     title: "AI trains on your face",
-    body: "We build a private AI model trained specifically on you - not a generic face. This takes about 10 minutes. Your data stays secure and private.",
+    body: "We build a private AI model trained specifically on you - not a generic face. This takes about 15 minutes. Your data stays secure and private.",
   },
   {
     n: "3",
@@ -38,7 +38,7 @@ const faqItems = [
   },
   {
     q: "How long does the process take?",
-    a: "From upload to results is approximately 10 minutes. We will send you an email as soon as your headshots are ready - no need to keep the tab open.",
+    a: "From upload to results is approximately 15 minutes. We will send you an email as soon as your headshots are ready - no need to keep the tab open.",
   },
   {
     q: "Are my photos stored permanently?",
@@ -55,9 +55,21 @@ const faqItems = [
 ];
 
 const stats = [
-  ["10 minutes", "From upload to results"],
-  ["6 styles", "LinkedIn, Corporate, Executive, Tech, Creative, Startup"],
-  ["Private & secure", "Your model is deleted after 30 days"],
+  {
+    number: "~15 min",
+    label: "From upload to ready",
+    sub: "AI trains and generates while you do other things",
+  },
+  {
+    number: "6",
+    label: "Professional styles",
+    sub: "LinkedIn · Corporate · Executive · Tech · Creative · Startup",
+  },
+  {
+    number: "30 days",
+    label: "Then deleted forever",
+    sub: "Your photos and model are never stored permanently",
+  },
 ];
 
 const features = [
@@ -85,7 +97,7 @@ const features = [
 
 const comparisonRows = [
   ["Cost", "$200-$500", "From $19 at launch"],
-  ["Time to results", "1-2 weeks", "~10 minutes"],
+  ["Time to results", "1-2 weeks", "~15 minutes"],
   ["Scheduling required", "Yes", "No"],
   ["Multiple styles", "Usually 1 look", "6 professional styles"],
   ["Reshoots", "Extra cost", "Included"],
@@ -291,12 +303,19 @@ export default function HomePage() {
 
         <GalleryMasonry />
 
-        <section className="border-y border-gray-100 bg-[#f9fafb] py-12">
-          <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center sm:px-6 md:grid-cols-3 md:divide-x md:divide-gray-200 lg:px-8">
-            {stats.map(([value, label], index) => (
-              <ScrollReveal key={value} delay={index * 0.04} className="px-6">
-                <p className="font-display text-3xl font-normal tracking-tight text-[#111827]">{value}</p>
-                <p className="mt-2 text-sm leading-relaxed text-gray-500">{label}</p>
+        <section className="bg-[#f9fafb] py-12">
+          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 px-5 text-center sm:grid-cols-3 sm:px-6 lg:px-8">
+            {stats.map((stat, index) => (
+              <ScrollReveal
+                key={stat.label}
+                delay={index * 0.04}
+                className="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm"
+              >
+                <p className="text-5xl font-bold tracking-tight text-gray-900">{stat.number}</p>
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
+                  {stat.label}
+                </p>
+                <p className="mt-1 text-sm text-gray-500">{stat.sub}</p>
               </ScrollReveal>
             ))}
           </div>

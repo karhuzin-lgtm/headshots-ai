@@ -151,6 +151,22 @@ export function TryResultClient({ requestId }: { requestId: string }) {
       </h1>
       {outputUrls.length > 0 && (
         <div className="mt-10 space-y-10">
+          <div className="mb-8 flex justify-center gap-6 text-center">
+            <div>
+              <p className="text-2xl font-bold text-gray-900">3</p>
+              <p className="text-xs uppercase tracking-wider text-gray-400">Photos ready</p>
+            </div>
+            <div className="w-px bg-gray-100" />
+            <div>
+              <p className="text-2xl font-bold text-gray-900">HD</p>
+              <p className="text-xs uppercase tracking-wider text-gray-400">Resolution</p>
+            </div>
+            <div className="w-px bg-gray-100" />
+            <div>
+              <p className="text-2xl font-bold text-gray-900">∞</p>
+              <p className="text-xs uppercase tracking-wider text-gray-400">Usage rights</p>
+            </div>
+          </div>
           {STYLE_LABELS.map((label, styleIdx) => {
             const styleUrls = outputUrls.slice(styleIdx * 3, styleIdx * 3 + 3);
             if (styleUrls.length === 0) return null;
