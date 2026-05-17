@@ -215,7 +215,6 @@ export default function HomePage() {
 
       <main>
         <LandingHero />
-        <StylesSection />
 
         <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
           <div className="relative mx-auto max-w-6xl px-5 text-center sm:px-6 lg:px-8">
@@ -259,6 +258,8 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        <StylesSection />
 
         <section className="bg-[#f9fafb] py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
