@@ -84,7 +84,7 @@ const features = [
 ];
 
 const comparisonRows = [
-  ["Cost", "$200-$500", "Founding member launch discount"],
+  ["Cost", "$200-$500", "From $19 at launch"],
   ["Time to results", "1-2 weeks", "~10 minutes"],
   ["Scheduling required", "Yes", "No"],
   ["Multiple styles", "Usually 1 look", "6 professional styles"],
@@ -124,8 +124,6 @@ const industryStats = [
     source: "Survey data",
   },
 ];
-
-const companyLogos = ["Google", "Spotify", "Airbnb", "McKinsey", "Goldman Sachs"];
 
 const offerBullets = [
   "Priority access when generation opens",
@@ -259,20 +257,6 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        <section className="border-y border-gray-100 bg-white py-10">
-          <div className="mx-auto max-w-7xl px-5 text-center sm:px-6 lg:px-8">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
-              Used by professionals at
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-semibold text-gray-300">
-              {companyLogos.map((logo) => (
-                <span key={logo}>{logo}</span>
-              ))}
-            </div>
-            <p className="mt-4 text-xs text-gray-400">Based on waitlist signups</p>
           </div>
         </section>
 

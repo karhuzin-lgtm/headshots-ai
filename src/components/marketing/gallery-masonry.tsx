@@ -21,7 +21,7 @@ export function GalleryMasonry() {
       <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-normal tracking-tight sm:text-5xl">
-            Over 1,000 headshots generated.
+            Generated for 1,200+ professionals on the waitlist.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-gray-500">
             Real diversity. Real results.
