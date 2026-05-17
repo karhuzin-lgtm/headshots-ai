@@ -156,13 +156,10 @@ export default function HomePage() {
                   Transformations
                 </p>
                 <h2 className="font-display mt-5 text-3xl font-normal leading-[1.12] tracking-[-0.02em] text-gradient-display sm:text-4xl lg:text-[2.65rem]">
-                  Real inputs.
-                  <br />
-                  <span className="text-muted-foreground">Real outputs.</span>
+                  See what&apos;s possible.
                 </h2>
                 <p className="mt-6 text-base leading-relaxed tracking-tight text-muted-foreground">
-                  Authentic before and after from our own generations — not stock. Your results
-                  follow the same pipeline from your photos.
+                  Example transformations — your results are trained on your own photos.
                 </p>
               </ScrollReveal>
             </div>
