@@ -102,8 +102,8 @@ export function TryFreeClient() {
       return;
     }
 
-    if (files.length < 3 || files.length > 20) {
-      setError("Upload 3-20 selfies. For best results, use 10 or more.");
+    if (files.length < 10 || files.length > 20) {
+      setError("Upload 10-20 selfies.");
       return;
     }
 

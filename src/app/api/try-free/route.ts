@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
-import { readWaitlist } from "@/lib/free-generation-store";
-import { createGeneration, updateGenerationStatus } from "@/lib/generations-db";
+import {
+  createGeneration,
+  findRateLimitedGeneration,
+  updateGenerationStatus,
+} from "@/lib/generations-db";
 import {
   createTrainingZip,
   isFreeHeadshotStyle,
@@ -11,6 +14,15 @@ import {
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
 
 export async function GET() {
   return NextResponse.json(
@@ -22,7 +34,7 @@ export async function GET() {
 function isImage(file: File): boolean {
   const name = file.name.toLowerCase();
   return (
-    file.type.startsWith("image/") ||
+    ALLOWED_IMAGE_TYPES.has(file.type) ||
     /\.(jpe?g|png|webp|heic|heif)$/.test(name)
   );
 }
@@ -34,7 +46,8 @@ function blobPath(file: File, index: number): string {
 
 function webhookUrl(generationId: string, style: string): string {
   const params = new URLSearchParams({ id: generationId, style });
-  return `https://headshots.alekseimedia.com/api/webhook/fal?${params.toString()}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com";
+  return `${baseUrl.replace(/\/$/, "")}/api/webhook/fal?${params.toString()}`;
 }
 
 export async function POST(request: Request) {
@@ -47,17 +60,17 @@ export async function POST(request: Request) {
     const style = String(form.get("style") ?? "");
     const files = form.getAll("photos").filter((value): value is File => value instanceof File);
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    if (!EMAIL_RE.test(email)) {
+      return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
     }
 
     if (!isFreeHeadshotStyle(style)) {
       return NextResponse.json({ error: "Choose a headshot style" }, { status: 400 });
     }
 
-    if (files.length < 3 || files.length > 20) {
+    if (files.length < 10 || files.length > 20) {
       return NextResponse.json(
-        { error: "Upload 3-20 selfies. For best results, use 10 or more." },
+        { error: "Upload 10-20 selfies." },
         { status: 400 }
       );
     }
@@ -66,12 +79,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Only image files are allowed" }, { status: 400 });
     }
 
-    const waitlist = await readWaitlist();
-    const onList = waitlist.some((entry) => entry.email.toLowerCase() === email);
-    // On Vercel /tmp is ephemeral and can be different per function instance.
-    // If the email comes from /try?email=..., allow the flow even if /tmp lost the signup.
-    if (!onList) {
-      console.warn(`Proceeding without /tmp waitlist match for ${email}`);
+    if (files.some((file) => file.size > MAX_FILE_SIZE)) {
+      return NextResponse.json(
+        { error: "Each image must be 10MB or less" },
+        { status: 400 }
+      );
+    }
+
+    const existingGeneration = await findRateLimitedGeneration(email);
+    if (existingGeneration) {
+      return NextResponse.json(
+        { error: "You already have a free generation. Check your email for results." },
+        { status: 429 }
+      );
     }
 
     let inputUrls: string[];
@@ -105,7 +125,11 @@ export async function POST(request: Request) {
       });
     } catch (e) {
       const message = e instanceof Error ? e.message : "Unknown fal training error";
-      await updateGenerationStatus({ id: generation.id, status: "failed" });
+      await updateGenerationStatus({
+        id: generation.id,
+        status: "failed",
+        errorMessage: message,
+      });
       return NextResponse.json({ error: `fal training failed: ${message}` }, { status: 500 });
     }
 

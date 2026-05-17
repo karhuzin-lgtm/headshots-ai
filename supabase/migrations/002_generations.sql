@@ -6,6 +6,7 @@ create table if not exists generations (
   status text not null check (status in ('pending', 'processing', 'done', 'failed')),
   input_urls text[] not null default '{}',
   output_urls text[] not null default '{}',
+  error_message text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

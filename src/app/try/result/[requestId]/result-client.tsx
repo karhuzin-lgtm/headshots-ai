@@ -14,6 +14,7 @@ type StatusResponse = {
 export function TryResultClient({ requestId }: { requestId: string }) {
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [timedOut, setTimedOut] = useState(false);
   const outputUrls = status?.outputUrls?.length
     ? status.outputUrls
     : status?.imageUrl
@@ -22,8 +23,15 @@ export function TryResultClient({ requestId }: { requestId: string }) {
 
   useEffect(() => {
     let cancelled = false;
+    const startedAt = Date.now();
+    const timeoutMs = 45 * 60 * 1000;
 
     async function poll() {
+      if (Date.now() - startedAt >= timeoutMs) {
+        if (!cancelled) setTimedOut(true);
+        return;
+      }
+
       try {
         let statusUrl: string;
         try {
@@ -45,12 +53,32 @@ export function TryResultClient({ requestId }: { requestId: string }) {
     }
 
     void poll();
-    const id = setInterval(() => void poll(), 5000);
+    const id = setInterval(() => {
+      if (Date.now() - startedAt >= timeoutMs) {
+        setTimedOut(true);
+        clearInterval(id);
+        return;
+      }
+      void poll();
+    }, 5000);
     return () => {
       cancelled = true;
       clearInterval(id);
     };
   }, [requestId]);
+
+  if (timedOut && (!status || status.status === "pending" || status.status === "processing")) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-24 text-center">
+        <h1 className="font-display text-3xl text-gradient-display">
+          Processing took longer than expected
+        </h1>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          Check your email — we&apos;ll send results when ready.
+        </p>
+      </div>
+    );
+  }
 
   if (error) {
     return (
