@@ -78,7 +78,7 @@ export function LandingHero() {
               transition={{ duration: 0.58, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
               className="mt-7 max-w-md text-pretty text-base leading-relaxed tracking-tight text-muted-foreground sm:text-lg"
             >
-              Upload 10-20 selfies. We generate your first professional AI headshot — free, no credit
+              Upload 3-20 selfies. We generate your first professional AI headshot — free, no credit
               card. Limited to the first 100 testers.
             </motion.p>
 
@@ -95,19 +95,19 @@ export function LandingHero() {
             initial={{ opacity: 0, y: 40, rotateX: 4 }}
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
             transition={{ duration: 0.75, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-            className="relative order-2 w-full min-w-0 max-w-lg justify-self-center lg:order-none lg:max-w-none lg:justify-self-end"
+            className="relative order-2 w-full min-w-0 max-w-2xl justify-self-center lg:order-none lg:max-w-none lg:justify-self-end"
             style={{ perspective: "1200px" }}
           >
-            <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
+            <div className="mx-auto grid w-full max-w-2xl grid-cols-3 gap-3 sm:gap-4">
               {["/man-after.jpg", "/exec-after.jpg", "/woman2-after.jpg"].map((src, index) => (
                 <Image
                   key={src}
                   src={src}
-                  width={420}
-                  height={560}
-                  className="aspect-[3/4] w-full rounded-2xl object-cover"
+                  width={520}
+                  height={700}
+                  className="aspect-[3/4] w-full rounded-2xl object-cover shadow-2xl shadow-black/30"
                   alt="AI headshot"
-                  sizes="(max-width: 1023px) 33vw, 180px"
+                  sizes="(max-width: 1023px) 33vw, 240px"
                   priority={index === 0}
                 />
               ))}

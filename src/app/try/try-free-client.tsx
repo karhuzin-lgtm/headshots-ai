@@ -1,10 +1,8 @@
 "use client";
 
-import { Briefcase, Crown, Laptop, Linkedin, Loader2, Palette, Rocket, Upload } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useRef, useState } from "react";
-
-import { cn } from "@/lib/utils";
 
 async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
@@ -40,51 +38,11 @@ async function compressImage(file: File): Promise<File> {
   });
 }
 
-const STYLE_OPTIONS = [
-  {
-    id: "corporate",
-    label: "Corporate",
-    description: "Navy suit, neutral gray background",
-    Icon: Briefcase,
-  },
-  {
-    id: "tech_casual",
-    label: "Tech Casual",
-    description: "Smart casual, blurred office background",
-    Icon: Laptop,
-  },
-  {
-    id: "executive",
-    label: "Executive",
-    description: "Dark suit, Rembrandt lighting",
-    Icon: Crown,
-  },
-  {
-    id: "creative",
-    label: "Creative",
-    description: "Stylish attire, bokeh background",
-    Icon: Palette,
-  },
-  {
-    id: "startup",
-    label: "Startup",
-    description: "Casual confident, white background",
-    Icon: Rocket,
-  },
-  {
-    id: "linkedin",
-    label: "LinkedIn Classic",
-    description: "Business formal, light gradient background",
-    Icon: Linkedin,
-  },
-] as const;
-
 export function TryFreeClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const email = useMemo(() => searchParams.get("email")?.trim().toLowerCase() ?? "", [searchParams]);
-  const [selectedStyle, setSelectedStyle] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,13 +56,8 @@ export function TryFreeClient() {
       return;
     }
 
-    if (!selectedStyle) {
-      setError("Choose a headshot style.");
-      return;
-    }
-
-    if (files.length < 10 || files.length > 20) {
-      setError("Upload 10-20 selfies.");
+    if (files.length < 3 || files.length > 20) {
+      setError("Upload 3-20 selfies.");
       return;
     }
 
@@ -112,7 +65,6 @@ export function TryFreeClient() {
     try {
       const form = new FormData();
       form.set("email", email);
-      form.set("style", selectedStyle);
       const compressed = await Promise.all(files.map(compressImage));
       compressed.forEach((file) => form.append("photos", file));
 
@@ -143,62 +95,21 @@ export function TryFreeClient() {
         Early tester access
       </p>
       <h1 className="font-display mt-5 text-3xl font-normal tracking-[-0.02em] text-gradient-display sm:text-4xl">
-        Upload 10-20 selfies to generate your free headshot
+        Upload 3-20 selfies to generate your free headshots
       </h1>
       <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-        More references means better results. We&apos;ll save your photos securely and create your
+        We&apos;ll save your photos securely and create your
         professional headshots in ~5 minutes. No credit card.
       </p>
 
       <form onSubmit={onSubmit} className="glass-panel mt-10 rounded-3xl p-5 text-left sm:p-7">
         <div>
-          <p className="text-sm font-semibold text-foreground">Choose your style</p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {STYLE_OPTIONS.map(({ id, label, description, Icon }) => {
-              const selected = selectedStyle === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setSelectedStyle(id)}
-                  className={cn(
-                    "rounded-2xl border p-4 text-left transition",
-                    selected
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-white/10 bg-white/[0.03] text-muted-foreground hover:border-primary/35 hover:bg-white/[0.05]"
-                  )}
-                  aria-pressed={selected}
-                >
-                  <span className="flex items-center gap-3">
-                    <span
-                      className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-xl",
-                        selected ? "bg-primary text-primary-foreground" : "bg-white/10 text-foreground"
-                      )}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span>
-                      <span className="block text-sm font-semibold text-foreground">
-                        {label}
-                      </span>
-                      <span className="mt-1 block text-xs leading-relaxed">
-                        {description}
-                      </span>
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="mt-7">
           <p className="text-sm font-semibold text-foreground">
             Tips for best results
           </p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {[
+              { icon: "✓", text: "3+ clear selfies, face visible, good lighting" },
               { icon: "✓", text: "Good lighting — face clearly visible, not backlit" },
               { icon: "✓", text: "Different angles: front, slight left, slight right" },
               { icon: "✓", text: "Different expressions: smile, neutral, serious" },
@@ -231,7 +142,7 @@ export function TryFreeClient() {
         <label className="mt-7 block text-sm font-semibold text-foreground">
           Selfies
           <span className="ml-2 font-normal text-muted-foreground">
-            Upload 10-20 selfies (more = better results)
+            Upload 3-20 selfies
           </span>
         </label>
         <label className="mt-3 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-4 py-8 text-center transition hover:border-primary/35 hover:bg-white/[0.05]">
@@ -240,7 +151,7 @@ export function TryFreeClient() {
             Click to choose images
           </span>
           <span className="mt-1 text-xs text-muted-foreground">
-            Upload 10-20 selfies (more = better results). JPG, PNG, or WebP.
+            Upload 3-20 selfies. JPG, PNG, or WebP.
           </span>
           <input
             ref={fileInputRef}
@@ -250,16 +161,7 @@ export function TryFreeClient() {
             className="sr-only"
             onChange={(event) => {
               const newFiles = Array.from(event.target.files ?? []);
-              setFiles((prev) => {
-                const combined = [...prev, ...newFiles];
-                const seen = new Set<string>();
-                return combined.filter((file) => {
-                  const key = `${file.name}-${file.size}-${file.lastModified}`;
-                  if (seen.has(key)) return false;
-                  seen.add(key);
-                  return true;
-                });
-              });
+              setFiles((prev) => [...prev, ...newFiles]);
               event.target.value = "";
             }}
           />
@@ -293,7 +195,7 @@ export function TryFreeClient() {
             </button>
             <p className="mt-2 text-xs text-muted-foreground">
               {files.length}/20 photos selected
-              {files.length < 10 && ` — add ${10 - files.length} more to continue`}
+              {files.length < 3 && ` — add ${3 - files.length} more to continue`}
             </p>
           </div>
         )}

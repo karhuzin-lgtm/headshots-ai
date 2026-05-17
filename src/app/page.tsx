@@ -15,7 +15,7 @@ import { SiteHeader } from "@/components/marketing/site-header";
 const steps = [
   {
     n: "01",
-    title: "Upload 10-20 photos",
+    title: "Upload 3-20 selfies",
     body: "Phone selfies are fine. We learn lighting, angles, and bone structure — no studio visit.",
   },
   {
@@ -45,7 +45,7 @@ const faqItems = [
   },
   {
     q: "What photos should I upload?",
-    a: "Use 10-20 clear images of your face with varied lighting and angles. Avoid heavy filters, sunglasses, or group shots. The better the input, the better the output.",
+    a: "Use 3-20 clear selfies of your face with varied lighting and angles. Avoid heavy filters, sunglasses, or group shots. The better the input, the better the output.",
   },
   {
     q: "What happens when I join the waitlist?",
@@ -177,7 +177,7 @@ export default function HomePage() {
             </h2>
             <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed tracking-tight text-muted-foreground">
               After launch: $29–$69 one-time. Right now: 1 free headshot, no card needed. Join the
-              waitlist → upload 10+ photos → get your headshots in ~5 minutes.
+              waitlist → upload 3+ photos → get your headshots in ~5 minutes.
             </p>
             <WaitlistForm className="mx-auto mt-8 max-w-lg" />
           </ScrollReveal>

@@ -7,14 +7,15 @@ import {
   updateGenerationStatus,
 } from "@/lib/generations-db";
 import {
-  createTrainingZip,
-  isFreeHeadshotStyle,
-  trainLoRA,
+  STYLE_PROMPTS,
+  type HeadshotStyle,
+  generateHeadshotsWithPulid,
+  uploadReferencePhoto,
 } from "@/lib/fal";
-import { sendHeadshotsStarted } from "@/lib/email";
+import { sendHeadshotsReady, sendHeadshotsStarted } from "@/lib/email";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 300;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -45,10 +46,21 @@ function blobPath(file: File, index: number): string {
   return `try-free/${crypto.randomUUID()}-${index + 1}.${extension}`;
 }
 
-function webhookUrl(generationId: string, style: string): string {
-  const params = new URLSearchParams({ id: generationId, style });
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com";
-  return `${baseUrl.replace(/\/$/, "")}/api/webhook/fal?${params.toString()}`;
+async function persistToBlob(url: string, id: string, index: number): Promise<string> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return url;
+
+    const blob = await res.blob();
+    const { url: blobUrl } = await put(`headshots/${id}/${index}.jpg`, blob, {
+      access: "public",
+      contentType: "image/jpeg",
+    });
+
+    return blobUrl;
+  } catch {
+    return url;
+  }
 }
 
 export async function POST(request: Request) {
@@ -58,20 +70,15 @@ export async function POST(request: Request) {
   try {
     const form = await request.formData();
     const email = String(form.get("email") ?? "").trim().toLowerCase();
-    const style = String(form.get("style") ?? "");
     const files = form.getAll("photos").filter((value): value is File => value instanceof File);
 
     if (!EMAIL_RE.test(email)) {
       return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
     }
 
-    if (!isFreeHeadshotStyle(style)) {
-      return NextResponse.json({ error: "Choose a headshot style" }, { status: 400 });
-    }
-
-    if (files.length < 10 || files.length > 20) {
+    if (files.length < 3 || files.length > 20) {
       return NextResponse.json(
-        { error: "Upload 10-20 selfies." },
+        { error: "Upload 3-20 selfies." },
         { status: 400 }
       );
     }
@@ -120,23 +127,49 @@ export async function POST(request: Request) {
 
     try {
       await updateGenerationStatus({ id: generation.id, status: "processing" });
-      const trainingZip = await createTrainingZip(files);
-      const archive = await put(`try-free/${generation.id}/training.zip`, trainingZip, {
-        access: "public",
-        contentType: "application/zip",
+      const referenceUrl = await uploadReferencePhoto(files[0]);
+      const styles = Object.keys(STYLE_PROMPTS) as HeadshotStyle[];
+      const tasks = styles.flatMap((style) =>
+        Array.from({ length: 3 }, () => generateHeadshotsWithPulid(referenceUrl, style))
+      );
+      const settled = await Promise.allSettled(tasks);
+      const rawUrls = settled
+        .filter((result): result is PromiseFulfilledResult<string> => result.status === "fulfilled")
+        .map((result) => result.value);
+
+      if (rawUrls.length === 0) {
+        const errors = settled
+          .filter((result): result is PromiseRejectedResult => result.status === "rejected")
+          .map((result) => (result.reason instanceof Error ? result.reason.message : String(result.reason)));
+        throw new Error(errors[0] ?? "fal.ai returned no generated images.");
+      }
+
+      const outputUrls = await Promise.all(
+        rawUrls.map((url, index) => persistToBlob(url, generation.id, index))
+      );
+      const completedGeneration = await updateGenerationStatus({
+        id: generation.id,
+        status: "done",
+        outputUrls,
       });
-      await trainLoRA({
-        imagesDataUrl: archive.url,
-        webhookUrl: webhookUrl(generation.id, style),
-      });
+
+      try {
+        await sendHeadshotsReady(
+          completedGeneration.email,
+          `/try/result/${completedGeneration.id}`,
+          completedGeneration.output_urls
+        );
+      } catch (error) {
+        console.error("headshots-ready email failed:", error);
+      }
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Unknown fal training error";
+      const message = e instanceof Error ? e.message : "Unknown fal generation error";
       await updateGenerationStatus({
         id: generation.id,
         status: "failed",
         errorMessage: message,
       });
-      return NextResponse.json({ error: `fal training failed: ${message}` }, { status: 500 });
+      return NextResponse.json({ error: `fal generation failed: ${message}` }, { status: 500 });
     }
 
     return NextResponse.json({ id: generation.id });

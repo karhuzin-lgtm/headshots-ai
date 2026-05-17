@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
-import { buildGenerationManifest, isPlanId, PLANS, validateStyleSelection } from "@/lib/plans";
+import { ALL_STYLE_KEYS, buildGenerationManifest, isPlanId, PLANS } from "@/lib/plans";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -24,28 +24,12 @@ export async function POST(request: Request) {
     }
     const plan = planRaw;
 
-    let styles: string[] = [];
-    const stylesField = form.get("styles");
-    if (typeof stylesField === "string") {
-      try {
-        styles = JSON.parse(stylesField) as string[];
-      } catch {
-        return NextResponse.json({ error: "Invalid styles JSON." }, { status: 400 });
-      }
-    }
-    if (!Array.isArray(styles)) {
-      return NextResponse.json({ error: "styles must be an array." }, { status: 400 });
-    }
-
-    const styleErr = validateStyleSelection(plan, styles);
-    if (styleErr) {
-      return NextResponse.json({ error: styleErr }, { status: 400 });
-    }
+    const styles = [...ALL_STYLE_KEYS];
 
     const files = form.getAll("photos").filter((v): v is File => v instanceof File);
-    if (files.length < 10 || files.length > 20) {
+    if (files.length < 3 || files.length > 20) {
       return NextResponse.json(
-        { error: "Upload between 10 and 20 reference photos." },
+        { error: "Upload 3-20 selfies." },
         { status: 400 }
       );
     }
