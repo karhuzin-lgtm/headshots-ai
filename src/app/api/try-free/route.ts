@@ -56,9 +56,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
     }
 
-    if (files.length < 3 || files.length > 20) {
+    if (files.length < 8 || files.length > 20) {
       return NextResponse.json(
-        { error: "Upload 3-20 selfies." },
+        { error: "Upload at least 8 selfies." },
         { status: 400 }
       );
     }

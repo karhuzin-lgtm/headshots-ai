@@ -56,8 +56,8 @@ export function TryFreeClient() {
       return;
     }
 
-    if (files.length < 3 || files.length > 20) {
-      setError("Upload 3-20 selfies.");
+    if (files.length < 8 || files.length > 20) {
+      setError("Upload at least 8 selfies for best results.");
       return;
     }
 
@@ -95,11 +95,11 @@ export function TryFreeClient() {
         Early tester access
       </p>
       <h1 className="font-display mt-5 text-3xl font-normal tracking-[-0.02em] text-gradient-display sm:text-4xl">
-        Upload 3-20 selfies to generate your free headshots
+        Upload 8-20 selfies for best results
       </h1>
       <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
         We&apos;ll save your photos securely and create your
-        professional headshots in ~5 minutes. No credit card.
+        professional headshots in ~15 minutes. No credit card.
       </p>
 
       <form onSubmit={onSubmit} className="glass-panel mt-10 rounded-3xl p-5 text-left sm:p-7">
@@ -109,7 +109,6 @@ export function TryFreeClient() {
           </p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {[
-              { icon: "✓", text: "3+ clear selfies, face visible, good lighting" },
               { icon: "✓", text: "Good lighting — face clearly visible, not backlit" },
               { icon: "✓", text: "Different angles: front, slight left, slight right" },
               { icon: "✓", text: "Different expressions: smile, neutral, serious" },
@@ -142,7 +141,7 @@ export function TryFreeClient() {
         <label className="mt-7 block text-sm font-semibold text-foreground">
           Selfies
           <span className="ml-2 font-normal text-muted-foreground">
-            Upload 3-20 selfies
+            Upload 8-20 selfies
           </span>
         </label>
         <label className="mt-3 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-4 py-8 text-center transition hover:border-primary/35 hover:bg-white/[0.05]">
@@ -151,7 +150,7 @@ export function TryFreeClient() {
             Click to choose images
           </span>
           <span className="mt-1 text-xs text-muted-foreground">
-            Upload 3-20 selfies. JPG, PNG, or WebP.
+            Upload 8-20 selfies. JPG, PNG, or WebP.
           </span>
           <input
             ref={fileInputRef}
@@ -195,7 +194,7 @@ export function TryFreeClient() {
             </button>
             <p className="mt-2 text-xs text-muted-foreground">
               {files.length}/20 photos selected
-              {files.length < 3 && ` — add ${3 - files.length} more to continue`}
+              {files.length < 8 && ` — add ${8 - files.length} more to continue`}
             </p>
           </div>
         )}
