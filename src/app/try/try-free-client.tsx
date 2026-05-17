@@ -105,13 +105,24 @@ export function TryFreeClient() {
 
   if (success) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-16 text-center sm:px-6">
-        <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-500" />
-        <h2 className="text-2xl font-semibold text-gray-900">You&apos;re all set!</h2>
-        <p className="mx-auto mt-3 max-w-xl text-gray-500">
-          Your AI model is training now. We&apos;ll email you at {email} as soon as your headshots are ready (~15 minutes).
-        </p>
-        <p className="mt-6 text-sm text-gray-400">You can close this tab.</p>
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
+        <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-10 text-center shadow-lg">
+          <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
+          <h2 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900">
+            You&apos;re all set!
+          </h2>
+          <p className="mt-3 leading-relaxed text-gray-500">
+            Your AI model is training now. We&apos;ll email you at{" "}
+            <span className="font-medium text-gray-700">{email}</span>{" "}
+            as soon as your headshots are ready (~15 minutes).
+          </p>
+          <div className="mt-6 space-y-1.5 rounded-2xl bg-gray-50 p-4 text-left text-sm text-gray-500">
+            <p>✓ Check your email in ~15 minutes</p>
+            <p>✓ Check spam if nothing arrives</p>
+            <p>✓ High resolution, no watermarks</p>
+          </div>
+          <p className="mt-6 text-xs text-gray-400">You can safely close this tab.</p>
+        </div>
       </div>
     );
   }
