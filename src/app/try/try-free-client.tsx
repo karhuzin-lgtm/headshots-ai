@@ -8,11 +8,21 @@ import { DISPLAY_STYLES } from "@/lib/display-styles";
 
 const STYLE_OPTIONS = DISPLAY_STYLES;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ACCEPTED_IMAGE_EXTENSIONS = /\.(jpe?g|png|webp|heic|heif)$/i;
+
+function isAcceptedImage(file: File): boolean {
+  return file.type.startsWith("image/") || ACCEPTED_IMAGE_EXTENSIONS.test(file.name);
+}
 
 async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
+    const finish = (nextFile: File) => {
+      URL.revokeObjectURL(url);
+      resolve(nextFile);
+    };
+
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const maxDim = 1536;
@@ -32,13 +42,17 @@ async function compressImage(file: File): Promise<File> {
       canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
       canvas.toBlob(
         (blob) => {
-          resolve(new File([blob!], file.name, { type: "image/jpeg" }));
-          URL.revokeObjectURL(url);
+          if (!blob) {
+            finish(file);
+            return;
+          }
+          finish(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
         },
         "image/jpeg",
         0.85
       );
     };
+    img.onerror = () => finish(file);
     img.src = url;
   });
 }
@@ -258,11 +272,17 @@ export function TryFreeClient() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+            accept="image/*,.jpg,.jpeg,.png,.webp,.heic,.heif"
             multiple
             className="sr-only text-[16px]"
             onChange={(event) => {
-              const newFiles = Array.from(event.target.files ?? []);
+              const selectedFiles = Array.from(event.target.files ?? []);
+              const newFiles = selectedFiles.filter(isAcceptedImage);
+              if (selectedFiles.length !== newFiles.length) {
+                setError("Some files were skipped. Please choose JPG, PNG, WebP, HEIC, or HEIF images.");
+              } else {
+                setError(null);
+              }
               setFiles((prev) => [...prev, ...newFiles]);
               event.target.value = "";
             }}
