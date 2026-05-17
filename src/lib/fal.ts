@@ -1,25 +1,25 @@
 import { fal } from "@fal-ai/client";
 import JSZip from "jszip";
 
-const TRAIN_ENDPOINT = "fal-ai/flux-lora-portrait-trainer" as const;
+const TRAIN_ENDPOINT = "fal-ai/flux-lora-fast-training" as const;
 const GENERATE_ENDPOINT = "fal-ai/flux-lora" as const;
-const TRIGGER_PHRASE = "OHWX person";
+const TRIGGER_PHRASE = "OHWX";
 const STYLE_PROMPT_SUFFIX =
   ", natural skin texture with subtle pores, consistent soft studio lighting, authentic facial expression, sharp eyes with natural light reflections, real photograph quality";
 
 export const STYLE_PROMPTS = {
   corporate:
-    `OHWX person, navy blue suit jacket, white dress shirt, no tie, neutral light gray studio background, professional three-point lighting, confident expression, sharp focus, Canon portrait lens${STYLE_PROMPT_SUFFIX}`,
+    `OHWX, navy blue suit jacket, white dress shirt, no tie, neutral light gray studio background, professional three-point lighting, confident expression, sharp focus, Canon portrait lens${STYLE_PROMPT_SUFFIX}`,
   tech_casual:
-    `OHWX person, dark navy crewneck sweater, no jacket, blurred modern office background, soft window light, approachable expression, sharp focus${STYLE_PROMPT_SUFFIX}`,
+    `OHWX, dark navy crewneck sweater, no jacket, blurred modern office background, soft window light, approachable expression, sharp focus${STYLE_PROMPT_SUFFIX}`,
   executive:
-    `OHWX person, dark charcoal suit jacket, white dress shirt, dark studio backdrop, Rembrandt lighting, authoritative expression${STYLE_PROMPT_SUFFIX}`,
+    `OHWX, dark charcoal suit jacket, white dress shirt, dark studio backdrop, Rembrandt lighting, authoritative expression${STYLE_PROMPT_SUFFIX}`,
   creative:
-    `OHWX person, black turtleneck, cream colored background, soft natural light, artistic expression${STYLE_PROMPT_SUFFIX}`,
+    `OHWX, black turtleneck, cream colored background, soft natural light, artistic expression${STYLE_PROMPT_SUFFIX}`,
   startup:
-    `OHWX person, grey t-shirt, white background, bright studio light, relaxed confident expression${STYLE_PROMPT_SUFFIX}`,
+    `OHWX, grey t-shirt, white background, bright studio light, relaxed confident expression${STYLE_PROMPT_SUFFIX}`,
   linkedin:
-    `OHWX person, light blue dress shirt, no jacket, neutral grey background, soft studio light, natural smile${STYLE_PROMPT_SUFFIX}`,
+    `OHWX, light blue dress shirt, no jacket, neutral grey background, soft studio light, natural smile${STYLE_PROMPT_SUFFIX}`,
 } as const;
 
 export type FreeHeadshotStyle = keyof typeof STYLE_PROMPTS;
@@ -50,10 +50,6 @@ export async function createTrainingZip(files: File[]): Promise<Blob> {
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     zip.file(`selfie_${i + 1}.${fileExtension(file)}`, Buffer.from(await file.arrayBuffer()));
-    zip.file(
-      `selfie_${i + 1}.txt`,
-      `portrait photo of ${TRIGGER_PHRASE}, professional AI headshot reference`
-    );
   }
 
   const zipBytes = await zip.generateAsync({ type: "uint8array" });
@@ -72,13 +68,14 @@ export async function trainLoRA(input: {
   ensureFalConfigured();
 
   const trainingInput = {
-      images_data_url: input.imagesDataUrl,
-      data_archive_format: "zip",
-      trigger_phrase: TRIGGER_PHRASE,
-      create_masks: true,
-      subject_crop: true,
-      steps: 1000,
-    } as any;
+    images_data_url: input.imagesDataUrl,
+    data_archive_format: "zip",
+    trigger_word: "OHWX",
+    is_style: false,
+    create_masks: false,
+    subject_crop: true,
+    steps: 1000,
+  } as any;
 
   const submitted = await fal.queue.submit(TRAIN_ENDPOINT, {
     input: trainingInput,
@@ -109,7 +106,7 @@ export async function generateHeadshots(
     prompt: STYLE_PROMPTS[style],
     negative_prompt:
       "distorted face, enlarged face, waxy skin, porcelain skin, oversaturated, over-smoothed skin, blurred eyes, artificial colors, CGI, 3d render, illustration, cartoon, deformed hands, extra fingers, wrong anatomy",
-    loras: [{ path: loraPath, scale: 0.9 }],
+    loras: [{ path: loraPath, scale: 0.65 }],
     image_size: "portrait_4_3",
     num_images: 3,
     num_inference_steps: 32,

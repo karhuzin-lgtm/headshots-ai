@@ -11,6 +11,15 @@ type StatusResponse = {
   error?: string;
 };
 
+const STYLE_LABELS = [
+  "Corporate",
+  "Tech Casual",
+  "Executive",
+  "Creative",
+  "Startup",
+  "LinkedIn Classic",
+];
+
 export function TryResultClient({ requestId }: { requestId: string }) {
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +107,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
             Creating your headshots
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Status: {status?.status ?? "starting"}. Training usually takes ~5 minutes. You can
+            Status: {status?.status ?? "starting"}. Training usually takes ~5-10 minutes. You can
             keep this page open while we process your free headshots.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -121,32 +130,47 @@ export function TryResultClient({ requestId }: { requestId: string }) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:py-24">
+    <div className="mx-auto max-w-5xl px-4 py-16 text-center sm:py-24">
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-        Your free headshot
+        Your free headshots
       </p>
       <h1 className="font-display mt-5 text-3xl font-normal text-gradient-display sm:text-4xl">
         Your professional AI headshots are ready
       </h1>
       {outputUrls.length > 0 && (
-        <div className="mt-10 grid gap-5 sm:grid-cols-3">
-          {outputUrls.map((imageUrl, index) => (
-            <div
-              key={imageUrl}
-              className="glass-panel-strong overflow-hidden rounded-3xl p-2"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={imageUrl}
-                alt={`Generated AI headshot variation ${index + 1}`}
-                className="aspect-[3/4] w-full rounded-[1.25rem] object-cover"
-              />
-            </div>
-          ))}
+        <div className="mt-10 space-y-10">
+          {STYLE_LABELS.map((label, styleIdx) => {
+            const styleUrls = outputUrls.slice(styleIdx * 3, styleIdx * 3 + 3);
+            if (styleUrls.length === 0) return null;
+            return (
+              <div key={label}>
+                <p className="mb-4 text-sm font-semibold text-foreground">{label}</p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {styleUrls.map((imageUrl, i) => (
+                    <div key={imageUrl} className="glass-panel-strong overflow-hidden rounded-3xl p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageUrl}
+                        alt={`${label} headshot ${i + 1}`}
+                        className="aspect-[3/4] w-full rounded-[1.25rem] object-cover"
+                      />
+                      <a
+                        href={imageUrl}
+                        download={`headshot-${label.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`}
+                        className="mt-2 flex items-center justify-center gap-1 rounded-xl py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+                      >
+                        ↓ Download
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
-      <p className="mx-auto mt-8 max-w-md text-sm leading-relaxed text-muted-foreground">
-        Want 50 headshots in all styles? Coming soon — you&apos;re on the list.
+      <p className="mx-auto mt-10 max-w-md text-sm leading-relaxed text-muted-foreground">
+        Want more styles and variations? We&apos;re launching paid plans soon.
       </p>
     </div>
   );

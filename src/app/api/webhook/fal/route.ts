@@ -1,9 +1,9 @@
 import { put } from "@vercel/blob";
 
 import {
+  STYLE_PROMPTS,
   generateHeadshots,
   getLoraPathFromTrainingResult,
-  isFreeHeadshotStyle,
 } from "@/lib/fal";
 import { updateGenerationStatus } from "@/lib/generations-db";
 import { sendHeadshotsReady } from "@/lib/email";
@@ -84,8 +84,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const style = isFreeHeadshotStyle(styleParam) ? styleParam : "linkedin";
-    const rawUrls = await generateHeadshots(loraPath, style);
+    const allStyles = Object.keys(STYLE_PROMPTS) as (keyof typeof STYLE_PROMPTS)[];
+    const allRawUrls = await Promise.all(
+      allStyles.map((s) => generateHeadshots(loraPath, s))
+    );
+    const rawUrls = allRawUrls.flat();
     const outputUrls = await Promise.all(
       rawUrls.map((url, i) => persistToBlob(url, generationId, i))
     );
