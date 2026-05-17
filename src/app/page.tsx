@@ -127,6 +127,12 @@ const industryStats = [
 
 const companyLogos = ["Google", "Spotify", "Airbnb", "McKinsey", "Goldman Sachs"];
 
+const offerBullets = [
+  "Priority access when generation opens",
+  "40% founding member discount at launch",
+  "Professional headshots for LinkedIn, resumes, websites, and press",
+];
+
 function SectionIntro({
   label,
   title,
@@ -155,6 +161,32 @@ function SectionIntro({
   );
 }
 
+function FunnelCTA({
+  eyebrow,
+  title,
+  body,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <ScrollReveal className="mx-auto mt-14 max-w-4xl rounded-[2rem] border border-gray-100 bg-white p-6 text-center shadow-sm sm:p-8">
+      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500">{eyebrow}</p>
+      <h3 className="mx-auto mt-3 max-w-2xl text-3xl font-normal tracking-tight text-[#111827] sm:text-4xl">
+        {title}
+      </h3>
+      <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-gray-500">{body}</p>
+      <Link
+        href="/#waitlist"
+        className="mt-6 inline-flex min-h-[44px] items-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-900"
+      >
+        Join early access →
+      </Link>
+    </ScrollReveal>
+  );
+}
+
 export default function HomePage() {
   return (
     <div className="min-h-dvh bg-white text-[#111827]">
@@ -178,7 +210,7 @@ export default function HomePage() {
             href="/#waitlist"
             className="inline-flex min-h-[44px] items-center rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-gray-900"
           >
-            Join waitlist
+            Get 40% off
           </Link>
         </div>
       </header>
@@ -190,8 +222,8 @@ export default function HomePage() {
         <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
           <div className="relative mx-auto max-w-6xl px-5 text-center sm:px-6 lg:px-8">
             <SectionIntro
-              title="See what’s possible"
-              subtitle="Clean, professional portraits generated from everyday selfies."
+              title="Turn everyday selfies into a profile that sells you."
+              subtitle="Your photo is often the first trust signal. Make it look intentional, polished, and current."
             />
             <div className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-3">
               {beforeAfterPairs.map((pair, index) => (
@@ -264,6 +296,11 @@ export default function HomePage() {
                 </ScrollReveal>
               ))}
             </div>
+            <FunnelCTA
+              eyebrow="Career ROI"
+              title="A better first impression pays for itself."
+              body="Join the early access list now and lock in the founding member launch discount before paid access opens."
+            />
           </div>
         </section>
 
@@ -277,6 +314,44 @@ export default function HomePage() {
                 <p className="mt-2 text-sm leading-relaxed text-gray-500">{label}</p>
               </ScrollReveal>
             ))}
+          </div>
+        </section>
+
+        <section className="bg-white py-16 sm:py-20 md:py-28">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <div className="grid items-center gap-10 rounded-[2rem] border border-gray-100 bg-[#f9fafb] p-6 shadow-sm sm:p-10 lg:grid-cols-[1fr_0.85fr]">
+              <ScrollReveal>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500">
+                  Founding member offer
+                </p>
+                <h2 className="mt-4 text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
+                  Join before launch. Pay less when it opens.
+                </h2>
+                <p className="mt-5 max-w-2xl text-base leading-relaxed text-gray-500">
+                  We&apos;re opening generation in waves. Early access members get priority access and a 40% launch discount when paid plans go live.
+                </p>
+                <Link
+                  href="/#waitlist"
+                  className="mt-8 inline-flex min-h-[44px] items-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-900"
+                >
+                  Join early access →
+                </Link>
+              </ScrollReveal>
+              <div className="grid gap-3">
+                {offerBullets.map((bullet, index) => (
+                  <ScrollReveal
+                    key={bullet}
+                    delay={index * 0.04}
+                    className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+                  >
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
+                      ✓
+                    </span>
+                    <p className="text-sm leading-relaxed text-gray-600">{bullet}</p>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -392,6 +467,11 @@ export default function HomePage() {
                 </table>
               </div>
             </ScrollReveal>
+            <FunnelCTA
+              eyebrow="No studio. No scheduling."
+              title="Stop postponing the photo that represents you."
+              body="Join early access today. We'll email you as soon as your spot opens and your founding member discount is ready."
+            />
           </div>
         </section>
 
@@ -413,10 +493,10 @@ export default function HomePage() {
           <ScrollReveal className="mx-auto max-w-2xl">
             <Timer className="mx-auto h-8 w-8 text-white/50" />
             <h2 className="mt-6 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">
-              Your professional headshot is one upload away.
+              Be ready before the next opportunity finds you.
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-white/60">
-              Join early access. We&apos;ll email you as soon as your spot opens.
+              Join early access now. We&apos;ll email you when your spot opens and reserve your founding member launch discount.
             </p>
             <WaitlistForm variant="dark" showLabel={false} className="mx-auto mt-9 max-w-[480px]" />
             <p className="mt-4 text-sm text-white/70">Founding members who join now get 40% off when we launch.</p>

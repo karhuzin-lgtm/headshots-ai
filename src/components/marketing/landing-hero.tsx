@@ -50,11 +50,11 @@ export function LandingHero() {
                 </span>
               ))}
             </div>
-            <p className="text-sm font-light text-gray-500">1,200+ professionals waiting</p>
+            <p className="text-sm font-light text-gray-500">1,200+ professionals joined early access</p>
           </motion.div>
 
           <h1 className="max-w-3xl text-5xl font-normal leading-[0.92] tracking-tight text-[#111827] sm:text-6xl lg:text-7xl">
-            Professional headshots.
+            Headshots that help you get picked.
             <br />
             No studio.
           </h1>
@@ -64,7 +64,7 @@ export function LandingHero() {
             transition={{ duration: 0.65, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="mt-7 max-w-md text-pretty text-lg font-light leading-relaxed text-gray-600 sm:text-xl"
           >
-            Join the waitlist, upload 8-20 selfies, and get studio-quality AI headshots that look like you. No photographer, no scheduling.
+            Look credible before the first call. Get studio-quality AI headshots for LinkedIn, resumes, founder pages, and press kits — without booking a photographer.
           </motion.p>
 
           <motion.div
@@ -74,7 +74,7 @@ export function LandingHero() {
           >
             <WaitlistForm showLabel={false} />
             <p className="mt-5 text-sm text-gray-500">
-              Join the waitlist → get early access → headshots in 15 minutes
+              Join early access → get 40% off at launch → headshots in 15 minutes
             </p>
           </motion.div>
         </div>

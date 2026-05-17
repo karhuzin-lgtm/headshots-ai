@@ -15,7 +15,7 @@ export function StylesSection() {
             6 styles. Pick yours.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-gray-500">
-            Every style trained on your face. Looks like you, not AI.
+            Pick the look that matches the opportunity — hiring, sales, speaking, fundraising, or press.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export function StylesSection() {
             href="/#waitlist"
             className="inline-flex min-h-[44px] items-center rounded-full bg-[#111827] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
           >
-            Get early access →
+            Choose your look — join early access →
           </Link>
         </div>
       </div>

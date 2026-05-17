@@ -76,7 +76,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
             variant === "dark" ? "text-white" : "text-[#111]"
           )}
         >
-          Join the waitlist
+          Get early access
         </label>
       )}
       <form onSubmit={onSubmit} className="flex w-full flex-col gap-3 sm:flex-row">
@@ -110,7 +110,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
               Joining...
             </>
           ) : (
-            "Join waitlist"
+            "Join early access"
           )}
         </button>
       </form>
