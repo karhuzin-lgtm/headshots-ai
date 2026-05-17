@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type StatusResponse = {
@@ -21,8 +21,8 @@ const STYLE_LABELS = [
 ];
 
 async function downloadImage(url: string, filename: string) {
-  const response = await fetch(url);
-  const blob = await response.blob();
+  const res = await fetch(url);
+  const blob = await res.blob();
   const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = objectUrl;
@@ -175,27 +175,23 @@ export function TryResultClient({ requestId }: { requestId: string }) {
               <div key={label}>
                 <p className="mb-4 text-sm font-semibold text-foreground">{displayLabel}</p>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  {styleUrls.map((imageUrl, i) => {
-                    const index = styleIdx * 3 + i;
-                    return (
-                      <div key={imageUrl} className="overflow-hidden rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] p-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={imageUrl}
-                          alt={`${displayLabel} headshot ${i + 1}`}
-                          className="aspect-[3/4] w-full rounded-[1.25rem] object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => downloadImage(imageUrl, `headshot-${index + 1}.jpg`)}
-                          className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                        >
-                          <Download className="h-4 w-4" />
-                          Download
-                        </button>
-                      </div>
-                    );
-                  })}
+                  {styleUrls.map((imageUrl, i) => (
+                    <div key={imageUrl} className="overflow-hidden rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageUrl}
+                        alt={`${displayLabel} headshot ${i + 1}`}
+                        className="aspect-[3/4] w-full rounded-[1.25rem] object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => downloadImage(imageUrl, `headshot-${displayLabel.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`)}
+                        className="mt-2 flex w-full items-center justify-center gap-1 rounded-xl py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+                      >
+                        ↓ Download
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             );
