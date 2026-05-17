@@ -29,8 +29,11 @@ function getAstriaApiKey(): string {
 async function parseAstriaResponse(res: Response): Promise<any> {
   const data = await res.json().catch(() => null);
   if (!res.ok) {
+    const details = data ? `: ${JSON.stringify(data)}` : "";
     const message =
-      data?.message ?? data?.error ?? `Astria API request failed with status ${res.status}`;
+      data?.message ??
+      data?.error ??
+      `Astria API request failed with status ${res.status}${details}`;
     throw new Error(message);
   }
 
@@ -49,18 +52,19 @@ export async function createAstrinaTune(
   body.append("tune[face_detection]", "true");
   body.append("tune[steps]", "1000");
   imageUrls.forEach((url) => body.append("tune[image_urls][]", url));
-  Object.entries(HEADSHOT_STYLES).forEach(([, prompt]) => {
-    body.append("tune[prompts_attributes][][text]", prompt);
+  Object.entries(HEADSHOT_STYLES).forEach(([, prompt], index) => {
+    const prefix = `tune[prompts_attributes][${index}]`;
+    body.append(`${prefix}[text]`, prompt);
     body.append(
-      "tune[prompts_attributes][][negative_prompt]",
+      `${prefix}[negative_prompt]`,
       "beard, facial hair, distorted face, enlarged face, waxy skin, CGI, full body"
     );
-    body.append("tune[prompts_attributes][][num_images]", "3");
-    body.append("tune[prompts_attributes][][w]", "768");
-    body.append("tune[prompts_attributes][][h]", "1024");
-    body.append("tune[prompts_attributes][][super_resolution]", "true");
-    body.append("tune[prompts_attributes][][face_correct]", "true");
-    body.append("tune[prompts_attributes][][steps]", "30");
+    body.append(`${prefix}[num_images]`, "3");
+    body.append(`${prefix}[w]`, "768");
+    body.append(`${prefix}[h]`, "1024");
+    body.append(`${prefix}[super_resolution]`, "true");
+    body.append(`${prefix}[face_correct]`, "true");
+    body.append(`${prefix}[steps]`, "30");
   });
   body.append("tune[callback]", callbackUrl);
 
