@@ -98,6 +98,35 @@ const beforeAfterPairs = [
   { before: "/woman2-before.jpg", after: "/woman2-after.jpg" },
 ];
 
+const industryStats = [
+  {
+    number: "21x",
+    label: "More profile views",
+    sub: "LinkedIn profiles with professional photos vs no photo",
+    source: "LinkedIn data",
+  },
+  {
+    number: "7 sec",
+    label: "First impression window",
+    sub: "Time recruiters spend forming an opinion from your photo",
+    source: "Psychology research",
+  },
+  {
+    number: "$400",
+    label: "Average photographer cost",
+    sub: "Traditional professional headshot session price",
+    source: "Industry average",
+  },
+  {
+    number: "93%",
+    label: "Say it matters",
+    sub: "Professionals who believe a good headshot helps career prospects",
+    source: "Survey data",
+  },
+];
+
+const companyLogos = ["Google", "Spotify", "Airbnb", "McKinsey", "Goldman Sachs"];
+
 function SectionIntro({
   label,
   title,
@@ -196,6 +225,43 @@ export default function HomePage() {
                     </span>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-gray-100 bg-white py-10">
+          <div className="mx-auto max-w-7xl px-5 text-center sm:px-6 lg:px-8">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
+              Used by professionals at
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-semibold text-gray-300">
+              {companyLogos.map((logo) => (
+                <span key={logo}>{logo}</span>
+              ))}
+            </div>
+            <p className="mt-4 text-xs text-gray-400">Based on waitlist signups</p>
+          </div>
+        </section>
+
+        <section className="bg-[#f9fafb] py-20 sm:py-28">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <SectionIntro
+              title="The numbers don't lie."
+              subtitle="Professional headshots aren't vanity — they're ROI."
+            />
+            <div className="mt-14 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {industryStats.map((stat, index) => (
+                <ScrollReveal
+                  key={stat.label}
+                  delay={index * 0.04}
+                  className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8"
+                >
+                  <p className="text-5xl font-bold tracking-tight text-gray-900">{stat.number}</p>
+                  <h3 className="mt-2 text-base font-semibold text-gray-900">{stat.label}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-gray-500">{stat.sub}</p>
+                  <p className="mt-3 text-xs uppercase tracking-wider text-gray-400">{stat.source}</p>
+                </ScrollReveal>
               ))}
             </div>
           </div>
