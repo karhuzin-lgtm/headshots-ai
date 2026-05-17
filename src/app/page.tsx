@@ -462,8 +462,8 @@ export default function HomePage() {
             <Link href="#" className="transition hover:text-white">
               Terms
             </Link>
-            <a href="mailto:hello@alekseimedia.com" className="transition hover:text-white">
-              Contact: hello@alekseimedia.com
+            <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-white">
+              Contact: aleksei@alekseimedia.com
             </a>
           </div>
         </div>
