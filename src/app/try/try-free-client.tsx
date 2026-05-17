@@ -254,7 +254,7 @@ export function TryFreeClient() {
                 const combined = [...prev, ...newFiles];
                 const seen = new Set<string>();
                 return combined.filter((file) => {
-                  const key = `${file.name}-${file.size}`;
+                  const key = `${file.name}-${file.size}-${file.lastModified}`;
                   if (seen.has(key)) return false;
                   seen.add(key);
                   return true;
@@ -287,10 +287,14 @@ export function TryFreeClient() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="mt-3 text-xs font-semibold text-primary transition hover:text-primary/80"
+              className="mt-4 flex items-center gap-2 rounded-xl border border-primary/40 px-4 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
             >
-              Add more photos
+              <span className="text-lg leading-none">+</span> Add more photos
             </button>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {files.length}/20 photos selected
+              {files.length < 10 && ` — add ${10 - files.length} more to continue`}
+            </p>
           </div>
         )}
 
