@@ -166,21 +166,28 @@ export function TryFreeClient() {
                   key={style.key}
                   type="button"
                   onClick={() => setSelectedStyle(style.key)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedStyle(style.key);
+                    }
+                  }}
                   className={`group overflow-hidden rounded-2xl border text-left transition-all duration-300 ${
                     isSelected
                       ? "scale-[1.02] border-primary bg-primary/10 ring-2 ring-white"
                       : "border-[color:var(--border)] bg-[color:var(--bg-3)] hover:scale-[1.02] hover:border-primary/50"
                   } cursor-pointer`}
                   aria-pressed={isSelected}
+                  tabIndex={0}
                 >
                   <span className="relative block aspect-[3/4] overflow-hidden rounded-t-2xl">
                     <NextImage
                       src={style.photo}
-                      alt={`${style.name} headshot style`}
+                      alt={`${style.name} style AI headshot example`}
                       width={480}
                       height={600}
                       className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
-                      sizes="(max-width: 1024px) 50vw, 260px"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 300px"
                     />
                     <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 to-transparent" />
                   </span>
@@ -217,14 +224,14 @@ export function TryFreeClient() {
             Click to choose images
           </span>
           <span className="mt-1 text-xs text-muted-foreground">
-            Upload 8-20 selfies. JPG, PNG, or WebP.
+            Upload 8-20 selfies. JPG, PNG, WebP, HEIC, or HEIF.
           </span>
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
             multiple
-            className="sr-only"
+            className="sr-only text-[16px]"
             onChange={(event) => {
               const newFiles = Array.from(event.target.files ?? []);
               setFiles((prev) => [...prev, ...newFiles]);
@@ -232,6 +239,9 @@ export function TryFreeClient() {
             }}
           />
         </label>
+        <p className="mt-2 text-xs text-muted-foreground">
+          HEIC (iPhone) photos are supported.
+        </p>
         {files.length > 0 && (
           <div className="mt-4">
             <div className="grid gap-2">
@@ -244,7 +254,7 @@ export function TryFreeClient() {
                   <button
                     type="button"
                     onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                    className="shrink-0 rounded-full px-2 py-1 text-base leading-none text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
+                    className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full px-2 py-1 text-base leading-none text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
                     aria-label={`Remove ${file.name}`}
                   >
                     ×
@@ -255,7 +265,7 @@ export function TryFreeClient() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 flex items-center gap-2 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-semibold text-white transition hover:border-primary hover:bg-white/5"
+              className="mt-4 flex min-h-[44px] items-center gap-2 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-semibold text-white transition hover:border-primary hover:bg-white/5"
             >
               <span className="text-lg leading-none">+</span> Add more photos
             </button>
@@ -269,7 +279,7 @@ export function TryFreeClient() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-[#0a0a0a] px-6 text-base font-semibold text-white transition hover:scale-[1.01] hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-[#0a0a0a] px-6 text-base font-semibold text-white transition hover:scale-[1.01] hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <>

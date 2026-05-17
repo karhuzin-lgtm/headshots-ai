@@ -5,10 +5,10 @@ import { DISPLAY_STYLES } from "@/lib/display-styles";
 
 export function StylesSection() {
   return (
-    <section id="styles" className="relative overflow-hidden bg-[#f9fafb] py-20 text-[#111827] sm:py-28">
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+    <section id="styles" className="relative overflow-hidden bg-[#f9fafb] py-16 text-[#111827] sm:py-20 md:py-28">
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
             6 Styles
           </p>
           <h2 className="mt-4 text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
@@ -29,16 +29,17 @@ export function StylesSection() {
             >
               <Image
                 src={style.photo}
-                alt={`${style.name} headshot style`}
+                alt={`${style.name} style AI headshot example`}
                 width={720}
                 height={960}
                 className="aspect-[3/4] w-full object-cover object-top"
-                sizes="(max-width: 1024px) 50vw, 33vw"
+                loading="lazy"
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 300px"
               />
               <div className="p-4">
                 <h3 className="text-sm font-semibold text-gray-900">{style.name}</h3>
                 <p className="mt-1 text-xs text-gray-500">{style.tagline}</p>
-                <p className="mt-2 text-xs leading-relaxed text-gray-400">{style.description}</p>
+                <p className="mt-2 text-xs leading-relaxed text-gray-500">{style.description}</p>
               </div>
             </Link>
           ))}
@@ -47,7 +48,7 @@ export function StylesSection() {
         <div className="mt-12 text-center">
           <Link
             href="/#waitlist"
-            className="inline-flex rounded-full bg-[#111827] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
+            className="inline-flex min-h-[44px] items-center rounded-full bg-[#111827] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
           >
             Get early access →
           </Link>

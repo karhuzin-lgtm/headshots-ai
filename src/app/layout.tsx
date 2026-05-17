@@ -19,9 +19,24 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Headshots — AI portraits, studio polish",
+  metadataBase: new URL("https://headshots.alekseimedia.com"),
+  title: "AI Headshots — Professional portraits from your selfies | Headshots",
   description:
-    "Upload your photos, choose a look, and receive a full pack of professional AI headshots — crafted for European quality and privacy expectations.",
+    "Upload 8-20 phone selfies and get studio-quality professional headshots in 15 minutes. LinkedIn, Corporate, Executive, Tech, Creative, and Startup styles. No photographer needed.",
+  openGraph: {
+    title: "AI Headshots — Professional portraits from your selfies",
+    description: "Studio-quality headshots from phone selfies. 15 minutes. 6 styles.",
+    url: "https://headshots.alekseimedia.com",
+    siteName: "Headshots AI",
+    images: [{ url: "/avatars/avatar-07.jpg", width: 1024, height: 1024 }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Headshots — Professional portraits from your selfies",
+    description: "Studio-quality headshots from phone selfies in 15 minutes.",
+    images: ["/avatars/avatar-07.jpg"],
+  },
 };
 
 export default function RootLayout({

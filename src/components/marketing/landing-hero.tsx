@@ -11,9 +11,9 @@ const fadeUp = {
 };
 
 const heroPhotos = [
-  { src: "/avatars/avatar-07.jpg", alt: "LinkedIn AI headshot", offset: "-translate-y-5", delay: "0s" },
-  { src: "/avatars/avatar-19.jpg", alt: "Corporate AI headshot", offset: "translate-y-0", delay: "0.8s" },
-  { src: "/avatars/avatar-10.jpg", alt: "Executive AI headshot", offset: "-translate-y-8", delay: "1.4s" },
+  { src: "/avatars/avatar-07.jpg", alt: "LinkedIn AI headshot example", offset: "md:-translate-y-5", delay: "0s" },
+  { src: "/avatars/avatar-19.jpg", alt: "Corporate AI headshot example", offset: "md:translate-y-0", delay: "0.8s" },
+  { src: "/avatars/avatar-10.jpg", alt: "Executive AI headshot example", offset: "md:-translate-y-8", delay: "1.4s" },
 ];
 
 const avatarSources = [
@@ -27,10 +27,10 @@ const avatarSources = [
 
 export function LandingHero() {
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-white text-[#111827]">
+    <section className="relative min-h-[calc(100dvh-4rem)] overflow-hidden bg-white text-[#111827]">
       <div className="pointer-events-none absolute right-0 top-0 -z-0 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(243,244,246,0.8),transparent_65%)] blur-3xl" />
 
-      <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+      <div className="relative mx-auto grid min-h-[calc(100dvh-4rem)] max-w-7xl items-center gap-12 px-5 py-16 sm:px-6 sm:py-20 md:py-28 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div>
           <motion.div
             initial={{ opacity: 0, y: 14 }}
@@ -39,24 +39,25 @@ export function LandingHero() {
             className="mb-8 flex items-center gap-4"
           >
             <div className="flex -space-x-3">
-              {avatarSources.map((src) => (
-                <span key={src} className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-gray-100 shadow-sm">
-                  <Image src={src} alt="" width={56} height={56} className="h-full w-full object-cover" />
+              {avatarSources.map((src, index) => (
+                <span
+                  key={src}
+                  className={`relative h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-gray-100 shadow-sm ${
+                    index > 3 ? "hidden sm:inline-flex" : "inline-flex"
+                  }`}
+                >
+                  <Image src={src} alt="" width={56} height={56} className="h-full w-full object-cover" sizes="40px" />
                 </span>
               ))}
             </div>
             <p className="text-sm font-light text-gray-500">1,200+ professionals waiting</p>
           </motion.div>
 
-          <motion.h1
-            {...fadeUp}
-            transition={{ duration: 0.75, delay: 0, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-3xl text-5xl font-normal leading-[0.92] tracking-tight text-[#111827] sm:text-6xl lg:text-7xl"
-            >
+          <h1 className="max-w-3xl text-5xl font-normal leading-[0.92] tracking-tight text-[#111827] sm:text-6xl lg:text-7xl">
             Professional headshots.
             <br />
             No studio.
-          </motion.h1>
+          </h1>
 
           <motion.p
             {...fadeUp}
@@ -72,7 +73,7 @@ export function LandingHero() {
             className="mt-10 w-full max-w-xl"
           >
             <WaitlistForm showLabel={false} />
-            <p className="mt-5 text-sm text-gray-400">
+            <p className="mt-5 text-sm text-gray-500">
               Join the waitlist → get early access → headshots in 15 minutes
             </p>
           </motion.div>
@@ -82,11 +83,11 @@ export function LandingHero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="grid grid-cols-3 gap-4"
+          className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3"
         >
           {heroPhotos.map((photo, index) => (
-            <div key={photo.src} className={`animate-float ${photo.offset}`} style={{ animationDelay: photo.delay }}>
-              <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10">
+            <div key={photo.src} className={`motion-safe:animate-float ${photo.offset}`} style={{ animationDelay: photo.delay }}>
+              <div className="max-h-[280px] overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 sm:max-h-none">
                 <Image
                   src={photo.src}
                   width={720}
@@ -94,7 +95,7 @@ export function LandingHero() {
                   alt={photo.alt}
                   className="aspect-[3/4] w-full object-cover object-top"
                   priority={index === 0}
-                  sizes="(max-width: 1024px) 33vw, 260px"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 280px"
                 />
               </div>
             </div>

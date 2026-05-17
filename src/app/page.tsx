@@ -110,7 +110,7 @@ function SectionIntro({
   return (
     <ScrollReveal className="mx-auto max-w-3xl text-center">
       {label && (
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
           {label}
         </p>
       )}
@@ -129,25 +129,25 @@ function SectionIntro({
 export default function HomePage() {
   return (
     <div className="min-h-dvh bg-white text-[#111827]">
-      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/85 backdrop-blur-2xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
+      <header className="sticky-header sticky top-0 z-50 border-b border-gray-100 bg-white/85 backdrop-blur-2xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
           <Link href="/" className="font-display text-xl font-semibold tracking-[-0.03em]">
             Headshots
           </Link>
           <nav className="hidden items-center gap-8 text-sm font-medium text-gray-600 md:flex">
-            <Link href="#how-it-works" className="transition hover:text-gray-900">
+            <Link href="#how-it-works" className="py-3 transition hover:text-gray-900">
               How it works
             </Link>
-            <Link href="#styles" className="transition hover:text-gray-900">
+            <Link href="#styles" className="py-3 transition hover:text-gray-900">
               Styles
             </Link>
-            <Link href="#faq" className="transition hover:text-gray-900">
+            <Link href="#faq" className="py-3 transition hover:text-gray-900">
               FAQ
             </Link>
           </nav>
           <Link
             href="/#waitlist"
-            className="rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-gray-900"
+            className="inline-flex min-h-[44px] items-center rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-gray-900"
           >
             Join waitlist
           </Link>
@@ -158,22 +158,24 @@ export default function HomePage() {
         <LandingHero />
         <StylesSection />
 
-        <section className="relative overflow-hidden bg-white py-20 sm:py-28">
-          <div className="relative mx-auto max-w-6xl px-5 text-center lg:px-8">
+        <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
+          <div className="relative mx-auto max-w-6xl px-5 text-center sm:px-6 lg:px-8">
             <SectionIntro
               title="See what’s possible"
               subtitle="Clean, professional portraits generated from everyday selfies."
             />
             <div className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-3">
-              {beforeAfterPairs.map((pair) => (
+              {beforeAfterPairs.map((pair, index) => (
                 <div key={pair.before} className="flex flex-col gap-3">
                   <div className="relative">
                     <Image
                       src={`${pair.before}?v=20260517-3`}
-                      alt="Before casual selfie"
+                      alt="Casual selfie before professional headshot"
                       width={540}
                       height={720}
                       className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
+                      priority={index === 0}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 380px"
                     />
                     <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
                       Before
@@ -182,10 +184,12 @@ export default function HomePage() {
                   <div className="relative">
                     <Image
                       src={`${pair.after}?v=20260517-3`}
-                      alt="After AI generated headshot"
+                      alt="AI-generated professional headshot"
                       width={540}
                       height={720}
                       className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
+                      priority={index === 0}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 380px"
                     />
                     <span className="absolute left-3 top-3 rounded-full bg-black px-2.5 py-1 text-xs font-medium text-white">
                       After — AI
@@ -200,7 +204,7 @@ export default function HomePage() {
         <GalleryMasonry />
 
         <section className="border-y border-gray-100 bg-[#f9fafb] py-12">
-          <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center md:grid-cols-3 md:divide-x md:divide-gray-200 lg:px-8">
+          <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center sm:px-6 md:grid-cols-3 md:divide-x md:divide-gray-200 lg:px-8">
             {stats.map(([value, label], index) => (
               <ScrollReveal key={value} delay={index * 0.04} className="px-6">
                 <p className="font-display text-3xl font-normal tracking-tight text-[#111827]">{value}</p>
@@ -210,8 +214,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="how-it-works" className="scroll-mt-24 bg-white py-20 sm:py-28">
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <section id="how-it-works" className="scroll-mt-24 bg-white py-16 sm:py-20 md:py-28">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <SectionIntro label="The process" title="Three steps to studio-quality portraits" />
             <div className="mt-16 grid gap-8 md:grid-cols-3">
               {steps.map((step, index) => (
@@ -233,8 +237,8 @@ export default function HomePage() {
 
         <SocialProofAvatars />
 
-        <section className="relative overflow-hidden bg-white py-20 sm:py-28">
-          <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1fr_0.85fr] lg:px-8">
+        <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
+          <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 sm:px-6 lg:grid-cols-[1fr_0.85fr] lg:px-8">
             <div>
               <ScrollReveal>
                 <h2 className="text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
@@ -265,21 +269,43 @@ export default function HomePage() {
                 width={800}
                 height={1066}
                 className="aspect-[3/4] w-full object-cover"
+                loading="lazy"
+                sizes="(max-width: 1024px) 100vw, 400px"
               />
             </ScrollReveal>
           </div>
         </section>
 
-        <section className="bg-[#f9fafb] py-20 sm:py-28">
-          <div className="mx-auto max-w-6xl px-5 lg:px-8">
+        <section className="bg-[#f9fafb] py-16 sm:py-20 md:py-28">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
             <SectionIntro title="AI headshots vs. traditional photography" />
-            <ScrollReveal className="mt-12 overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-              <div className="overflow-x-auto">
+            <ScrollReveal className="mt-12">
+              <div className="grid gap-3 md:hidden">
+                {comparisonRows.map(([feature, traditional, ai]) => (
+                  <div key={feature} className="rounded-2xl border border-gray-100 bg-white p-5 text-left shadow-sm">
+                    <h3 className="text-base font-semibold text-[#111827]">{feature}</h3>
+                    <div className="mt-4 grid gap-3 text-sm">
+                      <div>
+                        <p className="font-medium text-gray-500">Traditional photographer</p>
+                        <p className="mt-1 text-gray-600">{traditional}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-500">AI headshots</p>
+                        <p className="mt-1 inline-flex items-center gap-2 font-medium text-[#111827]">
+                          <Check className="h-4 w-4" />
+                          {ai}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm md:block">
                 <table className="w-full min-w-[760px] border-collapse text-left text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 bg-white">
-                      <th className="px-6 py-5 font-semibold text-gray-400">Feature</th>
-                      <th className="px-6 py-5 font-semibold text-gray-400">Traditional photographer</th>
+                      <th className="px-6 py-5 font-semibold text-gray-500">Feature</th>
+                      <th className="px-6 py-5 font-semibold text-gray-500">Traditional photographer</th>
                       <th className="px-6 py-5 font-semibold text-[#111827]">AI headshots</th>
                     </tr>
                   </thead>
@@ -303,8 +329,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="faq" className="scroll-mt-24 bg-white py-20 sm:py-28">
-          <div className="mx-auto max-w-4xl px-5 lg:px-8">
+        <section id="faq" className="scroll-mt-24 bg-white py-16 sm:py-20 md:py-28">
+          <div className="mx-auto max-w-4xl px-5 sm:px-6 lg:px-8">
             <SectionIntro title="Frequently asked questions" />
             <div className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-100 bg-white px-6 shadow-sm">
               {faqItems.map((item) => (
@@ -317,7 +343,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="waitlist" className="relative scroll-mt-24 overflow-hidden bg-gray-950 px-6 py-28 text-center text-white">
+        <section id="waitlist" className="relative scroll-mt-24 overflow-hidden bg-gray-950 px-5 py-16 text-center text-white sm:px-6 sm:py-20 md:py-28">
           <ScrollReveal className="mx-auto max-w-2xl">
             <Timer className="mx-auto h-8 w-8 text-white/50" />
             <h2 className="mt-6 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">
@@ -327,7 +353,7 @@ export default function HomePage() {
               Join early access. We&apos;ll email you as soon as your spot opens.
             </p>
             <WaitlistForm variant="dark" showLabel={false} className="mx-auto mt-9 max-w-[480px]" />
-            <p className="mt-4 text-sm text-white/40">Founding members who join now get 40% off when we launch.</p>
+            <p className="mt-4 text-sm text-white/70">Founding members who join now get 40% off when we launch.</p>
           </ScrollReveal>
         </section>
       </main>
@@ -347,7 +373,7 @@ export default function HomePage() {
             </a>
           </div>
         </div>
-        <p className="mx-auto mt-8 max-w-7xl text-xs text-gray-400">© 2026 Aleksei Media. All rights reserved.</p>
+        <p className="mx-auto mt-8 max-w-7xl text-xs text-gray-500">© 2026 Aleksei Media. All rights reserved.</p>
       </footer>
     </div>
   );

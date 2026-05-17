@@ -17,8 +17,8 @@ const photos = [
 
 export function GalleryMasonry() {
   return (
-    <section className="relative overflow-hidden bg-white py-20 text-[#111827] sm:py-28">
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+    <section className="relative overflow-hidden bg-white py-16 text-[#111827] sm:py-20 md:py-28">
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-normal tracking-tight sm:text-5xl">
             Over 1,000 headshots generated.
@@ -36,8 +36,9 @@ export function GalleryMasonry() {
               alt="AI generated professional headshot"
               width={520}
               height={700}
-              className="mb-3 w-full rounded-2xl object-cover shadow-sm"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="mb-3 aspect-[3/4] w-full rounded-2xl object-cover shadow-sm"
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           ))}
         </div>

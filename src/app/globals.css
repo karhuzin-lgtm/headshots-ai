@@ -51,6 +51,19 @@
     color: hsl(var(--foreground));
   }
 
+  :focus-visible {
+    outline: 2px solid #111827;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 2px solid #111827;
+    outline-offset: 2px;
+  }
+
   h1,
   h2,
   h3 {
@@ -85,8 +98,16 @@
     backdrop-filter: blur(12px);
   }
 
-  .animate-float {
-    animation: float 5s ease-in-out infinite;
+  .sticky-header {
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-float,
+    .motion-safe\:animate-float {
+      animation: float 5s ease-in-out infinite;
+    }
   }
 
   .glow-brass-soft {

@@ -19,8 +19,8 @@ const avatarSources = [
 
 export function SocialProofAvatars() {
   return (
-    <section className="relative overflow-hidden bg-white py-20 text-center text-[#111827]">
-      <div className="relative mx-auto max-w-6xl px-5 lg:px-8">
+    <section className="relative min-h-[200px] overflow-hidden bg-white py-16 text-center text-[#111827] sm:py-20 md:py-28">
+      <div className="relative mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
         <ScrollReveal className="mx-auto max-w-3xl">
           <h2 className="text-4xl font-normal tracking-tight sm:text-5xl">
             Join professionals already on the waitlist
@@ -46,7 +46,8 @@ export function SocialProofAvatars() {
                     width={96}
                     height={96}
                     className="h-full w-full object-cover"
-                    sizes="64px"
+                    loading="lazy"
+                    sizes="40px"
                   />
                 </div>
               ))}

@@ -114,7 +114,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           )}
         </button>
       </form>
-      <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/45" : "text-[#666]")}>
+      <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/70" : "text-[#666]")}>
         Founding members get 40% off at launch. Join 1,200+ already on the list.
       </p>
       {error && (

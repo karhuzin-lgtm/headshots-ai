@@ -28,7 +28,7 @@ export function SiteHeader() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[color:var(--border)] bg-white/85 backdrop-blur-2xl backdrop-saturate-150">
+    <header className="sticky-header sticky top-0 z-50 border-b border-[color:var(--border)] bg-white/85 backdrop-blur-2xl backdrop-saturate-150">
       <div className="relative mx-auto flex h-[3.35rem] max-w-[1400px] items-center justify-between gap-3 px-4 md:h-16 md:px-6 lg:px-10">
         <Link
           href="/"
@@ -50,7 +50,7 @@ export function SiteHeader() {
             <Link
               key={href}
               href={href}
-              className="rounded-full px-3.5 py-2 text-sm font-normal tracking-tight text-muted-foreground transition hover:bg-gray-100 hover:text-foreground"
+              className="rounded-full px-3.5 py-3 text-sm font-normal tracking-tight text-muted-foreground transition hover:bg-gray-100 hover:text-foreground"
             >
               {label}
             </Link>
@@ -60,13 +60,13 @@ export function SiteHeader() {
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2 md:flex-initial md:gap-3">
           <Link
             href="/#waitlist"
-            className="hidden rounded-full bg-[#0a0a0a] px-4 py-2 text-sm font-medium tracking-tight text-white transition hover:bg-[#222] md:inline-flex"
+            className="hidden min-h-[44px] items-center rounded-full bg-[#0a0a0a] px-4 py-2 text-sm font-medium tracking-tight text-white transition hover:bg-[#222] md:inline-flex"
           >
             Join waitlist
           </Link>
           <button
             type="button"
-            className="glass-panel flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground md:hidden"
+            className="glass-panel flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-foreground md:hidden"
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -104,7 +104,7 @@ export function SiteHeader() {
             <span className="font-display text-lg text-foreground">Menu</span>
             <button
               type="button"
-              className="glass-panel flex h-10 w-10 items-center justify-center rounded-full text-foreground"
+              className="glass-panel flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-foreground"
               aria-label="Close menu"
               onClick={() => setMenuOpen(false)}
             >
