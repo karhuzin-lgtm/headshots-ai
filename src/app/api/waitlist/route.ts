@@ -11,7 +11,7 @@ type WaitlistEntry = {
 };
 
 const WAITLIST_PATH = path.join("/tmp", "waitlist.json");
-const INITIAL_REMAINING_SPOTS = 87;
+const INITIAL_REMAINING_SPOTS = 1000;
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
