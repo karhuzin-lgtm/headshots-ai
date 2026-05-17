@@ -1,23 +1,25 @@
 import { fal } from "@fal-ai/client";
 import JSZip from "jszip";
 
-const TRAIN_ENDPOINT = "fal-ai/flux-lora-fast-training" as const;
+const TRAIN_ENDPOINT = "fal-ai/flux-lora-portrait-trainer" as const;
 const GENERATE_ENDPOINT = "fal-ai/flux-lora" as const;
 const TRIGGER_PHRASE = "OHWX person";
+const STYLE_PROMPT_SUFFIX =
+  ", natural skin texture with subtle pores, consistent soft studio lighting, authentic facial expression, sharp eyes with natural light reflections, real photograph quality";
 
 export const STYLE_PROMPTS = {
   corporate:
-    "OHWX person, professional corporate headshot, navy business suit, crisp white shirt, neutral gray seamless background, soft studio lighting with subtle catchlight, confident professional expression, sharp focus, photorealistic",
+    `OHWX person, navy blue suit jacket, white dress shirt, no tie, neutral light gray studio background, professional three-point lighting, confident expression, sharp focus, Canon portrait lens${STYLE_PROMPT_SUFFIX}`,
   tech_casual:
-    "OHWX person, modern tech professional headshot, smart casual attire, blurred contemporary office background, natural window light mixed with studio fill, approachable confident expression, sharp focus, photorealistic",
+    `OHWX person, dark navy crewneck sweater, no jacket, blurred modern office background, soft window light, approachable expression, sharp focus${STYLE_PROMPT_SUFFIX}`,
   executive:
-    "OHWX person, executive portrait photography, dark charcoal suit, white shirt, classic dark studio backdrop, Rembrandt lighting setup, authoritative expression, dramatic depth, photorealistic",
+    `OHWX person, dark charcoal suit jacket, white dress shirt, dark studio backdrop, Rembrandt lighting, authoritative expression${STYLE_PROMPT_SUFFIX}`,
   creative:
-    "OHWX person, creative professional headshot, stylish contemporary outfit, shallow depth of field bokeh background, golden hour mixed with studio lighting, warm color grade, expressive natural smile, photorealistic",
+    `OHWX person, black turtleneck, cream colored background, soft natural light, artistic expression${STYLE_PROMPT_SUFFIX}`,
   startup:
-    "OHWX person, startup founder headshot, business casual attire, clean white or off-white background, bright airy studio lighting, confident relaxed expression, modern editorial style, photorealistic",
+    `OHWX person, grey t-shirt, white background, bright studio light, relaxed confident expression${STYLE_PROMPT_SUFFIX}`,
   linkedin:
-    "OHWX person, professional LinkedIn headshot photo, business formal attire, neutral gray background, soft studio lighting, natural skin tones, sharp focus, photorealistic",
+    `OHWX person, light blue dress shirt, no jacket, neutral grey background, soft studio light, natural smile${STYLE_PROMPT_SUFFIX}`,
 } as const;
 
 export type FreeHeadshotStyle = keyof typeof STYLE_PROMPTS;
@@ -106,12 +108,12 @@ export async function generateHeadshots(
   const generationInput = {
     prompt: STYLE_PROMPTS[style],
     negative_prompt:
-      "cartoon, anime, painting, low quality, blurry, distorted, glitch, artificial colors, oversaturated",
+      "distorted face, enlarged face, waxy skin, porcelain skin, oversaturated, over-smoothed skin, blurred eyes, artificial colors, CGI, 3d render, illustration, cartoon, deformed hands, extra fingers, wrong anatomy",
     loras: [{ path: loraPath, scale: 1 }],
     image_size: "portrait_4_3",
     num_images: 3,
-    num_inference_steps: 28,
-    guidance_scale: 3.5,
+    num_inference_steps: 32,
+    guidance_scale: 3.2,
     output_format: "jpeg",
     enable_safety_checker: true,
   } as any;

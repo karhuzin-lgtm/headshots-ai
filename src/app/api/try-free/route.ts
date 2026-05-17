@@ -11,6 +11,7 @@ import {
   isFreeHeadshotStyle,
   trainLoRA,
 } from "@/lib/fal";
+import { sendHeadshotsStarted } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -111,6 +112,11 @@ export async function POST(request: Request) {
     }
 
     const generation = await createGeneration({ email, inputUrls });
+    try {
+      await sendHeadshotsStarted(email, `/try/result/${generation.id}`);
+    } catch (error) {
+      console.error("headshots-started email failed:", error);
+    }
 
     try {
       await updateGenerationStatus({ id: generation.id, status: "processing" });

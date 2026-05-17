@@ -29,6 +29,7 @@ export async function POST(request: Request) {
   let body: FalWebhookBody;
   try {
     body = (await request.json()) as FalWebhookBody;
+    console.log("[webhook] full body", JSON.stringify(body, null, 2));
   } catch (error) {
     console.error("[webhook] error", error);
     await updateGenerationStatus({

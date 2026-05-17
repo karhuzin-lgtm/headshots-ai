@@ -146,7 +146,7 @@ export function TryFreeClient() {
       </h1>
       <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
         More references means better results. We&apos;ll save your photos securely and create your
-        professional headshots in ~15-20 minutes. No credit card.
+        professional headshots in ~5 minutes. No credit card.
       </p>
 
       <form onSubmit={onSubmit} className="glass-panel mt-10 rounded-3xl p-5 text-left sm:p-7">

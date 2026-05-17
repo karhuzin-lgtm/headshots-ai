@@ -183,7 +183,7 @@ export default function HomePage() {
             </h2>
             <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed tracking-tight text-muted-foreground">
               After launch: $29–$69 one-time. Right now: 1 free headshot, no card needed. Join the
-              waitlist → upload 10+ photos → get your headshots in ~15-20 minutes.
+              waitlist → upload 10+ photos → get your headshots in ~5 minutes.
             </p>
             <WaitlistForm className="mx-auto mt-8 max-w-lg" />
           </ScrollReveal>
