@@ -109,7 +109,7 @@ export async function generateHeadshots(
     prompt: STYLE_PROMPTS[style],
     negative_prompt:
       "distorted face, enlarged face, waxy skin, porcelain skin, oversaturated, over-smoothed skin, blurred eyes, artificial colors, CGI, 3d render, illustration, cartoon, deformed hands, extra fingers, wrong anatomy",
-    loras: [{ path: loraPath, scale: 1 }],
+    loras: [{ path: loraPath, scale: 0.9 }],
     image_size: "portrait_4_3",
     num_images: 3,
     num_inference_steps: 32,

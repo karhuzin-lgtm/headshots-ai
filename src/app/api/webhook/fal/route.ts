@@ -1,3 +1,5 @@
+import { put } from "@vercel/blob";
+
 import {
   generateHeadshots,
   getLoraPathFromTrainingResult,
@@ -15,6 +17,23 @@ type FalWebhookBody = {
   payload?: unknown;
   data?: unknown;
 };
+
+async function persistToBlob(url: string, id: string, index: number): Promise<string> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return url;
+
+    const blob = await res.blob();
+    const { url: blobUrl } = await put(`headshots/${id}/${index}.jpg`, blob, {
+      access: "public",
+      contentType: "image/jpeg",
+    });
+
+    return blobUrl;
+  } catch {
+    return url;
+  }
+}
 
 export async function POST(request: Request) {
   const url = new URL(request.url);
@@ -66,7 +85,10 @@ export async function POST(request: Request) {
 
   try {
     const style = isFreeHeadshotStyle(styleParam) ? styleParam : "linkedin";
-    const outputUrls = await generateHeadshots(loraPath, style);
+    const rawUrls = await generateHeadshots(loraPath, style);
+    const outputUrls = await Promise.all(
+      rawUrls.map((url, i) => persistToBlob(url, generationId, i))
+    );
     console.log("[webhook] outputUrls", outputUrls);
     const generation = await updateGenerationStatus({
       id: generationId,

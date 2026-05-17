@@ -12,7 +12,7 @@ async function compressImage(file: File): Promise<File> {
     const url = URL.createObjectURL(file);
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const maxDim = 800;
+      const maxDim = 1536;
       let w = img.width;
       let h = img.height;
       if (w > maxDim || h > maxDim) {
@@ -33,7 +33,7 @@ async function compressImage(file: File): Promise<File> {
           URL.revokeObjectURL(url);
         },
         "image/jpeg",
-        0.75
+        0.85
       );
     };
     img.src = url;
