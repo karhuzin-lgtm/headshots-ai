@@ -107,8 +107,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
             Creating your headshots
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Status: {status?.status ?? "starting"}. Training usually takes ~5-10 minutes. You can
-            keep this page open while we process your free headshots.
+            Status: {status?.status ?? "starting"}. Training usually takes ~15 minutes.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             You can close this tab. We&apos;ll email you as soon as your headshots are ready.
