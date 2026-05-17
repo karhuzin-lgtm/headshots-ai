@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 
 import "./globals.css";
 
-const playfairDisplay = Playfair_Display({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-display",
   display: "swap",
 });
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -30,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfairDisplay.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${bricolage.variable} ${GeistMono.variable}`}>
       <body className="min-h-dvh font-sans">
         {children}
       </body>

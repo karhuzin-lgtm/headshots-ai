@@ -4,35 +4,37 @@
 
 @layer base {
   :root {
-    --bg: oklch(8% 0.008 260);
-    --bg-2: oklch(11% 0.01 260);
-    --bg-3: oklch(15% 0.012 260);
-    --border: oklch(22% 0.012 260);
-    --text-1: oklch(97% 0.005 260);
-    --text-2: oklch(65% 0.01 260);
-    --text-3: oklch(42% 0.01 260);
-    --accent: oklch(78% 0.18 85);
-    --accent-2: oklch(72% 0.14 85);
-    --background: 260 24% 7%;
-    --foreground: 260 12% 97%;
-    --card: 260 22% 11%;
-    --card-foreground: 260 12% 97%;
-    --primary: 43 96% 62%;
-    --primary-foreground: 260 24% 7%;
-    --secondary: 260 18% 15%;
-    --secondary-foreground: 260 12% 97%;
-    --muted: 260 18% 15%;
-    --muted-foreground: 260 7% 65%;
-    --accent-foreground: 260 24% 7%;
+    --bg: #ffffff;
+    --bg-soft: #f9fafb;
+    --bg-card: #ffffff;
+    --bg-2: var(--bg-soft);
+    --bg-3: #f3f4f6;
+    --border: #e5e7eb;
+    --text-1: #0a0a0a;
+    --text-2: #374151;
+    --text-3: #9ca3af;
+    --accent: #0a0a0a;
+    --accent-2: #111827;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --primary: 0 0% 4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62% 50%;
-    --destructive-foreground: 260 12% 97%;
-    --input: 260 17% 22%;
-    --ring: 43 96% 62%;
+    --destructive-foreground: 0 0% 100%;
+    --input: 220 13% 91%;
+    --ring: 0 0% 4%;
     --radius: 1rem;
     --canvas: var(--bg);
-    --linen: 260 12% 97%;
-    --brass-glow: 43 96% 62%;
-    --glass-highlight: 260 12% 97%;
+    --linen: 0 0% 4%;
+    --brass-glow: 0 0% 4%;
+    --glass-highlight: 0 0% 100%;
   }
 }
 
@@ -45,10 +47,14 @@
   }
   body {
     @apply min-h-dvh font-sans antialiased;
-    background:
-      radial-gradient(circle at 50% 0%, oklch(14% 0.018 260), transparent 36rem),
-      linear-gradient(180deg, var(--bg) 0%, oklch(7% 0.008 260) 100%);
+    background: var(--bg);
     color: hsl(var(--foreground));
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
   }
 
   body::after {
@@ -58,19 +64,19 @@
 
 @layer utilities {
   .text-gradient-display {
-    @apply bg-gradient-to-br from-white via-white to-white/70 bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-[#0a0a0a] via-[#111827] to-[#4b5563] bg-clip-text text-transparent;
   }
 
   .text-gradient-brass {
-    @apply bg-gradient-to-r from-[color:var(--accent)] to-[color:var(--accent-2)] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#0a0a0a] to-[#4b5563] bg-clip-text text-transparent;
   }
 
   .glass-panel {
-    @apply border border-[color:var(--border)] bg-[color:var(--bg-2)] shadow-[0_24px_80px_-48px_rgba(0,0,0,0.9)];
+    @apply border border-[color:var(--border)] bg-white shadow-sm;
   }
 
   .glass-panel-strong {
-    @apply border border-[color:var(--border)] bg-[color:var(--bg-3)] shadow-[0_32px_100px_-56px_rgba(0,0,0,0.95)];
+    @apply border border-[color:var(--border)] bg-white shadow-xl;
   }
 
   .glow-brass-soft {

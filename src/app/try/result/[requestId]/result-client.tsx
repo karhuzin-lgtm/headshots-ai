@@ -157,7 +157,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
                       <a
                         href={imageUrl}
                         download={`headshot-${displayLabel.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`}
-                        className="mt-3 flex items-center justify-center gap-1 rounded-full border border-[color:var(--border)] py-2 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:bg-primary hover:text-black"
+                        className="mt-3 flex items-center justify-center gap-1 rounded-full border border-[color:var(--border)] py-2 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:bg-primary hover:text-white"
                       >
                         ↓ Download
                       </a>

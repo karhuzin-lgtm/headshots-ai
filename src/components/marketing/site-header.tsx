@@ -7,8 +7,8 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MOBILE_LINKS = [
+  { href: "/#how-it-works", label: "How it works" },
   { href: "/#styles", label: "Styles" },
-  { href: "/#process", label: "Process" },
   { href: "/#waitlist", label: "Waitlist" },
   { href: "/#faq", label: "FAQ" },
 ];
@@ -28,17 +28,17 @@ export function SiteHeader() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[color:var(--border)] bg-[color:var(--bg)]/75 backdrop-blur-2xl backdrop-saturate-150">
+    <header className="sticky top-0 z-50 border-b border-[color:var(--border)] bg-white/85 backdrop-blur-2xl backdrop-saturate-150">
       <div className="relative mx-auto flex h-[3.35rem] max-w-[1400px] items-center justify-between gap-3 px-4 md:h-16 md:px-6 lg:px-10">
         <Link
           href="/"
           className="group flex shrink-0 items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em] text-foreground"
         >
-          <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[color:var(--accent)] text-sm font-bold tracking-tight text-black shadow-[0_0_40px_-16px_var(--accent)] transition group-hover:scale-105">
-            <span className="font-display text-[1.05rem] font-normal">H</span>
+          <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#0a0a0a] text-sm font-bold tracking-tight text-white shadow-sm transition group-hover:scale-105">
+            <span className="font-display text-[1.05rem] font-semibold">H</span>
           </span>
           <span className="hidden min-[380px]:inline">
-            <span className="font-display text-[1.08rem] font-normal italic tracking-tight">Headshots</span>
+            <span className="font-display text-[1.08rem] font-semibold tracking-tight">Headshots</span>
           </span>
         </Link>
 
@@ -50,7 +50,7 @@ export function SiteHeader() {
             <Link
               key={href}
               href={href}
-              className="rounded-full px-3.5 py-2 text-sm font-normal tracking-tight text-muted-foreground transition hover:bg-[color:var(--bg-3)] hover:text-foreground"
+              className="rounded-full px-3.5 py-2 text-sm font-normal tracking-tight text-muted-foreground transition hover:bg-gray-100 hover:text-foreground"
             >
               {label}
             </Link>
@@ -60,9 +60,9 @@ export function SiteHeader() {
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2 md:flex-initial md:gap-3">
           <Link
             href="/#waitlist"
-            className="hidden rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-medium tracking-tight text-white transition hover:bg-[color:var(--bg-3)] md:inline-flex"
+            className="hidden rounded-full bg-[#0a0a0a] px-4 py-2 text-sm font-medium tracking-tight text-white transition hover:bg-[#222] md:inline-flex"
           >
-            Try free
+            Join waitlist
           </Link>
           <button
             type="button"
@@ -88,7 +88,7 @@ export function SiteHeader() {
         <button
           type="button"
           className={cn(
-            "absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300",
+            "absolute inset-0 bg-black/20 backdrop-blur-md transition-opacity duration-300",
             menuOpen ? "opacity-100" : "opacity-0"
           )}
           aria-label="Close menu"
@@ -116,7 +116,7 @@ export function SiteHeader() {
               <Link
                 key={href}
                 href={href}
-                className="rounded-xl px-4 py-3.5 text-base font-medium tracking-tight text-muted-foreground transition hover:bg-white/5 hover:text-foreground"
+                className="rounded-xl px-4 py-3.5 text-base font-medium tracking-tight text-muted-foreground transition hover:bg-gray-100 hover:text-foreground"
                 onClick={() => setMenuOpen(false)}
               >
                 {label}

@@ -297,7 +297,7 @@ export function TryFreeClient() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-[color:var(--accent)] px-6 text-base font-semibold text-black transition hover:scale-[1.01] hover:bg-[color:var(--accent-2)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-[#0a0a0a] px-6 text-base font-semibold text-white transition hover:scale-[1.01] hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <>

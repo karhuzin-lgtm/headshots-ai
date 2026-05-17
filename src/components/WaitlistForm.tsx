@@ -1,18 +1,18 @@
 "use client";
 
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useId, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
 type WaitlistFormProps = {
   variant?: "dark" | "light";
   className?: string;
+  showLabel?: boolean;
 };
 
-export function WaitlistForm({ variant = "light", className }: WaitlistFormProps) {
-  const router = useRouter();
+export function WaitlistForm({ variant = "light", className, showLabel = true }: WaitlistFormProps) {
+  const inputId = useId();
   const [email, setEmail] = useState("");
   const [remaining, setRemaining] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -64,9 +64,6 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
 
       if (typeof json.remaining === "number") setRemaining(json.remaining);
       setSuccess(true);
-      window.setTimeout(() => {
-        router.push(`/try?email=${encodeURIComponent(email.trim().toLowerCase())}`);
-      }, 800);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not join the waitlist");
     } finally {
@@ -80,14 +77,14 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
         className={cn(
           "rounded-2xl border px-5 py-4 text-left",
           variant === "dark"
-            ? "border-white/10 bg-white/[0.04] text-white"
+            ? "border-white/15 bg-white/10 text-white"
             : "border-[#e8e8e8] bg-white text-[#111]",
           className
         )}
       >
         <p className="flex items-start gap-3 text-sm font-semibold">
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
-          <span>You&apos;re in! Check your email for next steps.</span>
+          <span>You&apos;re on the list! We&apos;ll email you when you can try it free.</span>
         </p>
       </div>
     );
@@ -95,15 +92,17 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
 
   return (
     <div className={className}>
-      <label
-        htmlFor="waitlist-email"
-        className={cn(
-          "mb-2 block text-sm font-semibold",
-          variant === "dark" ? "text-white" : "text-[#111]"
-        )}
-      >
-        Get my free headshot →
-      </label>
+      {showLabel && (
+        <label
+          htmlFor={inputId}
+          className={cn(
+            "mb-2 block text-sm font-semibold",
+            variant === "dark" ? "text-white" : "text-[#111]"
+          )}
+        >
+          Get early access
+        </label>
+      )}
       {typeof remaining === "number" && (
         <p
           className={cn(
@@ -116,7 +115,7 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
       )}
       <form onSubmit={onSubmit} className="flex w-full flex-col gap-3 sm:flex-row">
         <input
-          id="waitlist-email"
+          id={inputId}
           type="email"
           required
           value={email}
@@ -125,7 +124,7 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
           className={cn(
             "min-h-[52px] w-full min-w-0 flex-1 rounded-xl border px-4 text-[16px] outline-none transition focus:ring-2",
             variant === "dark"
-              ? "border-white/10 bg-white/[0.06] text-white placeholder:text-white/35 focus:border-[color:var(--accent)] focus:ring-[color:var(--accent)]/20"
+              ? "border-white/15 bg-white text-[#111] placeholder:text-[#999] focus:border-white focus:ring-white/20"
               : "border-[#e8e8e8] bg-white text-[#111] placeholder:text-[#999] focus:border-[#111] focus:ring-[#111]/10"
           )}
         />
@@ -135,8 +134,8 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
           className={cn(
             "inline-flex min-h-[52px] w-full items-center justify-center rounded-xl px-4 text-[16px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6",
             variant === "dark"
-              ? "bg-[color:var(--accent)] text-black hover:bg-[color:var(--accent-2)]"
-              : "bg-[#111] text-white hover:bg-[#222]"
+              ? "bg-white text-black hover:bg-white/90"
+              : "bg-[#0a0a0a] text-white hover:bg-[#222]"
           )}
         >
           {loading ? (
@@ -145,7 +144,7 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
               Joining...
             </>
           ) : (
-            "Claim free access"
+            "Get early access"
           )}
         </button>
       </form>

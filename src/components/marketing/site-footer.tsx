@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-[color:var(--border)] bg-[color:var(--bg)]">
+    <footer className="border-t border-[color:var(--border)] bg-white">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-10 px-4 py-14 sm:flex-row sm:items-start sm:justify-between sm:py-16 md:px-6 lg:px-10">
         <div className="max-w-sm">
-          <p className="font-display text-2xl font-normal tracking-tight text-foreground">
+          <p className="font-display text-2xl font-semibold tracking-tight text-foreground">
             Headshots
           </p>
           <p className="mt-4 text-sm leading-relaxed tracking-tight text-muted-foreground">
