@@ -121,6 +121,24 @@ const comparisonRows = [
   ["Location", "Must travel to studio", "From anywhere"],
 ];
 
+const galleryLabels = [
+  "LinkedIn",
+  "Corporate",
+  "Executive",
+  "Tech",
+  "Creative",
+  "Startup",
+  "LinkedIn",
+  "Corporate",
+  "Executive",
+  "Tech",
+  "Creative",
+  "Startup",
+  "LinkedIn",
+  "Corporate",
+  "Executive",
+];
+
 function SectionIntro({
   label,
   title,
@@ -268,6 +286,37 @@ export default function HomePage() {
                 </ScrollReveal>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="bg-white py-24">
+          <div className="mx-auto px-5 lg:px-8">
+            <SectionIntro
+              title="See what's possible"
+              subtitle="Generated from real selfies. 6 professional styles."
+            />
+            <div className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+              {galleryLabels.map((label, index) => (
+                <ScrollReveal
+                  key={`${label}-${index}`}
+                  delay={(index % 5) * 0.025}
+                  className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-gradient-to-b from-gray-100 to-gray-200"
+                >
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.85),transparent_42%)] opacity-80 transition duration-300 group-hover:scale-105" />
+                  <span className="absolute bottom-3 left-3 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur">
+                    {label}
+                  </span>
+                </ScrollReveal>
+              ))}
+            </div>
+            <ScrollReveal className="mt-12 text-center">
+              <Link
+                href="/try"
+                className="inline-flex rounded-full bg-[#0a0a0a] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#222]"
+              >
+                Get yours free
+              </Link>
+            </ScrollReveal>
           </div>
         </section>
 
