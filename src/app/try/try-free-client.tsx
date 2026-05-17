@@ -10,37 +10,37 @@ const STYLE_OPTIONS = [
     id: "corporate",
     name: "Corporate",
     description: "Navy suit, gray studio background",
-    src: "/man-after.jpg?v=20260517-2",
+    src: "/avatars/avatar-05.jpg",
   },
   {
     id: "tech",
     name: "Tech",
     description: "Dark sweater, modern office",
-    src: "/exec-after.jpg",
+    src: "/avatars/avatar-08.jpg",
   },
   {
     id: "executive",
     name: "Executive",
     description: "Charcoal suit, dark backdrop",
-    src: "/exec-after.jpg",
+    src: "/avatars/avatar-19.jpg",
   },
   {
     id: "creative",
     name: "Creative",
     description: "Smart casual blazer, warm background",
-    src: "/woman2-after.jpg",
+    src: "/avatars/avatar-06.jpg",
   },
   {
     id: "startup",
     name: "Startup",
     description: "Plain t-shirt, clean white background",
-    src: "/man-after.jpg?v=20260517-2",
+    src: "/avatars/avatar-14.jpg",
   },
   {
     id: "linkedin",
     name: "LinkedIn",
     description: "Dress shirt, neutral gray",
-    src: "/woman2-after.jpg",
+    src: "/avatars/avatar-07.jpg",
   },
 ] as const;
 
@@ -201,26 +201,26 @@ export function TryFreeClient() {
                   key={style.id}
                   type="button"
                   onClick={() => setSelectedStyle(style.id)}
-                  className={`group overflow-hidden rounded-3xl border text-left transition duration-300 ${
+                  className={`group overflow-hidden rounded-2xl border text-left transition-all duration-300 ${
                     isSelected
-                      ? "scale-[1.02] border-primary bg-primary/10 ring-2 ring-primary"
+                      ? "scale-[1.02] border-primary bg-primary/10 ring-2 ring-white"
                       : "border-[color:var(--border)] bg-[color:var(--bg-3)] hover:scale-[1.02] hover:border-primary/50"
                   } cursor-pointer`}
                   aria-pressed={isSelected}
                 >
-                  <span className="relative block aspect-[4/5] overflow-hidden">
+                  <span className="relative block aspect-[3/4] overflow-hidden rounded-t-2xl">
                     <NextImage
                       src={style.src}
                       alt={`${style.name} headshot style`}
                       width={480}
                       height={600}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
                       sizes="(max-width: 1024px) 50vw, 260px"
                     />
                     <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 to-transparent" />
                   </span>
                   <span className="flex items-center justify-between gap-3 p-4 pb-0">
-                    <span className="font-display text-2xl text-foreground">{style.name}</span>
+                    <span className="text-base font-semibold text-foreground">{style.name}</span>
                     <span
                       className={`h-3 w-3 rounded-full border ${
                         isSelected ? "border-primary bg-primary" : "border-white/25"

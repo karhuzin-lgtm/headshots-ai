@@ -3,10 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { GalleryMasonry } from "@/components/marketing/gallery-masonry";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { SocialProofAvatars } from "@/components/marketing/social-proof-avatars";
-import { StyleGallery } from "@/components/marketing/style-gallery";
+import { StylesSection } from "@/components/marketing/styles-section";
 import { TiltCard } from "@/components/marketing/tilt-card";
 
 const steps = [
@@ -150,7 +151,7 @@ export default function HomePage() {
 
       <main>
         <LandingHero />
-        <StyleGallery />
+        <StylesSection />
 
         <section className="relative overflow-hidden bg-[linear-gradient(180deg,#0a0a1a,#0f0f2e)] py-24">
           <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-teal-400/15 blur-3xl" />
@@ -196,6 +197,8 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        <GalleryMasonry />
 
         <section className="border-y border-white/10 bg-[#0f0f2e] py-12">
           <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center md:grid-cols-3 md:divide-x md:divide-white/10 lg:px-8">
