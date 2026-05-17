@@ -7,11 +7,11 @@ import {
   updateGenerationStatus,
 } from "@/lib/generations-db";
 import {
-  STYLE_PROMPTS,
+  HEADSHOT_STYLES,
   type HeadshotStyle,
-  generateHeadshotsWithPulid,
-  uploadReferencePhotos,
-} from "@/lib/fal";
+  createAstrinaTune,
+  generateAstriaHeadshots,
+} from "@/lib/astria";
 import { sendHeadshotsReady, sendHeadshotsStarted } from "@/lib/email";
 
 export const runtime = "nodejs";
@@ -127,9 +127,11 @@ export async function POST(request: Request) {
 
     try {
       await updateGenerationStatus({ id: generation.id, status: "processing" });
-      const referenceUrls = await uploadReferencePhotos(files.slice(0, 4));
-      const styles = Object.keys(STYLE_PROMPTS) as HeadshotStyle[];
-      const tasks = styles.map((style) => generateHeadshotsWithPulid(referenceUrls, style));
+      const tuneId = await createAstrinaTune(inputUrls);
+      const styles = Object.keys(HEADSHOT_STYLES) as HeadshotStyle[];
+      const tasks = styles.map((style) =>
+        generateAstriaHeadshots(tuneId, style, HEADSHOT_STYLES[style])
+      );
       const settled = await Promise.allSettled(tasks);
       const rawUrls = settled
         .filter((result): result is PromiseFulfilledResult<string[]> => result.status === "fulfilled")
@@ -139,7 +141,7 @@ export async function POST(request: Request) {
         const errors = settled
           .filter((result): result is PromiseRejectedResult => result.status === "rejected")
           .map((result) => (result.reason instanceof Error ? result.reason.message : String(result.reason)));
-        throw new Error(errors[0] ?? "fal.ai returned no generated images.");
+        throw new Error(errors[0] ?? "Astria returned no generated images.");
       }
 
       const outputUrls = await Promise.all(
@@ -161,13 +163,13 @@ export async function POST(request: Request) {
         console.error("headshots-ready email failed:", error);
       }
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Unknown fal generation error";
+      const message = e instanceof Error ? e.message : "Unknown Astria generation error";
       await updateGenerationStatus({
         id: generation.id,
         status: "failed",
         errorMessage: message,
       });
-      return NextResponse.json({ error: `fal generation failed: ${message}` }, { status: 500 });
+      return NextResponse.json({ error: `Astria generation failed: ${message}` }, { status: 500 });
     }
 
     return NextResponse.json({ id: generation.id });
