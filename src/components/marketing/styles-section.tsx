@@ -49,7 +49,7 @@ export function StylesSection() {
             href="/#waitlist"
             className="inline-flex rounded-full bg-[#111827] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
           >
-            Start free — no card needed →
+            Get early access →
           </Link>
         </div>
       </div>

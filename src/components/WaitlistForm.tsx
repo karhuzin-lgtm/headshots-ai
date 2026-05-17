@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { FormEvent, useEffect, useId, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -14,31 +14,9 @@ type WaitlistFormProps = {
 export function WaitlistForm({ variant = "light", className, showLabel = true }: WaitlistFormProps) {
   const inputId = useId();
   const [email, setEmail] = useState("");
-  const [remaining, setRemaining] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadCount() {
-      try {
-        const res = await fetch("/api/waitlist", { cache: "no-store" });
-        const json = (await res.json()) as { remaining?: number };
-        if (!cancelled && typeof json.remaining === "number") {
-          setRemaining(json.remaining);
-        }
-      } catch {
-        // Count is nice-to-have; form still works without it.
-      }
-    }
-
-    void loadCount();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,14 +33,12 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
         success?: boolean;
         message?: string;
         count?: number;
-        remaining?: number;
       };
 
       if (!res.ok || !json.success) {
         throw new Error(json.message ?? "Could not join the waitlist");
       }
 
-      if (typeof json.remaining === "number") setRemaining(json.remaining);
       setSuccess(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not join the waitlist");
@@ -103,16 +79,6 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           Join the waitlist
         </label>
       )}
-      {typeof remaining === "number" && (
-        <p
-          className={cn(
-            "mb-3 text-sm",
-            variant === "dark" ? "text-white/55" : "text-[#666]"
-          )}
-        >
-          {remaining} of 100 spots remaining
-        </p>
-      )}
       <form onSubmit={onSubmit} className="flex w-full flex-col gap-3 sm:flex-row">
         <input
           id={inputId}
@@ -149,7 +115,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
         </button>
       </form>
       <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/45" : "text-[#666]")}>
-        Join 1,200+ professionals on the waitlist
+        Founding members get 40% off at launch. Join 1,200+ already on the list.
       </p>
       {error && (
         <p className={cn("mt-3 text-sm", variant === "dark" ? "text-red-200" : "text-red-600")}>

@@ -50,7 +50,7 @@ const faqItems = [
   },
   {
     q: "What if I don't like the results?",
-    a: "During the early access period, we offer free regeneration if you are not satisfied. Just reach out.",
+    a: "During early access, reach out to us directly and we'll make it right.",
   },
 ];
 
@@ -74,7 +74,7 @@ const features = [
   {
     icon: Wand2,
     title: "Multiple looks from one session",
-    body: "Get 3 variations per style, across up to 6 styles. Mix and match for LinkedIn, your website, speaking bios, and press materials.",
+    body: "Choose from 6 professional styles. Multiple variations per style — LinkedIn, website, speaking bios, and press materials.",
   },
   {
     icon: Lock,
@@ -84,7 +84,7 @@ const features = [
 ];
 
 const comparisonRows = [
-  ["Cost", "$200-$500", "Free (early access)"],
+  ["Cost", "$200-$500", "Founding member launch discount"],
   ["Time to results", "1-2 weeks", "~10 minutes"],
   ["Scheduling required", "Yes", "No"],
   ["Multiple styles", "Usually 1 look", "6 professional styles"],
@@ -324,10 +324,10 @@ export default function HomePage() {
               Your professional headshot is one upload away.
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-white/60">
-              Join early access, then upload 8-20 selfies. We&apos;ll generate your first AI headshots free - no credit card needed.
+              Join early access. We&apos;ll email you as soon as your spot opens.
             </p>
             <WaitlistForm variant="dark" showLabel={false} className="mx-auto mt-9 max-w-[480px]" />
-            <p className="mt-4 text-sm text-white/40">After joining, we&apos;ll open the upload page automatically. No spam.</p>
+            <p className="mt-4 text-sm text-white/40">Founding members who join now get 40% off when we launch.</p>
           </ScrollReveal>
         </section>
       </main>
@@ -347,7 +347,7 @@ export default function HomePage() {
             </a>
           </div>
         </div>
-        <p className="mx-auto mt-8 max-w-7xl text-xs text-gray-400">© 2025 Aleksei Media. All rights reserved.</p>
+        <p className="mx-auto mt-8 max-w-7xl text-xs text-gray-400">© 2026 Aleksei Media. All rights reserved.</p>
       </footer>
     </div>
   );

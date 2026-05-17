@@ -73,7 +73,7 @@ export function LandingHero() {
           >
             <WaitlistForm showLabel={false} />
             <p className="mt-5 text-sm text-gray-400">
-              Join waitlist → upload 8-20 photos → get your headshots free
+              Join the waitlist → get early access → headshots in 15 minutes
             </p>
           </motion.div>
         </div>
