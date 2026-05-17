@@ -3,17 +3,17 @@ const BASE = "https://api.astria.ai";
 
 export const HEADSHOT_STYLES = {
   corporate:
-    "ohwx man, navy blue suit jacket, white dress shirt, neutral light gray studio background, professional three-point lighting, confident expression, sharp focus on face, natural skin texture, shoulders-up portrait headshot, 85mm portrait photography",
+    "sks man, navy blue suit jacket, white dress shirt, neutral light gray studio background, professional three-point lighting, confident expression, sharp focus on face, natural skin texture, shoulders-up portrait headshot, 85mm portrait photography",
   tech:
-    "ohwx man, dark navy crewneck, open collar, blurred modern office background, soft window light, approachable expression, shoulders-up portrait headshot, professional photography",
+    "sks man, dark navy crewneck, open collar, blurred modern office background, soft window light, approachable expression, shoulders-up portrait headshot, professional photography",
   executive:
-    "ohwx man, dark charcoal suit jacket, white dress shirt, dark studio backdrop, Rembrandt lighting, authoritative expression, shoulders-up portrait headshot, professional photography",
+    "sks man, dark charcoal suit jacket, white dress shirt, dark studio backdrop, Rembrandt lighting, authoritative expression, shoulders-up portrait headshot, professional photography",
   creative:
-    "ohwx man, smart casual blazer over white t-shirt, light warm background, soft natural light, relaxed creative expression, shoulders-up portrait headshot, professional photography",
+    "sks man, smart casual blazer over white t-shirt, light warm background, soft natural light, relaxed creative expression, shoulders-up portrait headshot, professional photography",
   startup:
-    "ohwx man, plain grey t-shirt, clean white background, bright studio light, relaxed confident expression, shoulders-up portrait headshot, professional photography",
+    "sks man, plain grey t-shirt, clean white background, bright studio light, relaxed confident expression, shoulders-up portrait headshot, professional photography",
   linkedin:
-    "ohwx man, light blue dress shirt, no jacket, neutral grey background, soft studio light, natural smile, shoulders-up portrait headshot, professional photography",
+    "sks man, light blue dress shirt, no jacket, neutral grey background, soft studio light, natural smile, shoulders-up portrait headshot, professional photography",
 } as const;
 
 export type HeadshotStyle = keyof typeof HEADSHOT_STYLES;
@@ -44,34 +44,37 @@ export async function createAstrinaTune(
   imageUrls: string[],
   callbackUrl: string
 ): Promise<string> {
-  const body = new URLSearchParams();
-  body.append("tune[title]", "headshot-user");
-  body.append("tune[name]", "man");
-  body.append("tune[base_tune_id]", "1504944");
-  body.append("tune[preset]", "flux-lora-portrait");
-  body.append("tune[face_detection]", "true");
-  body.append("tune[steps]", "1000");
-  imageUrls.forEach((url) => body.append("tune[image_urls][]", url));
-  Object.entries(HEADSHOT_STYLES).forEach(([, prompt], index) => {
-    const prefix = `tune[prompts_attributes][${index}]`;
-    body.append(`${prefix}[text]`, prompt);
-    body.append(
-      `${prefix}[negative_prompt]`,
-      "beard, facial hair, distorted face, enlarged face, waxy skin, CGI, full body"
-    );
-    body.append(`${prefix}[num_images]`, "3");
-    body.append(`${prefix}[w]`, "768");
-    body.append(`${prefix}[h]`, "1024");
-    body.append(`${prefix}[super_resolution]`, "true");
-    body.append(`${prefix}[face_correct]`, "true");
-    body.append(`${prefix}[steps]`, "30");
-  });
-  body.append("tune[callback]", callbackUrl);
+  const body = {
+    tune: {
+      title: "headshot-user",
+      name: "man",
+      base_tune_id: 1504944,
+      model_type: "lora",
+      token: "sks",
+      preset: "flux-lora-portrait",
+      face_detection: true,
+      steps: 1000,
+      image_urls: imageUrls,
+      callback: callbackUrl,
+      prompts_attributes: Object.values(HEADSHOT_STYLES).map((prompt) => ({
+        text: prompt,
+        num_images: 3,
+        w: 768,
+        h: 1024,
+        super_resolution: true,
+        face_correct: true,
+        steps: 30,
+      })),
+    },
+  };
 
   const res = await fetch(`${BASE}/tunes`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${getAstriaApiKey()}` },
-    body,
+    headers: {
+      Authorization: `Bearer ${getAstriaApiKey()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
   const data = await parseAstriaResponse(res);
 
