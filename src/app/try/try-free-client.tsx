@@ -1,13 +1,13 @@
 "use client";
 
-import { Loader2, Upload } from "lucide-react";
+import { CheckCircle2, Loader2, Upload } from "lucide-react";
 import NextImage from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 
 import { DISPLAY_STYLES } from "@/lib/display-styles";
 
 const STYLE_OPTIONS = DISPLAY_STYLES;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
@@ -44,25 +44,21 @@ async function compressImage(file: File): Promise<File> {
 }
 
 export function TryFreeClient() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const email = useMemo(() => searchParams.get("email")?.trim().toLowerCase() ?? "", [searchParams]);
-  const initialStyle = useMemo(() => {
-    const style = searchParams.get("style")?.trim().toLowerCase() ?? "";
-    return STYLE_OPTIONS.some((option) => option.key === style) ? style : "";
-  }, [searchParams]);
+  const [email, setEmail] = useState("");
   const [files, setFiles] = useState<File[]>([]);
-  const [selectedStyle, setSelectedStyle] = useState<string>(initialStyle);
+  const [selectedStyle, setSelectedStyle] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
-    if (!email) {
-      setError("Missing email. Join from the homepage first.");
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!EMAIL_RE.test(normalizedEmail)) {
+      setError("Enter a valid email address.");
       return;
     }
 
@@ -79,7 +75,7 @@ export function TryFreeClient() {
     setLoading(true);
     try {
       const form = new FormData();
-      form.set("email", email);
+      form.set("email", normalizedEmail);
       form.set("style", selectedStyle);
       const compressed = await Promise.all(files.map(compressImage));
       compressed.forEach((file) => form.append("photos", file));
@@ -98,59 +94,46 @@ export function TryFreeClient() {
       if (!res.ok || !json.id) {
         throw new Error(json.error || text || "Could not start generation.");
       }
-      router.push(`/try/result/${json.id}`);
+      setEmail(normalizedEmail);
+      setSuccess(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start generation.");
+    } finally {
       setLoading(false);
     }
   }
 
-  return (
-    <div className="mx-auto flex min-h-[70vh] w-full max-w-4xl flex-col justify-center px-4 py-16 text-center">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-        Early tester access
-      </p>
-      <h1 className="font-display mt-5 text-3xl font-normal tracking-[-0.02em] text-gradient-display sm:text-4xl">
-        Upload 8-20 selfies for best results
-      </h1>
-      <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-        We&apos;ll save your photos securely and create your
-        professional headshots in ~15 minutes. No credit card.
-      </p>
+  if (success) {
+    return (
+      <div className="mx-auto w-full max-w-3xl px-5 py-16 text-center sm:px-6">
+        <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-500" />
+        <h2 className="text-2xl font-semibold text-gray-900">You&apos;re all set!</h2>
+        <p className="mx-auto mt-3 max-w-xl text-gray-500">
+          Your AI model is training now. We&apos;ll email you at {email} as soon as your headshots are ready (~15 minutes).
+        </p>
+        <p className="mt-6 text-sm text-gray-400">You can close this tab.</p>
+      </div>
+    );
+  }
 
-      <form onSubmit={onSubmit} className="mt-10 rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] p-5 text-left shadow-[0_32px_100px_-56px_rgba(0,0,0,0.95)] sm:p-7">
+  return (
+    <div className="mx-auto w-full max-w-4xl px-4 pb-16 text-center sm:px-5">
+      <form onSubmit={onSubmit} className="rounded-3xl border border-[color:var(--border)] bg-white p-5 text-left shadow-sm sm:p-7">
         <div>
-          <p className="text-sm font-semibold text-foreground">
-            Tips for best results
-          </p>
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-            {[
-              { icon: "✓", text: "Good lighting — face clearly visible, not backlit" },
-              { icon: "✓", text: "Different angles: front, slight left, slight right" },
-              { icon: "✓", text: "Different expressions: smile, neutral, serious" },
-              { icon: "✓", text: "2-3 different outfits across your photos" },
-              { icon: "✓", text: "Photos from the last 6 months — recent look only" },
-              { icon: "✗", text: "No sunglasses, hats, or face coverings" },
-              { icon: "✗", text: "No group photos — only you in the frame" },
-              { icon: "✗", text: "No heavy filters or beauty mode" },
-              { icon: "✗", text: "No photos when you look visibly tired, sick, or swollen" },
-            ].map(({ icon, text }) => (
-              <li key={text} className="flex items-start gap-2 text-xs text-muted-foreground">
-                <span
-                  className={
-                    icon === "✓"
-                      ? "mt-0.5 font-bold text-green-400"
-                      : "mt-0.5 font-bold text-red-400"
-                  }
-                >
-                  {icon}
-                </span>
-                {text}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Better photos = more realistic AI headshots. The model learns from what you upload.
+          <label htmlFor="try-email" className="block text-sm font-semibold text-foreground">
+            Email address
+          </label>
+          <input
+            id="try-email"
+            type="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="Enter your email"
+            className="mt-3 min-h-[52px] w-full rounded-xl border border-[#e8e8e8] bg-white px-4 text-[16px] text-[#111] outline-none transition placeholder:text-[#999] focus:border-[#111] focus:ring-2 focus:ring-[#111]/10"
+          />
+          <p className="mt-2 text-xs text-muted-foreground">
+            We&apos;ll use this email to send your results when they&apos;re ready.
           </p>
         </div>
 
@@ -210,6 +193,41 @@ export function TryFreeClient() {
               );
             })}
           </div>
+        </div>
+
+        <div className="mt-7">
+          <p className="text-sm font-semibold text-foreground">
+            Tips for best results
+          </p>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+            {[
+              { icon: "✓", text: "Good lighting — face clearly visible, not backlit" },
+              { icon: "✓", text: "Different angles: front, slight left, slight right" },
+              { icon: "✓", text: "Different expressions: smile, neutral, serious" },
+              { icon: "✓", text: "2-3 different outfits across your photos" },
+              { icon: "✓", text: "Photos from the last 6 months — recent look only" },
+              { icon: "✗", text: "No sunglasses, hats, or face coverings" },
+              { icon: "✗", text: "No group photos — only you in the frame" },
+              { icon: "✗", text: "No heavy filters or beauty mode" },
+              { icon: "✗", text: "No photos when you look visibly tired, sick, or swollen" },
+            ].map(({ icon, text }) => (
+              <li key={text} className="flex items-start gap-2 text-xs text-muted-foreground">
+                <span
+                  className={
+                    icon === "✓"
+                      ? "mt-0.5 font-bold text-green-500"
+                      : "mt-0.5 font-bold text-red-500"
+                  }
+                >
+                  {icon}
+                </span>
+                {text}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Better photos = more realistic AI headshots. The model learns from what you upload.
+          </p>
         </div>
 
         <label className="mt-7 block text-sm font-semibold text-foreground">
