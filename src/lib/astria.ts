@@ -57,7 +57,7 @@ export async function createAstrinaTune(
       token: "sks",
       preset: "flux-lora-portrait",
       face_detection: true,
-      steps: 1000,
+      steps: 500,
       image_urls: imageUrls,
       callback: callbackUrl,
       prompts_attributes: [{
