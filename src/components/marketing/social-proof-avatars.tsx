@@ -19,13 +19,13 @@ const avatarSources = [
 
 export function SocialProofAvatars() {
   return (
-    <section className="relative overflow-hidden bg-[#0a0a0a] py-20 text-center text-white">
+    <section className="relative overflow-hidden bg-white py-20 text-center text-[#111827]">
       <div className="relative mx-auto max-w-6xl px-5 lg:px-8">
         <ScrollReveal className="mx-auto max-w-3xl">
-          <h2 className="text-4xl font-extrabold tracking-[-0.04em] sm:text-5xl">
+          <h2 className="text-4xl font-normal tracking-tight sm:text-5xl">
             Join professionals already on the waitlist
           </h2>
-          <p className="mt-4 text-lg font-light text-white/60">
+          <p className="mt-4 text-base font-light leading-relaxed text-gray-500">
             Be among the first to get AI headshots that actually look like you.
           </p>
         </ScrollReveal>
@@ -36,7 +36,7 @@ export function SocialProofAvatars() {
               {avatarSources.slice(row * 4, row * 4 + 4).map((src, index) => (
                 <div
                   key={src}
-                  className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-white/70 bg-white/10 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)] ${
+                  className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-white bg-gray-100 shadow-md ${
                     index === 0 ? "" : "-ml-4"
                   }`}
                 >
@@ -55,13 +55,13 @@ export function SocialProofAvatars() {
         </ScrollReveal>
 
         <ScrollReveal className="mt-8" delay={0.08}>
-        <p className="font-display text-5xl font-extrabold tracking-[-0.05em]">
-          <span className="text-[#c9a96e]">
+        <p className="font-display text-4xl font-normal tracking-tight text-[#111827]">
+          <span>
             1,200+
           </span>
         </p>
-        <p className="mt-2 text-sm font-light text-white/55">
-          professionals waiting to upload 8-20 selfies and get early access
+        <p className="mt-2 text-sm font-light text-gray-500">
+          professionals on the waitlist
         </p>
         </ScrollReveal>
       </div>

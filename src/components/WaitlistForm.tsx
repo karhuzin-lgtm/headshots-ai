@@ -139,7 +139,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           className={cn(
             "inline-flex min-h-[52px] w-full items-center justify-center rounded-xl px-4 text-[16px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6",
             variant === "dark"
-              ? "bg-white text-black hover:bg-white/90"
+              ? "border border-white/15 bg-black text-white hover:bg-gray-900"
               : "bg-[#0a0a0a] text-white hover:bg-[#222]"
           )}
         >

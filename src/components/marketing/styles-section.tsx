@@ -42,26 +42,26 @@ const styles = [
 
 export function StylesSection() {
   return (
-    <section id="styles" className="relative overflow-hidden bg-[#0a0a0a] py-24 text-white">
+    <section id="styles" className="relative overflow-hidden bg-[#f9fafb] py-20 text-[#111827] sm:py-28">
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a96e]">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">
             6 Styles
           </p>
-          <h2 className="mt-4 text-5xl font-extrabold tracking-[-0.05em] sm:text-6xl">
-            Pick yours.
+          <h2 className="mt-4 text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
+            6 styles. Pick yours.
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-lg font-light leading-relaxed text-white/60">
+          <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-gray-500">
             Every style trained on your face. Looks like you, not AI.
           </p>
         </div>
 
-        <div className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-5 lg:grid-cols-3">
           {styles.map((style) => (
             <Link
               key={style.id}
               href={`/try?style=${style.id}`}
-              className="group relative aspect-[3/4] overflow-hidden rounded-3xl bg-white/[0.04] ring-1 ring-white/[0.07] transition duration-300 hover:scale-[1.03]"
+              className="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
               aria-label={`Start with ${style.name} style`}
             >
               <Image
@@ -69,12 +69,13 @@ export function StylesSection() {
                 alt={`${style.name} headshot style`}
                 width={720}
                 height={960}
-                className="h-full w-full object-cover object-top transition duration-300 group-hover:brightness-105"
+                className="aspect-[3/4] w-full object-cover object-top"
                 sizes="(max-width: 1024px) 50vw, 33vw"
               />
-              <span className="absolute bottom-4 left-4 rounded-full bg-black/70 px-3 py-1 text-sm font-medium text-white backdrop-blur">
-                {style.name}
-              </span>
+              <div className="p-4">
+                <h3 className="text-sm font-semibold text-gray-900">{style.name}</h3>
+                <p className="mt-1 text-xs text-gray-500">{style.tagline}</p>
+              </div>
             </Link>
           ))}
         </div>
@@ -82,7 +83,7 @@ export function StylesSection() {
         <div className="mt-12 text-center">
           <Link
             href="/try"
-            className="inline-flex rounded-full bg-[#c9a96e] px-7 py-3 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-[#d7bb83]"
+            className="inline-flex rounded-full bg-[#111827] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
           >
             Start free — no card needed →
           </Link>

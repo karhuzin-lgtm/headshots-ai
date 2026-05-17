@@ -104,15 +104,15 @@ function SectionIntro({
   return (
     <ScrollReveal className="mx-auto max-w-3xl text-center">
       {label && (
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a96e]/70">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">
           {label}
         </p>
       )}
-      <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.04em] text-white sm:text-5xl">
+      <h2 className="mt-4 text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
         {title}
       </h2>
       {subtitle && (
-        <p className="mx-auto mt-5 max-w-2xl text-lg font-light leading-relaxed text-white/60">
+        <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-gray-500">
           {subtitle}
         </p>
       )}
@@ -122,26 +122,26 @@ function SectionIntro({
 
 export default function HomePage() {
   return (
-    <div className="min-h-dvh bg-[#0a0a0a] text-white">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-2xl">
+    <div className="min-h-dvh bg-white text-[#111827]">
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/85 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link href="/" className="font-display text-xl font-semibold tracking-[-0.03em]">
             Headshots
           </Link>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-white/60 md:flex">
-            <Link href="#how-it-works" className="transition hover:text-white">
+          <nav className="hidden items-center gap-8 text-sm font-medium text-gray-600 md:flex">
+            <Link href="#how-it-works" className="transition hover:text-gray-900">
               How it works
             </Link>
-            <Link href="#styles" className="transition hover:text-white">
+            <Link href="#styles" className="transition hover:text-gray-900">
               Styles
             </Link>
-            <Link href="#faq" className="transition hover:text-white">
+            <Link href="#faq" className="transition hover:text-gray-900">
               FAQ
             </Link>
           </nav>
           <Link
             href="#waitlist"
-            className="rounded-full bg-[#c9a96e] px-5 py-2.5 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-[#d7bb83]"
+            className="rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-gray-900"
           >
             Join waitlist
           </Link>
@@ -152,61 +152,42 @@ export default function HomePage() {
         <LandingHero />
         <StylesSection />
 
-        <section className="relative overflow-hidden bg-[#0a0a0a] py-24">
+        <section className="relative overflow-hidden bg-[#f9fafb] py-20 sm:py-28">
           <div className="relative mx-auto max-w-6xl px-5 text-center lg:px-8">
             <SectionIntro
-              title="See what's possible"
-              subtitle="Your casual selfie becomes a polished professional portrait with color, depth, and studio-grade light."
+              title="See what’s possible"
+              subtitle="Clean, professional portraits generated from everyday selfies."
             />
-            <div className="mt-14 flex flex-col items-center justify-center gap-8 sm:flex-row">
-              <div className="relative w-[240px] overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.04]">
-                <Image
-                  src="/man-before.jpg?v=20260517-2"
-                  alt="Before casual selfie"
-                  width={520}
-                  height={690}
-                  className="aspect-[3/4] w-full object-cover opacity-80 grayscale"
-                />
-                <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-600">
-                  Before
-                </span>
-              </div>
-              <div className="font-display text-5xl font-extrabold text-[#c9a96e]">
-                →
-              </div>
-              <div className="relative w-[270px] overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.04] shadow-[0_24px_70px_-50px_rgba(201,169,110,0.55)]">
-                <Image
-                  src="/man-after.jpg?v=20260517-2"
-                  alt="After AI generated headshot"
-                  width={540}
-                  height={720}
-                  className="aspect-[3/4] w-full object-cover"
-                />
-                <span className="absolute left-4 top-4 rounded-full bg-[#c9a96e] px-3 py-1 text-xs font-bold text-black shadow-[0_0_32px_-8px_rgba(201,169,110,0.8)]">
-                  After - AI
-                </span>
-                <span className="absolute right-4 top-16 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-                  +AI
-                </span>
-              </div>
+            <div className="mx-auto mt-14 grid max-w-4xl gap-5 sm:grid-cols-3">
+              {["/avatars/avatar-07.jpg", "/avatars/avatar-10.jpg", "/avatars/avatar-19.jpg"].map((src) => (
+                <div key={src} className="overflow-hidden rounded-3xl bg-white shadow-lg shadow-black/10">
+                  <Image
+                    src={src}
+                    alt="AI generated professional headshot"
+                    width={540}
+                    height={720}
+                    className="aspect-[3/4] w-full object-cover object-top"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         <GalleryMasonry />
 
-        <section className="border-y border-white/10 bg-[#111111] py-12">
-          <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center md:grid-cols-3 md:divide-x md:divide-white/10 lg:px-8">
+        <section className="border-y border-gray-100 bg-[#f9fafb] py-12">
+          <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center md:grid-cols-3 md:divide-x md:divide-gray-200 lg:px-8">
             {stats.map(([value, label], index) => (
               <ScrollReveal key={value} delay={index * 0.04} className="px-6">
-                <p className="font-display text-3xl font-bold tracking-[-0.03em] text-white">{value}</p>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{label}</p>
+                <p className="font-display text-3xl font-normal tracking-tight text-[#111827]">{value}</p>
+                <p className="mt-2 text-sm leading-relaxed text-gray-500">{label}</p>
               </ScrollReveal>
             ))}
           </div>
         </section>
 
-        <section id="how-it-works" className="scroll-mt-24 bg-[#0a0a0a] py-24">
+        <section id="how-it-works" className="scroll-mt-24 bg-white py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-5 lg:px-8">
             <SectionIntro label="The process" title="Three steps to studio-quality portraits" />
             <div className="mt-16 grid gap-8 md:grid-cols-3">
@@ -214,13 +195,13 @@ export default function HomePage() {
                 <ScrollReveal
                   key={step.title}
                   delay={index * 0.06}
-                  className="glass-card rounded-[2rem] p-6 transition hover:-translate-y-1"
+                  className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
                 >
-                  <p className="font-display text-[80px] font-extrabold leading-none tracking-[-0.06em] text-[#c9a96e]">
+                  <p className="font-display text-[80px] font-normal leading-none tracking-tight text-gray-200">
                     {step.n}
                   </p>
-                  <h3 className="mt-4 text-2xl font-bold tracking-[-0.03em] text-white">{step.title}</h3>
-                  <p className="mt-4 text-[15px] font-light leading-7 text-white/58">{step.body}</p>
+                  <h3 className="mt-4 text-2xl font-normal tracking-tight text-[#111827]">{step.title}</h3>
+                  <p className="mt-4 text-[15px] font-light leading-7 text-gray-500">{step.body}</p>
                 </ScrollReveal>
               ))}
             </div>
@@ -229,11 +210,11 @@ export default function HomePage() {
 
         <SocialProofAvatars />
 
-        <section className="relative overflow-hidden bg-[#111111] py-24">
+        <section className="relative overflow-hidden bg-white py-20 sm:py-28">
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1fr_0.85fr] lg:px-8">
             <div>
               <ScrollReveal>
-                <h2 className="text-4xl font-extrabold tracking-[-0.04em] text-white sm:text-5xl">
+                <h2 className="text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
                   Why professionals choose AI headshots
                 </h2>
               </ScrollReveal>
@@ -242,21 +223,21 @@ export default function HomePage() {
                   const Icon = feature.icon;
                   return (
                     <ScrollReveal key={feature.title} delay={index * 0.04} className="flex gap-5">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-[#c9a96e]">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#f5f0e8] text-[#111827]">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-semibold tracking-[-0.025em] text-white">{feature.title}</h3>
-                        <p className="mt-2 text-sm font-light leading-7 text-white/58">{feature.body}</p>
+                        <h3 className="text-xl font-normal tracking-tight text-[#111827]">{feature.title}</h3>
+                        <p className="mt-2 text-sm font-light leading-7 text-gray-500">{feature.body}</p>
                       </div>
                     </ScrollReveal>
                   );
                 })}
               </div>
             </div>
-            <ScrollReveal className="glass-card mx-auto w-full max-w-[400px] overflow-hidden rounded-3xl">
+            <ScrollReveal className="mx-auto w-full max-w-[400px] overflow-hidden rounded-3xl bg-white shadow-xl shadow-black/10">
               <Image
-                src="/exec-after.jpg"
+                src="/avatars/avatar-19.jpg"
                 alt="Professional AI headshot example"
                 width={800}
                 height={1066}
@@ -266,25 +247,25 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[#0a0a0a] py-24">
+        <section className="bg-[#f9fafb] py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-5 lg:px-8">
             <SectionIntro title="AI headshots vs. traditional photography" />
-            <ScrollReveal className="glass-card mt-12 overflow-hidden rounded-3xl">
+            <ScrollReveal className="mt-12 overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.03]">
-                      <th className="px-6 py-5 font-semibold text-white/45">Feature</th>
-                      <th className="px-6 py-5 font-semibold text-white/45">Traditional photographer</th>
-                      <th className="px-6 py-5 font-semibold text-white">AI headshots</th>
+                    <tr className="border-b border-gray-100 bg-white">
+                      <th className="px-6 py-5 font-semibold text-gray-400">Feature</th>
+                      <th className="px-6 py-5 font-semibold text-gray-400">Traditional photographer</th>
+                      <th className="px-6 py-5 font-semibold text-[#111827]">AI headshots</th>
                     </tr>
                   </thead>
                   <tbody>
                     {comparisonRows.map(([feature, traditional, ai], index) => (
-                      <tr key={feature} className={index % 2 === 0 ? "bg-white/[0.03]" : "bg-transparent"}>
-                        <td className="px-6 py-5 font-medium text-white">{feature}</td>
-                        <td className="px-6 py-5 text-white/55">{traditional}</td>
-                        <td className="px-6 py-5 font-medium text-[#c9a96e]">
+                      <tr key={feature} className={index % 2 === 0 ? "bg-gray-50/70" : "bg-white"}>
+                        <td className="px-6 py-5 font-medium text-[#111827]">{feature}</td>
+                        <td className="px-6 py-5 text-gray-500">{traditional}</td>
+                        <td className="px-6 py-5 font-medium text-[#111827]">
                           <span className="inline-flex items-center gap-2">
                             <Check className="h-4 w-4" />
                             {ai}
@@ -299,22 +280,21 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="faq" className="scroll-mt-24 bg-[#111111] py-24">
+        <section id="faq" className="scroll-mt-24 bg-white py-20 sm:py-28">
           <div className="mx-auto max-w-4xl px-5 lg:px-8">
             <SectionIntro title="Frequently asked questions" />
-            <div className="glass-card mt-12 divide-y divide-white/10 rounded-3xl px-6">
+            <div className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-100 bg-white px-6 shadow-sm">
               {faqItems.map((item) => (
                 <ScrollReveal key={item.q} className="py-6">
-                  <h3 className="text-xl font-semibold tracking-[-0.025em] text-white">{item.q}</h3>
-                  <p className="mt-3 text-sm font-light leading-7 text-white/58">{item.a}</p>
+                  <h3 className="text-xl font-normal tracking-tight text-[#111827]">{item.q}</h3>
+                  <p className="mt-3 text-sm font-light leading-7 text-gray-500">{item.a}</p>
                 </ScrollReveal>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="waitlist" className="relative scroll-mt-24 overflow-hidden bg-[#0f0f0f] px-6 py-28 text-center text-white">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,hsl(36_30%_20%/0.18),transparent_52%)]" />
+        <section id="waitlist" className="relative scroll-mt-24 overflow-hidden bg-gray-950 px-6 py-28 text-center text-white">
           <ScrollReveal className="mx-auto max-w-2xl">
             <Timer className="mx-auto h-8 w-8 text-white/50" />
             <h2 className="mt-6 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">
@@ -329,22 +309,22 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="bg-[#0a0a0a] px-6 py-12 text-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 border-t border-white/10 pt-10 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-display text-xl font-semibold tracking-[-0.03em]">Headshots</p>
-          <div className="flex flex-wrap gap-5 text-sm text-white/55">
-            <Link href="#" className="transition hover:text-white">
+      <footer className="border-t border-gray-100 bg-gray-50 px-6 py-12 text-gray-500">
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-display text-xl font-normal tracking-tight text-[#111827]">Headshots</p>
+          <div className="flex flex-wrap gap-5 text-sm">
+            <Link href="#" className="transition hover:text-gray-900">
               Privacy
             </Link>
-            <Link href="#" className="transition hover:text-white">
+            <Link href="#" className="transition hover:text-gray-900">
               Terms
             </Link>
-            <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-white">
+            <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-gray-900">
               Contact: aleksei@alekseimedia.com
             </a>
           </div>
         </div>
-        <p className="mx-auto mt-8 max-w-7xl text-xs text-white/35">© 2025 Aleksei Media. All rights reserved.</p>
+        <p className="mx-auto mt-8 max-w-7xl text-xs text-gray-400">© 2025 Aleksei Media. All rights reserved.</p>
       </footer>
     </div>
   );
