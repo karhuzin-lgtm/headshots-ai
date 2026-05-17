@@ -63,7 +63,7 @@ export async function sendHeadshotsStarted(email: string, resultUrl: string) {
       <div style="font-family: Arial, sans-serif; color: #111; line-height: 1.5;">
         <h1>Your AI headshots are being created</h1>
         <p>We've received your photos and started training your personal AI model.</p>
-        <p>Your headshots will be ready in approximately ~5 minutes.</p>
+        <p>Your headshots will be ready in approximately ~15 minutes.</p>
         <p>We'll email you as soon as they're ready — you can close this tab.</p>
         <p style="margin-top: 28px;">
           <a href="${absoluteResultUrl}" style="display: inline-block; background: #111; color: #fff; padding: 14px 22px; border-radius: 12px; text-decoration: none; font-weight: 700;">
