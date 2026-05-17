@@ -99,7 +99,7 @@ export function LandingHero() {
             style={{ perspective: "1200px" }}
           >
             <div className="mx-auto grid w-full max-w-4xl grid-cols-3 gap-3 sm:gap-5">
-              {["/man-after.jpg", "/exec-after.jpg", "/woman2-after.jpg"].map((src, index) => (
+              {["/man-after.jpg?v=20260517-2", "/exec-after.jpg", "/woman2-after.jpg"].map((src, index) => (
                 <Image
                   key={src}
                   src={src}

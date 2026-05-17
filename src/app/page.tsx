@@ -59,7 +59,7 @@ const faqItems = [
 
 function BeforeAfterCard() {
   const pairs = [
-    { before: "/man-before.jpg", after: "/man-after.jpg", label: "Man" },
+    { before: "/man-before.jpg?v=20260517-2", after: "/man-after.jpg?v=20260517-2", label: "Man" },
     { before: "/exec-before.jpg", after: "/exec-after.jpg", label: "Executive" },
     { before: "/woman2-before.jpg", after: "/woman2-after.jpg", label: "Woman" },
   ];
