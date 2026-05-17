@@ -19,6 +19,7 @@ export async function GET(_request: Request, { params }: { params: { requestId: 
     {
       id: generation.id,
       status: generation.status,
+      tuneId: generation.tune_id,
       inputUrls: generation.input_urls,
       outputUrls: generation.output_urls,
       imageUrl: generation.output_urls[0],

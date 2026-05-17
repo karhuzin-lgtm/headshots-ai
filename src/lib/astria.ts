@@ -37,7 +37,10 @@ async function parseAstriaResponse(res: Response): Promise<any> {
   return data;
 }
 
-export async function createAstrinaTune(imageUrls: string[]): Promise<string> {
+export async function createAstrinaTune(
+  imageUrls: string[],
+  callbackUrl: string
+): Promise<string> {
   const body = new URLSearchParams();
   body.append("tune[title]", "headshot-user");
   body.append("tune[name]", "man");
@@ -46,6 +49,20 @@ export async function createAstrinaTune(imageUrls: string[]): Promise<string> {
   body.append("tune[face_detection]", "true");
   body.append("tune[steps]", "1000");
   imageUrls.forEach((url) => body.append("tune[image_urls][]", url));
+  Object.entries(HEADSHOT_STYLES).forEach(([, prompt]) => {
+    body.append("tune[prompts_attributes][][text]", `<lora:TUNE_ID:1.0> ${prompt}`);
+    body.append(
+      "tune[prompts_attributes][][negative_prompt]",
+      "beard, facial hair, distorted face, enlarged face, waxy skin, CGI, full body"
+    );
+    body.append("tune[prompts_attributes][][num_images]", "3");
+    body.append("tune[prompts_attributes][][w]", "768");
+    body.append("tune[prompts_attributes][][h]", "1024");
+    body.append("tune[prompts_attributes][][super_resolution]", "true");
+    body.append("tune[prompts_attributes][][face_correct]", "true");
+    body.append("tune[prompts_attributes][][steps]", "30");
+  });
+  body.append("tune[callback]", callbackUrl);
 
   const res = await fetch(`${BASE}/tunes`, {
     method: "POST",
@@ -59,53 +76,4 @@ export async function createAstrinaTune(imageUrls: string[]): Promise<string> {
   }
 
   return String(data.id);
-}
-
-export async function generateAstriaHeadshots(
-  tuneId: string,
-  _style: HeadshotStyle,
-  prompt: string
-): Promise<string[]> {
-  const body = new URLSearchParams();
-  body.append("prompt[text]", `<lora:${tuneId}:1.0> ${prompt}`);
-  body.append(
-    "prompt[negative_prompt]",
-    "beard, facial hair, distorted face, enlarged face, waxy skin, CGI, full body, standing, sitting"
-  );
-  body.append("prompt[num_images]", "3");
-  body.append("prompt[w]", "768");
-  body.append("prompt[h]", "1024");
-  body.append("prompt[super_resolution]", "true");
-  body.append("prompt[face_correct]", "true");
-  body.append("prompt[inpaint_faces]", "true");
-  body.append("prompt[steps]", "30");
-
-  const res = await fetch(`${BASE}/tunes/${tuneId}/prompts`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${getAstriaApiKey()}` },
-    body,
-  });
-  const data = await parseAstriaResponse(res);
-  const promptId = data?.id;
-
-  if (!promptId) {
-    throw new Error("Astria prompt creation returned no prompt id");
-  }
-
-  for (let i = 0; i < 30; i++) {
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-    const check = await fetch(`${BASE}/tunes/${tuneId}/prompts/${promptId}`, {
-      headers: { Authorization: `Bearer ${getAstriaApiKey()}` },
-    });
-    const result = await parseAstriaResponse(check);
-    const images = result.images ?? result.output?.images;
-
-    if (Array.isArray(images) && images.length > 0) {
-      return images
-        .map((img: { url?: string }) => img.url)
-        .filter((url: unknown): url is string => typeof url === "string" && url.length > 0);
-    }
-  }
-
-  throw new Error("Astria generation timeout");
 }

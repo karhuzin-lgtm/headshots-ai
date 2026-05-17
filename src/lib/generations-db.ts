@@ -8,6 +8,7 @@ export type GenerationRow = {
   status: GenerationStatus;
   input_urls: string[];
   output_urls: string[];
+  tune_id: string | null;
   error_message: string | null;
   created_at: string;
   updated_at: string;
@@ -34,6 +35,11 @@ function textArray(values: string[]): string {
   return `{${values.map((value) => `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`).join(",")}}`;
 }
 
+async function ensureTuneIdColumn() {
+  const sql = getSql();
+  await sql`alter table generations add column if not exists tune_id text`;
+}
+
 function mapGeneration(row: Record<string, unknown>): GenerationRow {
   return {
     id: String(row.id),
@@ -41,6 +47,7 @@ function mapGeneration(row: Record<string, unknown>): GenerationRow {
     status: row.status as GenerationStatus,
     input_urls: Array.isArray(row.input_urls) ? (row.input_urls as string[]) : [],
     output_urls: Array.isArray(row.output_urls) ? (row.output_urls as string[]) : [],
+    tune_id: typeof row.tune_id === "string" ? row.tune_id : null,
     error_message: typeof row.error_message === "string" ? row.error_message : null,
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
@@ -51,6 +58,7 @@ export async function createGeneration(input: {
   email: string;
   inputUrls: string[];
 }): Promise<GenerationRow> {
+  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     insert into generations (email, status, input_urls, output_urls)
@@ -64,14 +72,17 @@ export async function updateGenerationStatus(input: {
   id: string;
   status: GenerationStatus;
   outputUrls?: string[];
+  tuneId?: string | null;
   errorMessage?: string | null;
 }): Promise<GenerationRow> {
+  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     update generations
     set
       status = ${input.status},
       output_urls = coalesce(${input.outputUrls ? textArray(input.outputUrls) : null}::text[], output_urls),
+      tune_id = coalesce(${input.tuneId ?? null}, tune_id),
       error_message = ${input.errorMessage ?? null},
       updated_at = now()
     where id = ${input.id}
@@ -81,6 +92,7 @@ export async function updateGenerationStatus(input: {
 }
 
 export async function getGeneration(id: string): Promise<GenerationRow | null> {
+  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -92,6 +104,7 @@ export async function getGeneration(id: string): Promise<GenerationRow | null> {
 }
 
 export async function findRateLimitedGeneration(email: string): Promise<GenerationRow | null> {
+  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     select *
