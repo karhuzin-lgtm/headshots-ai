@@ -10,7 +10,7 @@ import {
   STYLE_PROMPTS,
   type HeadshotStyle,
   generateHeadshotsWithPulid,
-  uploadReferencePhoto,
+  uploadReferencePhotos,
 } from "@/lib/fal";
 import { sendHeadshotsReady, sendHeadshotsStarted } from "@/lib/email";
 
@@ -127,15 +127,13 @@ export async function POST(request: Request) {
 
     try {
       await updateGenerationStatus({ id: generation.id, status: "processing" });
-      const referenceUrl = await uploadReferencePhoto(files[0]);
+      const referenceUrls = await uploadReferencePhotos(files.slice(0, 4));
       const styles = Object.keys(STYLE_PROMPTS) as HeadshotStyle[];
-      const tasks = styles.flatMap((style) =>
-        Array.from({ length: 3 }, () => generateHeadshotsWithPulid(referenceUrl, style))
-      );
+      const tasks = styles.map((style) => generateHeadshotsWithPulid(referenceUrls, style));
       const settled = await Promise.allSettled(tasks);
       const rawUrls = settled
-        .filter((result): result is PromiseFulfilledResult<string> => result.status === "fulfilled")
-        .map((result) => result.value);
+        .filter((result): result is PromiseFulfilledResult<string[]> => result.status === "fulfilled")
+        .flatMap((result) => result.value);
 
       if (rawUrls.length === 0) {
         const errors = settled

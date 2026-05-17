@@ -25,31 +25,32 @@ export const STYLE_PROMPTS = {
 
 export type HeadshotStyle = keyof typeof STYLE_PROMPTS;
 
-export async function uploadReferencePhoto(file: File): Promise<string> {
+export async function uploadReferencePhotos(files: File[]): Promise<string[]> {
   initFal();
-  return await fal.storage.upload(file);
+  return await Promise.all(files.slice(0, 4).map((file) => fal.storage.upload(file)));
 }
 
 export async function generateHeadshotsWithPulid(
-  referenceUrl: string,
+  referenceUrls: string[],
   style: HeadshotStyle
-): Promise<string> {
+): Promise<string[]> {
   initFal();
-  const result = (await fal.subscribe("fal-ai/flux-pulid", {
+  const result = (await fal.subscribe("fal-ai/pulid", {
     input: {
-      reference_image_url: referenceUrl,
+      reference_images: referenceUrls.map((url) => ({ image_url: url })),
       prompt: STYLE_PROMPTS[style],
       negative_prompt:
-        "distorted face, waxy skin, blurred eyes, CGI, 3d render, beard, facial hair, enlarged head, wrong anatomy",
-      image_size: "portrait_4_3",
-      num_inference_steps: 28,
-      guidance_scale: 4.5,
-      id_weight: 1.0,
-      enable_safety_checker: true,
+        "distorted face, elongated face, thin face, waxy skin, CGI, beard, facial hair",
+      image_size: { width: 768, height: 1024 },
+      num_images: 3,
+      num_inference_steps: 4,
+      guidance_scale: 1.2,
+      id_scale: 0.8,
+      mode: "fidelity",
     },
     logs: false,
   })) as { data: { images?: { url: string }[] } };
-  const url = result.data.images?.[0]?.url;
-  if (!url) throw new Error(`No image for style ${style}`);
-  return url;
+  const urls = result.data.images?.map((image) => image.url).filter(Boolean) ?? [];
+  if (urls.length === 0) throw new Error(`No images for style ${style}`);
+  return urls;
 }

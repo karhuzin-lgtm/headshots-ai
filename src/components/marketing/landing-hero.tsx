@@ -21,7 +21,7 @@ export function LandingHero() {
       </div>
 
       <div className="relative mx-auto w-full max-w-[1400px] px-4 pb-16 pt-12 sm:pb-24 sm:pt-16 md:px-6 lg:px-10 lg:pb-28 lg:pt-24">
-        <div className="flex flex-col gap-12 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)] lg:items-center lg:gap-20">
+        <div className="flex flex-col gap-12 lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)] lg:items-center lg:gap-16">
           <div className="order-1 max-w-xl lg:order-none lg:max-w-none">
             <motion.div
               initial={{ opacity: 0, y: 14 }}
@@ -95,19 +95,19 @@ export function LandingHero() {
             initial={{ opacity: 0, y: 40, rotateX: 4 }}
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
             transition={{ duration: 0.75, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-            className="relative order-2 w-full min-w-0 max-w-2xl justify-self-center lg:order-none lg:max-w-none lg:justify-self-end"
+            className="relative order-2 w-full min-w-0 max-w-4xl justify-self-center lg:order-none lg:max-w-none lg:justify-self-end"
             style={{ perspective: "1200px" }}
           >
-            <div className="mx-auto grid w-full max-w-2xl grid-cols-3 gap-3 sm:gap-4">
+            <div className="mx-auto grid w-full max-w-4xl grid-cols-3 gap-3 sm:gap-5">
               {["/man-after.jpg", "/exec-after.jpg", "/woman2-after.jpg"].map((src, index) => (
                 <Image
                   key={src}
                   src={src}
-                  width={520}
-                  height={700}
-                  className="aspect-[3/4] w-full rounded-2xl object-cover shadow-2xl shadow-black/30"
+                  width={720}
+                  height={960}
+                  className="aspect-[3/4] w-full rounded-3xl object-cover shadow-2xl shadow-black/30"
                   alt="AI headshot"
-                  sizes="(max-width: 1023px) 33vw, 240px"
+                  sizes="(max-width: 1023px) 33vw, 320px"
                   priority={index === 0}
                 />
               ))}
