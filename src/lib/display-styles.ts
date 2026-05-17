@@ -9,21 +9,21 @@ export const DISPLAY_STYLES = [
   {
     key: "corporate",
     name: "Corporate",
-    photo: "/avatars/avatar-19.jpg",
+    photo: "/avatars/avatar-corporate.jpg",
     tagline: "Board-room ready",
     description: "Classic suit, professional gray backdrop",
   },
   {
     key: "executive",
     name: "Executive",
-    photo: "/avatars/avatar-10.jpg",
+    photo: "/avatars/avatar-executive.jpg",
     tagline: "Commands the room",
     description: "Polished authority, dark studio backdrop",
   },
   {
     key: "tech",
     name: "Tech",
-    photo: "/avatars/avatar-08.jpg",
+    photo: "/avatars/avatar-tech.jpg",
     tagline: "Built for builders",
     description: "Smart casual, clean neutral background",
   },
@@ -37,7 +37,7 @@ export const DISPLAY_STYLES = [
   {
     key: "startup",
     name: "Startup",
-    photo: "/avatars/avatar-14.jpg",
+    photo: "/avatars/avatar-startup.jpg",
     tagline: "Founder energy",
     description: "Clean white background, relaxed confidence",
   },
