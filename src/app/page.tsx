@@ -121,22 +121,11 @@ const comparisonRows = [
   ["Location", "Must travel to studio", "From anywhere"],
 ];
 
-const galleryLabels = [
-  "LinkedIn",
-  "Corporate",
-  "Executive",
-  "Tech",
-  "Creative",
-  "Startup",
-  "LinkedIn",
-  "Corporate",
-  "Executive",
-  "Tech",
-  "Creative",
-  "Startup",
-  "LinkedIn",
-  "Corporate",
-  "Executive",
+const avatarGradients = [
+  "from-gray-200 to-gray-300",
+  "from-slate-200 to-slate-300",
+  "from-zinc-200 to-zinc-300",
+  "from-stone-200 to-stone-300",
 ];
 
 function SectionIntro({
@@ -289,32 +278,39 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-white py-24">
-          <div className="mx-auto px-5 lg:px-8">
+        <section className="bg-white py-16 text-center">
+          <div className="mx-auto max-w-5xl px-5 lg:px-8">
             <SectionIntro
-              title="See what's possible"
-              subtitle="Generated from real selfies. 6 professional styles."
+              title="Join professionals already on the waitlist"
+              subtitle="Be among the first to get AI headshots that actually look like you."
             />
-            <div className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
-              {galleryLabels.map((label, index) => (
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              {Array.from({ length: 12 }).map((_, index) => (
                 <ScrollReveal
-                  key={`${label}-${index}`}
-                  delay={(index % 5) * 0.025}
-                  className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-gradient-to-b from-gray-100 to-gray-200"
+                  key={index}
+                  delay={(index % 6) * 0.025}
+                  className={`h-14 w-14 overflow-hidden rounded-full border-2 border-white bg-gradient-to-br shadow-md ${
+                    avatarGradients[index % avatarGradients.length]
+                  } ${index === 0 ? "" : "-ml-3"}`}
                 >
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.85),transparent_42%)] opacity-80 transition duration-300 group-hover:scale-105" />
-                  <span className="absolute bottom-3 left-3 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur">
-                    {label}
-                  </span>
+                  <span className="block h-full w-full bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.9),transparent_34%)]" />
                 </ScrollReveal>
               ))}
             </div>
-            <ScrollReveal className="mt-12 text-center">
+            <ScrollReveal className="mt-8">
+              <p className="font-display text-4xl font-extrabold tracking-[-0.04em] text-[color:var(--text-1)]">
+                1,200+
+              </p>
+              <p className="mt-2 text-sm font-light text-[color:var(--text-2)]">
+                professionals waiting for early access
+              </p>
+            </ScrollReveal>
+            <ScrollReveal className="mt-8">
               <Link
                 href="/try"
                 className="inline-flex rounded-full bg-[#0a0a0a] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#222]"
               >
-                Get yours free
+                Claim your free headshot
               </Link>
             </ScrollReveal>
           </div>
