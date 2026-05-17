@@ -483,7 +483,6 @@ export default function HomePage() {
               Join early access now. We&apos;ll email you when your spot opens and reserve your founding member launch discount.
             </p>
             <WaitlistForm variant="dark" showLabel={false} className="mx-auto mt-9 max-w-[480px]" />
-            <p className="mt-4 text-sm text-white/70">Founding members who join now get 40% off when we launch.</p>
           </ScrollReveal>
         </section>
       </main>
@@ -492,12 +491,6 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-display text-xl font-normal tracking-tight text-[#111827]">Headshots</p>
           <div className="flex flex-wrap gap-5 text-sm">
-            <Link href="#" className="transition hover:text-gray-900">
-              Privacy
-            </Link>
-            <Link href="#" className="transition hover:text-gray-900">
-              Terms
-            </Link>
             <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-gray-900">
               Contact: aleksei@alekseimedia.com
             </a>
