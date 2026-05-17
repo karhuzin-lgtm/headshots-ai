@@ -5,44 +5,9 @@ import NextImage from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useRef, useState } from "react";
 
-const STYLE_OPTIONS = [
-  {
-    id: "corporate",
-    name: "Corporate",
-    description: "Navy suit, gray studio background",
-    src: "/avatars/avatar-05.jpg",
-  },
-  {
-    id: "tech",
-    name: "Tech",
-    description: "Dark sweater, modern office",
-    src: "/avatars/avatar-08.jpg",
-  },
-  {
-    id: "executive",
-    name: "Executive",
-    description: "Charcoal suit, dark backdrop",
-    src: "/avatars/avatar-19.jpg",
-  },
-  {
-    id: "creative",
-    name: "Creative",
-    description: "Smart casual blazer, warm background",
-    src: "/avatars/avatar-06.jpg",
-  },
-  {
-    id: "startup",
-    name: "Startup",
-    description: "Plain t-shirt, clean white background",
-    src: "/avatars/avatar-14.jpg",
-  },
-  {
-    id: "linkedin",
-    name: "LinkedIn",
-    description: "Dress shirt, neutral gray",
-    src: "/avatars/avatar-07.jpg",
-  },
-] as const;
+import { DISPLAY_STYLES } from "@/lib/display-styles";
+
+const STYLE_OPTIONS = DISPLAY_STYLES;
 
 async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
@@ -85,7 +50,7 @@ export function TryFreeClient() {
   const email = useMemo(() => searchParams.get("email")?.trim().toLowerCase() ?? "", [searchParams]);
   const initialStyle = useMemo(() => {
     const style = searchParams.get("style")?.trim().toLowerCase() ?? "";
-    return STYLE_OPTIONS.some((option) => option.id === style) ? style : "";
+    return STYLE_OPTIONS.some((option) => option.key === style) ? style : "";
   }, [searchParams]);
   const [files, setFiles] = useState<File[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<string>(initialStyle);
@@ -195,12 +160,12 @@ export function TryFreeClient() {
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {STYLE_OPTIONS.map((style) => {
-              const isSelected = selectedStyle === style.id;
+              const isSelected = selectedStyle === style.key;
               return (
                 <button
-                  key={style.id}
+                  key={style.key}
                   type="button"
-                  onClick={() => setSelectedStyle(style.id)}
+                  onClick={() => setSelectedStyle(style.key)}
                   className={`group overflow-hidden rounded-2xl border text-left transition-all duration-300 ${
                     isSelected
                       ? "scale-[1.02] border-primary bg-primary/10 ring-2 ring-white"
@@ -210,7 +175,7 @@ export function TryFreeClient() {
                 >
                   <span className="relative block aspect-[3/4] overflow-hidden rounded-t-2xl">
                     <NextImage
-                      src={style.src}
+                      src={style.photo}
                       alt={`${style.name} headshot style`}
                       width={480}
                       height={600}
@@ -227,6 +192,9 @@ export function TryFreeClient() {
                       }`}
                       aria-hidden
                     />
+                  </span>
+                  <span className="block px-4 pt-2 text-xs font-medium text-foreground">
+                    {style.tagline}
                   </span>
                   <span className="block px-4 pb-4 pt-2 text-xs leading-relaxed text-muted-foreground">
                     {style.description}

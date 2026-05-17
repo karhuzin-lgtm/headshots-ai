@@ -12,14 +12,14 @@ const fadeUp = {
 
 const heroPhotos = [
   { src: "/avatars/avatar-07.jpg", alt: "LinkedIn AI headshot", offset: "-translate-y-5", delay: "0s" },
-  { src: "/avatars/avatar-05.jpg", alt: "Corporate AI headshot", offset: "translate-y-0", delay: "0.8s" },
+  { src: "/avatars/avatar-19.jpg", alt: "Corporate AI headshot", offset: "translate-y-0", delay: "0.8s" },
   { src: "/avatars/avatar-10.jpg", alt: "Executive AI headshot", offset: "-translate-y-8", delay: "1.4s" },
 ];
 
 const avatarSources = [
   "/avatars/avatar-02.jpg",
   "/avatars/avatar-03.jpg",
-  "/avatars/avatar-05.jpg",
+  "/avatars/avatar-creative.jpg",
   "/avatars/avatar-07.jpg",
   "/avatars/avatar-08.jpg",
   "/avatars/avatar-10.jpg",

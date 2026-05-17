@@ -1,44 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const styles = [
-  {
-    id: "linkedin",
-    name: "LinkedIn",
-    src: "/avatars/avatar-07.jpg",
-    tagline: "Gets you interviews",
-  },
-  {
-    id: "corporate",
-    name: "Corporate",
-    src: "/avatars/avatar-05.jpg",
-    tagline: "Boardroom ready",
-  },
-  {
-    id: "executive",
-    name: "Executive",
-    src: "/avatars/avatar-10.jpg",
-    tagline: "Commands the room",
-  },
-  {
-    id: "tech",
-    name: "Tech",
-    src: "/avatars/avatar-08.jpg",
-    tagline: "Built for builders",
-  },
-  {
-    id: "creative",
-    name: "Creative",
-    src: "/avatars/avatar-06.jpg",
-    tagline: "Stands out",
-  },
-  {
-    id: "startup",
-    name: "Startup",
-    src: "/avatars/avatar-14.jpg",
-    tagline: "Founder energy",
-  },
-];
+import { DISPLAY_STYLES } from "@/lib/display-styles";
 
 export function StylesSection() {
   return (
@@ -57,15 +20,15 @@ export function StylesSection() {
         </div>
 
         <div className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-5 lg:grid-cols-3">
-          {styles.map((style) => (
+          {DISPLAY_STYLES.map((style) => (
             <Link
-              key={style.id}
-              href={`/try?style=${style.id}`}
+              key={style.key}
+              href={`/try?style=${style.key}`}
               className="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
               aria-label={`Start with ${style.name} style`}
             >
               <Image
-                src={style.src}
+                src={style.photo}
                 alt={`${style.name} headshot style`}
                 width={720}
                 height={960}
@@ -75,6 +38,7 @@ export function StylesSection() {
               <div className="p-4">
                 <h3 className="text-sm font-semibold text-gray-900">{style.name}</h3>
                 <p className="mt-1 text-xs text-gray-500">{style.tagline}</p>
+                <p className="mt-2 text-xs leading-relaxed text-gray-400">{style.description}</p>
               </div>
             </Link>
           ))}

@@ -92,6 +92,12 @@ const comparisonRows = [
   ["Location", "Must travel to studio", "From anywhere"],
 ];
 
+const beforeAfterPairs = [
+  { before: "/man-before.jpg", after: "/man-after.jpg" },
+  { before: "/exec-before.jpg", after: "/exec-after.jpg" },
+  { before: "/woman2-before.jpg", after: "/woman2-after.jpg" },
+];
+
 function SectionIntro({
   label,
   title,
@@ -152,22 +158,39 @@ export default function HomePage() {
         <LandingHero />
         <StylesSection />
 
-        <section className="relative overflow-hidden bg-[#f9fafb] py-20 sm:py-28">
+        <section className="relative overflow-hidden bg-white py-20 sm:py-28">
           <div className="relative mx-auto max-w-6xl px-5 text-center lg:px-8">
             <SectionIntro
               title="See what’s possible"
               subtitle="Clean, professional portraits generated from everyday selfies."
             />
-            <div className="mx-auto mt-14 grid max-w-4xl gap-5 sm:grid-cols-3">
-              {["/avatars/avatar-07.jpg", "/avatars/avatar-10.jpg", "/avatars/avatar-19.jpg"].map((src) => (
-                <div key={src} className="overflow-hidden rounded-3xl bg-white shadow-lg shadow-black/10">
-                  <Image
-                    src={src}
-                    alt="AI generated professional headshot"
-                    width={540}
-                    height={720}
-                    className="aspect-[3/4] w-full object-cover object-top"
-                  />
+            <div className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-3">
+              {beforeAfterPairs.map((pair) => (
+                <div key={pair.before} className="flex flex-col gap-3">
+                  <div className="relative">
+                    <Image
+                      src={`${pair.before}?v=20260517-3`}
+                      alt="Before casual selfie"
+                      width={540}
+                      height={720}
+                      className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                      Before
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <Image
+                      src={`${pair.after}?v=20260517-3`}
+                      alt="After AI generated headshot"
+                      width={540}
+                      height={720}
+                      className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-black px-2.5 py-1 text-xs font-medium text-white">
+                      After — AI
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
