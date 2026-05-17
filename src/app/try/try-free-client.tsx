@@ -192,6 +192,40 @@ export function TryFreeClient() {
           </div>
         </div>
 
+        <div className="mt-7">
+          <p className="text-sm font-semibold text-foreground">
+            Tips for best results
+          </p>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+            {[
+              { icon: "✓", text: "Good lighting — face clearly lit, not backlit" },
+              { icon: "✓", text: "Look directly at the camera" },
+              { icon: "✓", text: "Different angles: front, 3/4, slight side" },
+              { icon: "✓", text: "Variety of outfits across photos" },
+              { icon: "✗", text: "No sunglasses or hats covering face" },
+              { icon: "✗", text: "No group photos — only you" },
+              { icon: "✗", text: "No heavy filters or face editing apps" },
+              { icon: "✗", text: "No blurry or very dark photos" },
+            ].map(({ icon, text }) => (
+              <li key={text} className="flex items-start gap-2 text-xs text-muted-foreground">
+                <span
+                  className={
+                    icon === "✓"
+                      ? "mt-0.5 font-bold text-green-400"
+                      : "mt-0.5 font-bold text-red-400"
+                  }
+                >
+                  {icon}
+                </span>
+                {text}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Better photos = more realistic AI headshots. The model learns from what you upload.
+          </p>
+        </div>
+
         <label className="mt-7 block text-sm font-semibold text-foreground">
           Selfies
           <span className="ml-2 font-normal text-muted-foreground">
