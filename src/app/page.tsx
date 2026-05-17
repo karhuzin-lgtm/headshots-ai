@@ -23,7 +23,7 @@ const steps = [
   {
     n: "3",
     title: "Download your headshots",
-    body: "Receive 3 professional portrait variations in your chosen style. Ready to use on LinkedIn, your website, or email signature. High resolution, no watermarks.",
+    body: "Receive professional portrait headshots in your chosen style. Ready to use on LinkedIn, your website, or email signature. High resolution, no watermarks.",
   },
 ];
 
