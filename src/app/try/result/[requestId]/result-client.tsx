@@ -20,17 +20,9 @@ const STYLE_LABELS = [
   "LinkedIn Classic",
 ];
 
-async function downloadImage(url: string, filename: string) {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = objectUrl;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(objectUrl);
+function downloadHref(url: string, filename: string): string {
+  const params = new URLSearchParams({ url, filename });
+  return `/api/download-image?${params.toString()}`;
 }
 
 export function TryResultClient({ requestId }: { requestId: string }) {
@@ -175,23 +167,25 @@ export function TryResultClient({ requestId }: { requestId: string }) {
               <div key={label}>
                 <p className="mb-4 text-sm font-semibold text-foreground">{displayLabel}</p>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  {styleUrls.map((imageUrl, i) => (
-                    <div key={imageUrl} className="overflow-hidden rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] p-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={imageUrl}
-                        alt={`${displayLabel} headshot ${i + 1}`}
-                        className="aspect-[3/4] w-full rounded-[1.25rem] object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => downloadImage(imageUrl, `headshot-${displayLabel.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`)}
-                        className="mt-2 flex w-full items-center justify-center gap-1 rounded-xl py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
-                      >
-                        ↓ Download
-                      </button>
-                    </div>
-                  ))}
+                  {styleUrls.map((imageUrl, i) => {
+                    const filename = `headshot-${displayLabel.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`;
+                    return (
+                      <div key={imageUrl} className="overflow-hidden rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] p-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={imageUrl}
+                          alt={`${displayLabel} headshot ${i + 1}`}
+                          className="aspect-[3/4] w-full rounded-[1.25rem] object-cover"
+                        />
+                        <a
+                          href={downloadHref(imageUrl, filename)}
+                          className="mt-2 flex w-full items-center justify-center gap-1 rounded-xl py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+                        >
+                          ↓ Download
+                        </a>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
