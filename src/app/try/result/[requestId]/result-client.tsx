@@ -141,21 +141,22 @@ export function TryResultClient({ requestId }: { requestId: string }) {
           {STYLE_LABELS.map((label, styleIdx) => {
             const styleUrls = outputUrls.slice(styleIdx * 3, styleIdx * 3 + 3);
             if (styleUrls.length === 0) return null;
+            const displayLabel = outputUrls.length <= 3 ? "Selected Style" : label;
             return (
               <div key={label}>
-                <p className="mb-4 text-sm font-semibold text-foreground">{label}</p>
+                <p className="mb-4 text-sm font-semibold text-foreground">{displayLabel}</p>
                 <div className="grid gap-4 sm:grid-cols-3">
                   {styleUrls.map((imageUrl, i) => (
                     <div key={imageUrl} className="glass-panel-strong overflow-hidden rounded-3xl p-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageUrl}
-                        alt={`${label} headshot ${i + 1}`}
+                        alt={`${displayLabel} headshot ${i + 1}`}
                         className="aspect-[3/4] w-full rounded-[1.25rem] object-cover"
                       />
                       <a
                         href={imageUrl}
-                        download={`headshot-${label.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`}
+                        download={`headshot-${displayLabel.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`}
                         className="mt-2 flex items-center justify-center gap-1 rounded-xl py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
                       >
                         ↓ Download

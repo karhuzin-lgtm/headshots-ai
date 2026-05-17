@@ -80,7 +80,7 @@ export async function POST(request: Request) {
   }
 
   const combinedOutputUrls = Array.from(new Set([...generation.output_urls, ...outputUrls]));
-  const nextStatus = combinedOutputUrls.length >= 18 ? "done" : "processing";
+  const nextStatus = combinedOutputUrls.length >= 3 ? "done" : "processing";
   const updatedGeneration = await updateGenerationStatus({
     id: generationId,
     status: nextStatus,

@@ -4,6 +4,39 @@ import { Loader2, Upload } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useRef, useState } from "react";
 
+const STYLE_OPTIONS = [
+  {
+    id: "corporate",
+    name: "Corporate",
+    description: "Navy suit, gray studio background",
+  },
+  {
+    id: "tech",
+    name: "Tech",
+    description: "Dark sweater, modern office",
+  },
+  {
+    id: "executive",
+    name: "Executive",
+    description: "Charcoal suit, dark backdrop",
+  },
+  {
+    id: "creative",
+    name: "Creative",
+    description: "Smart casual blazer, warm background",
+  },
+  {
+    id: "startup",
+    name: "Startup",
+    description: "Plain t-shirt, clean white background",
+  },
+  {
+    id: "linkedin",
+    name: "LinkedIn",
+    description: "Dress shirt, neutral gray",
+  },
+] as const;
+
 async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -44,6 +77,7 @@ export function TryFreeClient() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const email = useMemo(() => searchParams.get("email")?.trim().toLowerCase() ?? "", [searchParams]);
   const [files, setFiles] = useState<File[]>([]);
+  const [selectedStyle, setSelectedStyle] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,6 +90,11 @@ export function TryFreeClient() {
       return;
     }
 
+    if (!selectedStyle) {
+      setError("Please select a style");
+      return;
+    }
+
     if (files.length < 8 || files.length > 20) {
       setError("Upload at least 8 selfies for best results.");
       return;
@@ -65,6 +104,7 @@ export function TryFreeClient() {
     try {
       const form = new FormData();
       form.set("email", email);
+      form.set("style", selectedStyle);
       const compressed = await Promise.all(files.map(compressImage));
       compressed.forEach((file) => form.append("photos", file));
 
@@ -136,6 +176,43 @@ export function TryFreeClient() {
           <p className="mt-3 text-xs text-muted-foreground">
             Better photos = more realistic AI headshots. The model learns from what you upload.
           </p>
+        </div>
+
+        <div className="mt-7">
+          <p className="text-sm font-semibold text-foreground">
+            Choose your style
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {STYLE_OPTIONS.map((style) => {
+              const isSelected = selectedStyle === style.id;
+              return (
+                <button
+                  key={style.id}
+                  type="button"
+                  onClick={() => setSelectedStyle(style.id)}
+                  className={`rounded-2xl border p-4 text-left transition ${
+                    isSelected
+                      ? "border-primary bg-primary/10"
+                      : "border-white/10 bg-white/[0.03] hover:border-primary/35 hover:bg-white/[0.05]"
+                  } cursor-pointer`}
+                  aria-pressed={isSelected}
+                >
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-semibold text-foreground">{style.name}</span>
+                    <span
+                      className={`h-3 w-3 rounded-full border ${
+                        isSelected ? "border-primary bg-primary" : "border-white/30"
+                      }`}
+                      aria-hidden
+                    />
+                  </span>
+                  <span className="mt-2 block text-xs leading-relaxed text-muted-foreground">
+                    {style.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <label className="mt-7 block text-sm font-semibold text-foreground">
