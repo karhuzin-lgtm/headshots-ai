@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
-import { MARKETING_AVATARS, MARKETING_IMAGES } from "@/lib/marketing-images";
+import { MARKETING_AVATARS } from "@/lib/marketing-images";
 
 const fadeUp = {
   initial: { opacity: 0, y: 28 },
@@ -12,7 +12,8 @@ const fadeUp = {
 };
 
 export function LandingHero() {
-  const { before: heroBefore, after: heroAfter } = MARKETING_IMAGES.man;
+  const heroBefore = "/man-before.jpg";
+  const heroAfter = "/man-after.jpg";
 
   return (
     <section className="relative overflow-hidden border-b border-white/[0.06]">
@@ -134,11 +135,8 @@ export function LandingHero() {
                 </div>
               </div>
             </div>
-            <p className="mt-4 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:text-left">
-              Same subject · reference → final
-            </p>
-            <p className="mt-1.5 text-center text-xs leading-relaxed tracking-tight text-muted-foreground/75 sm:text-left">
-              Representative output from our pipeline — your set is built from your own uploads.
+            <p className="mt-4 text-center text-xs leading-relaxed tracking-tight text-muted-foreground/75 sm:text-left">
+              Example transformation — your results are trained on your own photos.
             </p>
           </motion.div>
         </div>

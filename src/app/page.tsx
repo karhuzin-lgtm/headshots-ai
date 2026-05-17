@@ -62,42 +62,28 @@ const faqItems = [
 ];
 
 function BeforeAfterCard() {
-  const pairs = [
-    { before: "/man-before.jpg", after: "/man-after.jpg", label: "Man" },
-    { before: "/woman-before.jpg", after: "/woman-after.jpg", label: "Woman" },
+  const images = [
+    { src: "/man-before.jpg", label: "Before", alt: "Man before reference photo" },
+    { src: "/man-after.jpg", label: "After", alt: "Man after AI generated headshot" },
+    { src: "/woman-before.jpg", label: "Before", alt: "Woman before reference photo" },
+    { src: "/woman-after.jpg", label: "After", alt: "Woman after AI generated headshot" },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-7 lg:grid-cols-2">
-      {pairs.map((pair, i) => (
-        <div key={pair.before} className="grid gap-4">
-          <div className="relative overflow-hidden rounded-2xl bg-card">
-            <Image
-              src={pair.before}
-              alt={`${pair.label} before reference photo`}
-              width={900}
-              height={1200}
-              className="aspect-[3/4] w-full rounded-2xl object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority={i === 0}
-            />
-            <div className="absolute left-3 top-3 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-[#555] backdrop-blur-sm">
-              Before
-            </div>
-          </div>
-          <div className="relative overflow-hidden rounded-2xl bg-card">
-            <Image
-              src={pair.after}
-              alt={`${pair.label} after AI generated headshot`}
-              width={900}
-              height={1200}
-              className="aspect-[3/4] w-full rounded-2xl object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority={i === 0}
-            />
-            <div className="absolute left-3 top-3 rounded-full bg-black px-3 py-1 text-xs font-semibold text-white">
-              After — AI
-            </div>
+    <div className="grid grid-cols-2 justify-items-center gap-4 lg:grid-cols-4">
+      {images.map((image, i) => (
+        <div key={image.src} className="relative w-full max-w-[200px] overflow-hidden rounded-2xl bg-card">
+          <Image
+            src={image.src}
+            alt={image.alt}
+            width={900}
+            height={1200}
+            className="aspect-[3/4] max-h-[320px] w-full rounded-2xl object-cover"
+            sizes="(max-width: 1024px) 50vw, 200px"
+            priority={i === 0}
+          />
+          <div className="absolute left-3 top-3 rounded-full bg-black/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+            {image.label}
           </div>
         </div>
       ))}
