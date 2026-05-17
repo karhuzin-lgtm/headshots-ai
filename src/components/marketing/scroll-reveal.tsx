@@ -15,11 +15,11 @@ export function ScrollReveal({
 }: ScrollRevealProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 36, filter: "blur(8px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.12, margin: "0px 0px -10% 0px" }}
       transition={{
-        duration: 0.65,
+        duration: 0.4,
         delay,
         ease: [0.16, 1, 0.3, 1],
       }}

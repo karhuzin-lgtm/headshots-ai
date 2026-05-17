@@ -17,7 +17,7 @@ const styles = [
   {
     id: "executive",
     name: "Executive",
-    src: "/avatars/avatar-19.jpg",
+    src: "/avatars/avatar-10.jpg",
     tagline: "Commands the room",
   },
   {
@@ -42,12 +42,10 @@ const styles = [
 
 export function StylesSection() {
   return (
-    <section id="styles" className="relative overflow-hidden bg-[#0a0a1a] py-24 text-white">
-      <div className="absolute -left-24 top-24 h-72 w-72 rounded-full bg-teal-400/20 blur-3xl" />
-      <div className="absolute -right-20 bottom-16 h-80 w-80 rounded-full bg-purple-500/25 blur-3xl" />
+    <section id="styles" className="relative overflow-hidden bg-[#0a0a0a] py-24 text-white">
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200/60">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a96e]">
             6 Styles
           </p>
           <h2 className="mt-4 text-5xl font-extrabold tracking-[-0.05em] sm:text-6xl">
@@ -63,7 +61,7 @@ export function StylesSection() {
             <Link
               key={style.id}
               href={`/try?style=${style.id}`}
-              className="group relative overflow-hidden rounded-3xl bg-white/[0.04] ring-1 ring-white/10 transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_-42px_rgba(245,158,11,0.9)]"
+              className="group relative aspect-[3/4] overflow-hidden rounded-3xl bg-white/[0.04] ring-1 ring-white/[0.07] transition duration-300 hover:scale-[1.03]"
               aria-label={`Start with ${style.name} style`}
             >
               <Image
@@ -71,14 +69,11 @@ export function StylesSection() {
                 alt={`${style.name} headshot style`}
                 width={720}
                 height={960}
-                className="aspect-[3/4] w-full object-cover object-top transition duration-500 group-hover:scale-105"
+                className="h-full w-full object-cover object-top transition duration-300 group-hover:brightness-105"
                 sizes="(max-width: 1024px) 50vw, 33vw"
               />
               <span className="absolute bottom-4 left-4 rounded-full bg-black/70 px-3 py-1 text-sm font-medium text-white backdrop-blur">
                 {style.name}
-              </span>
-              <span className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-white opacity-0 backdrop-blur transition duration-300 group-hover:opacity-100">
-                {style.tagline}
               </span>
             </Link>
           ))}
@@ -87,7 +82,7 @@ export function StylesSection() {
         <div className="mt-12 text-center">
           <Link
             href="/try"
-            className="inline-flex rounded-full bg-white px-7 py-3 text-sm font-semibold text-[#0a0a1a] shadow-[0_0_45px_-18px_rgba(245,158,11,0.9)] transition hover:-translate-y-0.5 hover:bg-amber-200"
+            className="inline-flex rounded-full bg-[#c9a96e] px-7 py-3 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-[#d7bb83]"
           >
             Start free — no card needed →
           </Link>

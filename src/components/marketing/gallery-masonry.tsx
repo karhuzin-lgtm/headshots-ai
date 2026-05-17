@@ -3,6 +3,7 @@ import Image from "next/image";
 const photos = [
   "/avatars/avatar-02.jpg",
   "/avatars/avatar-03.jpg",
+  "/avatars/avatar-05.jpg",
   "/avatars/avatar-07.jpg",
   "/avatars/avatar-08.jpg",
   "/avatars/avatar-09.jpg",
@@ -12,14 +13,11 @@ const photos = [
   "/avatars/avatar-14.jpg",
   "/avatars/avatar-16.jpg",
   "/avatars/avatar-19.jpg",
-  "/avatars/avatar-21.jpg",
 ];
 
 export function GalleryMasonry() {
   return (
-    <section className="relative overflow-hidden bg-[#0f0f2e] py-24 text-white">
-      <div className="absolute left-0 top-0 h-80 w-80 rounded-full bg-fuchsia-500/15 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-teal-400/15 blur-3xl" />
+    <section className="relative overflow-hidden bg-[#0f0f0f] py-24 text-white">
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-extrabold tracking-[-0.04em] sm:text-5xl">

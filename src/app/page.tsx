@@ -8,7 +8,6 @@ import { LandingHero } from "@/components/marketing/landing-hero";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { SocialProofAvatars } from "@/components/marketing/social-proof-avatars";
 import { StylesSection } from "@/components/marketing/styles-section";
-import { TiltCard } from "@/components/marketing/tilt-card";
 
 const steps = [
   {
@@ -105,7 +104,7 @@ function SectionIntro({
   return (
     <ScrollReveal className="mx-auto max-w-3xl text-center">
       {label && (
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200/60">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a96e]/70">
           {label}
         </p>
       )}
@@ -123,8 +122,8 @@ function SectionIntro({
 
 export default function HomePage() {
   return (
-    <div className="min-h-dvh bg-[#0a0a1a] text-white">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a1a]/80 backdrop-blur-2xl">
+    <div className="min-h-dvh bg-[#0a0a0a] text-white">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link href="/" className="font-display text-xl font-semibold tracking-[-0.03em]">
             Headshots
@@ -142,7 +141,7 @@ export default function HomePage() {
           </nav>
           <Link
             href="#waitlist"
-            className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#0a0a1a] shadow-[0_0_42px_-18px_rgba(245,158,11,0.9)] transition hover:-translate-y-0.5 hover:bg-amber-200"
+            className="rounded-full bg-[#c9a96e] px-5 py-2.5 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:bg-[#d7bb83]"
           >
             Join waitlist
           </Link>
@@ -153,15 +152,14 @@ export default function HomePage() {
         <LandingHero />
         <StylesSection />
 
-        <section className="relative overflow-hidden bg-[linear-gradient(180deg,#0a0a1a,#0f0f2e)] py-24">
-          <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-teal-400/15 blur-3xl" />
+        <section className="relative overflow-hidden bg-[#0a0a0a] py-24">
           <div className="relative mx-auto max-w-6xl px-5 text-center lg:px-8">
             <SectionIntro
               title="See what's possible"
               subtitle="Your casual selfie becomes a polished professional portrait with color, depth, and studio-grade light."
             />
             <div className="mt-14 flex flex-col items-center justify-center gap-8 sm:flex-row">
-              <TiltCard className="relative w-[240px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]">
+              <div className="relative w-[240px] overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.04]">
                 <Image
                   src="/man-before.jpg?v=20260517-2"
                   alt="Before casual selfie"
@@ -172,14 +170,11 @@ export default function HomePage() {
                 <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-600">
                   Before
                 </span>
-              </TiltCard>
-              <div className="animate-gradient rounded-full bg-gradient-to-r from-amber-300 via-fuchsia-300 to-teal-300 bg-clip-text font-display text-5xl font-extrabold text-transparent">
+              </div>
+              <div className="font-display text-5xl font-extrabold text-[#c9a96e]">
                 →
               </div>
-              <TiltCard
-                glowColor="#f59e0bcc"
-                className="relative w-[270px] overflow-hidden rounded-3xl border border-amber-200/20 bg-white/[0.04] shadow-[0_0_75px_-30px_rgba(245,158,11,0.95)]"
-              >
+              <div className="relative w-[270px] overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.04] shadow-[0_24px_70px_-50px_rgba(201,169,110,0.55)]">
                 <Image
                   src="/man-after.jpg?v=20260517-2"
                   alt="After AI generated headshot"
@@ -187,20 +182,20 @@ export default function HomePage() {
                   height={720}
                   className="aspect-[3/4] w-full object-cover"
                 />
-                <span className="absolute left-4 top-4 rounded-full bg-amber-300 px-3 py-1 text-xs font-bold text-black shadow-[0_0_32px_-8px_rgba(245,158,11,1)]">
+                <span className="absolute left-4 top-4 rounded-full bg-[#c9a96e] px-3 py-1 text-xs font-bold text-black shadow-[0_0_32px_-8px_rgba(201,169,110,0.8)]">
                   After - AI
                 </span>
-                <span className="absolute right-4 top-16 animate-pulse rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                <span className="absolute right-4 top-16 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
                   +AI
                 </span>
-              </TiltCard>
+              </div>
             </div>
           </div>
         </section>
 
         <GalleryMasonry />
 
-        <section className="border-y border-white/10 bg-[#0f0f2e] py-12">
+        <section className="border-y border-white/10 bg-[#111111] py-12">
           <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center md:grid-cols-3 md:divide-x md:divide-white/10 lg:px-8">
             {stats.map(([value, label], index) => (
               <ScrollReveal key={value} delay={index * 0.04} className="px-6">
@@ -211,7 +206,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="how-it-works" className="scroll-mt-24 bg-[#0a0a1a] py-24">
+        <section id="how-it-works" className="scroll-mt-24 bg-[#0a0a0a] py-24">
           <div className="mx-auto max-w-7xl px-5 lg:px-8">
             <SectionIntro label="The process" title="Three steps to studio-quality portraits" />
             <div className="mt-16 grid gap-8 md:grid-cols-3">
@@ -219,9 +214,9 @@ export default function HomePage() {
                 <ScrollReveal
                   key={step.title}
                   delay={index * 0.06}
-                  className="glass-card rounded-[2rem] p-6 transition hover:-translate-y-1 hover:shadow-[0_30px_85px_-50px_rgba(20,184,166,0.8)]"
+                  className="glass-card rounded-[2rem] p-6 transition hover:-translate-y-1"
                 >
-                  <p className="animate-gradient bg-gradient-to-r from-amber-200 via-fuchsia-300 to-teal-200 bg-clip-text font-display text-[80px] font-extrabold leading-none tracking-[-0.06em] text-transparent">
+                  <p className="font-display text-[80px] font-extrabold leading-none tracking-[-0.06em] text-[#c9a96e]">
                     {step.n}
                   </p>
                   <h3 className="mt-4 text-2xl font-bold tracking-[-0.03em] text-white">{step.title}</h3>
@@ -234,8 +229,7 @@ export default function HomePage() {
 
         <SocialProofAvatars />
 
-        <section className="relative overflow-hidden bg-[#0f0f2e] py-24">
-          <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-purple-500/15 blur-3xl" />
+        <section className="relative overflow-hidden bg-[#111111] py-24">
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1fr_0.85fr] lg:px-8">
             <div>
               <ScrollReveal>
@@ -248,7 +242,7 @@ export default function HomePage() {
                   const Icon = feature.icon;
                   return (
                     <ScrollReveal key={feature.title} delay={index * 0.04} className="flex gap-5">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-amber-200">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-[#c9a96e]">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
@@ -260,7 +254,7 @@ export default function HomePage() {
                 })}
               </div>
             </div>
-            <ScrollReveal className="glass-card mx-auto w-full max-w-[400px] overflow-hidden rounded-3xl shadow-[0_30px_90px_-44px_rgba(124,58,237,0.75)]">
+            <ScrollReveal className="glass-card mx-auto w-full max-w-[400px] overflow-hidden rounded-3xl">
               <Image
                 src="/exec-after.jpg"
                 alt="Professional AI headshot example"
@@ -272,7 +266,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[#0a0a1a] py-24">
+        <section className="bg-[#0a0a0a] py-24">
           <div className="mx-auto max-w-6xl px-5 lg:px-8">
             <SectionIntro title="AI headshots vs. traditional photography" />
             <ScrollReveal className="glass-card mt-12 overflow-hidden rounded-3xl">
@@ -290,7 +284,7 @@ export default function HomePage() {
                       <tr key={feature} className={index % 2 === 0 ? "bg-white/[0.03]" : "bg-transparent"}>
                         <td className="px-6 py-5 font-medium text-white">{feature}</td>
                         <td className="px-6 py-5 text-white/55">{traditional}</td>
-                        <td className="px-6 py-5 font-medium text-amber-200">
+                        <td className="px-6 py-5 font-medium text-[#c9a96e]">
                           <span className="inline-flex items-center gap-2">
                             <Check className="h-4 w-4" />
                             {ai}
@@ -305,7 +299,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="faq" className="scroll-mt-24 bg-[#0f0f2e] py-24">
+        <section id="faq" className="scroll-mt-24 bg-[#111111] py-24">
           <div className="mx-auto max-w-4xl px-5 lg:px-8">
             <SectionIntro title="Frequently asked questions" />
             <div className="glass-card mt-12 divide-y divide-white/10 rounded-3xl px-6">
@@ -319,22 +313,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="waitlist" className="animate-gradient relative scroll-mt-24 overflow-hidden bg-gradient-to-r from-[#0a0a1a] via-[#3b0764] via-[#0f766e] to-[#0a0a1a] px-6 py-28 text-center text-white">
-          {["/man-after.jpg?v=20260517-2", "/exec-after.jpg", "/woman2-after.jpg", "/images/creative.jpg"].map((src, index) => (
-            <Image
-              key={src}
-              src={src}
-              alt=""
-              width={120}
-              height={160}
-              className="pointer-events-none absolute hidden aspect-[3/4] w-24 rounded-2xl object-cover opacity-30 blur-[2px] md:block"
-              style={{
-                left: `${8 + index * 24}%`,
-                top: index % 2 === 0 ? "18%" : "58%",
-                transform: `rotate(${index % 2 === 0 ? -8 : 10}deg)`,
-              }}
-            />
-          ))}
+        <section id="waitlist" className="relative scroll-mt-24 overflow-hidden bg-[#0f0f0f] px-6 py-28 text-center text-white">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,hsl(36_30%_20%/0.18),transparent_52%)]" />
           <ScrollReveal className="mx-auto max-w-2xl">
             <Timer className="mx-auto h-8 w-8 text-white/50" />
             <h2 className="mt-6 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">
