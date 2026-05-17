@@ -55,10 +55,6 @@ const faqItems = [
     q: "Is my data safe?",
     a: "Uploads and job metadata are stored securely. We use Supabase for persistence and industry-standard practices. You can request deletion of your job data by contacting support.",
   },
-  {
-    q: "Which AI model do you use?",
-    a: "We use custom LoRA fine-tuning — your photos train a personal AI portrait model in minutes. Then we generate your headshots from that model. Your data is never used to train any shared model.",
-  },
 ];
 
 function BeforeAfterCard() {

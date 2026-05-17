@@ -12,9 +12,6 @@ const fadeUp = {
 };
 
 export function LandingHero() {
-  const heroBefore = "/hero-before.jpg";
-  const heroAfter = "/hero-after.jpg";
-
   return (
     <section className="relative overflow-hidden border-b border-white/[0.06]">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
@@ -101,42 +98,22 @@ export function LandingHero() {
             className="relative order-2 w-full min-w-0 max-w-lg justify-self-center lg:order-none lg:max-w-none lg:justify-self-end"
             style={{ perspective: "1200px" }}
           >
-            <div className="glass-panel-strong relative overflow-hidden rounded-[1.35rem] p-[1px] sm:rounded-[1.75rem]">
-              <div className="relative flex aspect-[4/3] w-full overflow-hidden rounded-[1.3rem] bg-card sm:aspect-[16/9] sm:rounded-[1.7rem]">
-                <div className="relative flex-1 overflow-hidden">
-                  <Image
-                    src={heroBefore}
-                    alt="Before — casual selfie reference"
-                    fill
-                    className="object-cover object-center"
-                    sizes="(max-width: 1023px) min(100vw, 32rem), 50vw"
-                    priority
-                  />
-                  <span className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/90 backdrop-blur-md sm:left-4 sm:top-4">
-                    Before
-                  </span>
-                </div>
-                <div
-                  className="relative z-10 flex w-[3px] shrink-0 bg-gradient-to-b from-transparent via-primary to-transparent opacity-90"
-                  aria-hidden
+            <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
+              {["/man-after.jpg", "/exec-after.jpg", "/woman2-after.jpg"].map((src, index) => (
+                <Image
+                  key={src}
+                  src={src}
+                  width={420}
+                  height={560}
+                  className="aspect-[3/4] w-full rounded-2xl object-cover"
+                  alt="AI headshot"
+                  sizes="(max-width: 1023px) 33vw, 180px"
+                  priority={index === 0}
                 />
-                <div className="relative flex-1 overflow-hidden">
-                  <Image
-                    src={heroAfter}
-                    alt="After — AI professional headshot"
-                    fill
-                    className="object-cover object-center"
-                    sizes="(max-width: 1023px) min(100vw, 32rem), 50vw"
-                    priority
-                  />
-                  <span className="absolute right-3 top-3 rounded-full border border-primary/30 bg-primary/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary-foreground shadow-md sm:right-4 sm:top-4">
-                    After
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
-            <p className="mt-4 text-center text-xs leading-relaxed tracking-tight text-muted-foreground/75 sm:text-left">
-              Example transformation — your results are trained on your own photos.
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              AI-generated from phone selfies
             </p>
           </motion.div>
         </div>
