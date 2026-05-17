@@ -283,7 +283,7 @@ export function TryFreeClient() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 flex min-h-[44px] items-center gap-2 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-semibold text-white transition hover:border-primary hover:bg-white/5"
+              className="mt-4 flex min-h-[44px] items-center gap-2 rounded-full border border-[color:var(--border)] bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-gray-50"
             >
               <span className="text-lg leading-none">+</span> Add more photos
             </button>
