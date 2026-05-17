@@ -16,17 +16,38 @@ type AstriaTune = {
   prompts?: AstriaPrompt[];
 };
 
-function collectImageUrls(body: unknown): string[] {
-  const tune = (body && typeof body === "object" && "tune" in body
-    ? (body as { tune?: AstriaTune }).tune
-    : body) as AstriaTune | undefined;
+function urlsFromImages(images: unknown): string[] {
+  if (!Array.isArray(images)) return [];
 
-  return (
-    tune?.prompts
-      ?.flatMap((prompt) => prompt.images ?? [])
-      .map((image) => image.url)
-      .filter((url): url is string => typeof url === "string" && url.length > 0) ?? []
-  );
+  return images
+    .map((image) => {
+      if (typeof image === "string") return image;
+      if (image && typeof image === "object" && "url" in image) {
+        return (image as AstriaImage).url;
+      }
+      return null;
+    })
+    .filter((url): url is string => typeof url === "string" && url.length > 0);
+}
+
+function collectImageUrls(body: unknown): string[] {
+  if (!body || typeof body !== "object") return [];
+
+  const payload = body as {
+    tune?: AstriaTune;
+    prompt?: AstriaPrompt;
+    prompts?: AstriaPrompt[];
+    images?: unknown;
+  };
+
+  const directImageUrls = urlsFromImages(payload.images);
+  const promptImageUrls = urlsFromImages(payload.prompt?.images);
+  const promptsImageUrls =
+    payload.prompts?.flatMap((prompt) => urlsFromImages(prompt.images)) ?? [];
+  const tuneImageUrls =
+    payload.tune?.prompts?.flatMap((prompt) => urlsFromImages(prompt.images)) ?? [];
+
+  return [...directImageUrls, ...promptImageUrls, ...promptsImageUrls, ...tuneImageUrls];
 }
 
 export async function GET() {
@@ -51,29 +72,32 @@ export async function POST(request: Request) {
 
   const outputUrls = collectImageUrls(body);
   if (outputUrls.length === 0) {
-    await updateGenerationStatus({
-      id: generationId,
-      status: "failed",
-      errorMessage: "Astria webhook returned no generated images.",
-    });
-    return Response.json({ error: "No generated images" }, { status: 422 });
+    return Response.json({ ok: true, message: "No images yet; waiting for prompt callbacks." });
   }
 
-  const completedGeneration = await updateGenerationStatus({
+  if (generation.status === "done") {
+    return Response.json({ ok: true, count: generation.output_urls.length, alreadyDone: true });
+  }
+
+  const combinedOutputUrls = Array.from(new Set([...generation.output_urls, ...outputUrls]));
+  const nextStatus = combinedOutputUrls.length >= 18 ? "done" : "processing";
+  const updatedGeneration = await updateGenerationStatus({
     id: generationId,
-    status: "done",
-    outputUrls,
+    status: nextStatus,
+    outputUrls: combinedOutputUrls,
   });
 
-  try {
-    await sendHeadshotsReady(
-      completedGeneration.email,
-      `/try/result/${completedGeneration.id}`,
-      completedGeneration.output_urls
-    );
-  } catch (error) {
-    console.error("headshots-ready email failed:", error);
+  if (nextStatus === "done") {
+    try {
+      await sendHeadshotsReady(
+        updatedGeneration.email,
+        `/try/result/${updatedGeneration.id}`,
+        updatedGeneration.output_urls
+      );
+    } catch (error) {
+      console.error("headshots-ready email failed:", error);
+    }
   }
 
-  return Response.json({ ok: true, count: outputUrls.length });
+  return Response.json({ ok: true, count: combinedOutputUrls.length, status: nextStatus });
 }

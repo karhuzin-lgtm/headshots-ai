@@ -58,6 +58,7 @@ export async function createAstrinaTune(
       callback: callbackUrl,
       prompts_attributes: Object.values(HEADSHOT_STYLES).map((prompt) => ({
         text: prompt,
+        callback: callbackUrl,
         num_images: 3,
         w: 768,
         h: 1024,
