@@ -146,7 +146,7 @@ export default function HomePage() {
             </Link>
           </nav>
           <Link
-            href="#waitlist"
+            href="/#waitlist"
             className="rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-gray-900"
           >
             Join waitlist

@@ -23,7 +23,7 @@ export function StylesSection() {
           {DISPLAY_STYLES.map((style) => (
             <Link
               key={style.key}
-              href={`/try?style=${style.key}`}
+              href="/#waitlist"
               className="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
               aria-label={`Start with ${style.name} style`}
             >
@@ -46,7 +46,7 @@ export function StylesSection() {
 
         <div className="mt-12 text-center">
           <Link
-            href="/try"
+            href="/#waitlist"
             className="inline-flex rounded-full bg-[#111827] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
           >
             Start free — no card needed →
