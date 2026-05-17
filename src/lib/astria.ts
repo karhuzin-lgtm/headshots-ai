@@ -50,7 +50,7 @@ export async function createAstrinaTune(
   body.append("tune[steps]", "1000");
   imageUrls.forEach((url) => body.append("tune[image_urls][]", url));
   Object.entries(HEADSHOT_STYLES).forEach(([, prompt]) => {
-    body.append("tune[prompts_attributes][][text]", `<lora:TUNE_ID:1.0> ${prompt}`);
+    body.append("tune[prompts_attributes][][text]", prompt);
     body.append(
       "tune[prompts_attributes][][negative_prompt]",
       "beard, facial hair, distorted face, enlarged face, waxy skin, CGI, full body"
