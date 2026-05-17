@@ -70,29 +70,29 @@ function BeforeAfterCard() {
   return (
     <div className="grid grid-cols-1 gap-7 lg:grid-cols-2">
       {pairs.map((pair, i) => (
-        <div key={pair.before} className="grid grid-cols-2 gap-3 sm:gap-4">
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card">
+        <div key={pair.before} className="grid gap-4">
+          <div className="relative overflow-hidden rounded-2xl bg-card">
             <Image
               src={pair.before}
               alt={`${pair.label} before reference photo`}
               width={900}
               height={1200}
-              className="aspect-[3/4] w-full object-cover"
-              sizes="(max-width: 1024px) 50vw, 25vw"
+              className="aspect-[3/4] w-full rounded-2xl object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
               priority={i === 0}
             />
             <div className="absolute left-3 top-3 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-[#555] backdrop-blur-sm">
               Before
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card">
+          <div className="relative overflow-hidden rounded-2xl bg-card">
             <Image
               src={pair.after}
               alt={`${pair.label} after AI generated headshot`}
               width={900}
               height={1200}
-              className="aspect-[3/4] w-full object-cover"
-              sizes="(max-width: 1024px) 50vw, 25vw"
+              className="aspect-[3/4] w-full rounded-2xl object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
               priority={i === 0}
             />
             <div className="absolute left-3 top-3 rounded-full bg-black px-3 py-1 text-xs font-semibold text-white">
@@ -159,7 +159,7 @@ export default function HomePage() {
                   See what&apos;s possible.
                 </h2>
                 <p className="mt-6 text-base leading-relaxed tracking-tight text-muted-foreground">
-                  Example transformations — your results are trained on your own photos.
+                  Example transformations — your results are built from your own photos.
                 </p>
               </ScrollReveal>
             </div>
