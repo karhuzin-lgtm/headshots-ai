@@ -10,13 +10,9 @@ type PageProps = {
 
 export default function TryResultPage({ params }: PageProps) {
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-white">
       <SiteHeader />
       <main className="relative flex-1">
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-[min(52vh,520px)] bg-gradient-to-b from-primary/[0.07] via-transparent to-transparent blur-[100px]"
-          aria-hidden
-        />
         <div className="relative">
           <TryResultClient requestId={params.requestId} />
         </div>

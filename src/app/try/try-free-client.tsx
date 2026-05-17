@@ -142,7 +142,7 @@ export function TryFreeClient() {
         professional headshots in ~15 minutes. No credit card.
       </p>
 
-      <form onSubmit={onSubmit} className="glass-panel mt-10 rounded-3xl p-5 text-left sm:p-7">
+      <form onSubmit={onSubmit} className="mt-10 rounded-3xl border border-gray-100 bg-white p-5 text-left shadow-sm sm:p-7">
         <div>
           <p className="text-sm font-semibold text-foreground">
             Tips for best results
@@ -193,7 +193,7 @@ export function TryFreeClient() {
                   className={`rounded-2xl border p-4 text-left transition ${
                     isSelected
                       ? "border-primary bg-primary/10"
-                      : "border-white/10 bg-white/[0.03] hover:border-primary/35 hover:bg-white/[0.05]"
+                      : "border-gray-100 bg-white hover:border-primary/35 hover:bg-gray-50"
                   } cursor-pointer`}
                   aria-pressed={isSelected}
                 >
@@ -201,7 +201,7 @@ export function TryFreeClient() {
                     <span className="text-sm font-semibold text-foreground">{style.name}</span>
                     <span
                       className={`h-3 w-3 rounded-full border ${
-                        isSelected ? "border-primary bg-primary" : "border-white/30"
+                        isSelected ? "border-primary bg-primary" : "border-gray-300"
                       }`}
                       aria-hidden
                     />
@@ -221,7 +221,7 @@ export function TryFreeClient() {
             Upload 8-20 selfies
           </span>
         </label>
-        <label className="mt-3 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-4 py-8 text-center transition hover:border-primary/35 hover:bg-white/[0.05]">
+        <label className="mt-3 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center transition hover:border-primary/35 hover:bg-white">
           <Upload className="h-7 w-7 text-muted-foreground" />
           <span className="mt-3 text-sm font-medium text-foreground">
             Click to choose images
@@ -248,13 +248,13 @@ export function TryFreeClient() {
               {files.map((file, idx) => (
                 <div
                   key={`${file.name}-${file.size}-${idx}`}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-muted-foreground"
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-white px-3 py-2 text-xs text-muted-foreground shadow-sm"
                 >
                   <span className="truncate">{file.name}</span>
                   <button
                     type="button"
                     onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                    className="shrink-0 rounded-full px-2 py-1 text-base leading-none text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
+                    className="shrink-0 rounded-full px-2 py-1 text-base leading-none text-muted-foreground transition hover:bg-gray-100 hover:text-foreground"
                     aria-label={`Remove ${file.name}`}
                   >
                     ×
@@ -265,7 +265,7 @@ export function TryFreeClient() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 flex items-center gap-2 rounded-xl border border-primary/40 px-4 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
+              className="mt-4 flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-[#0a0a0a] transition hover:border-gray-300 hover:bg-gray-50"
             >
               <span className="text-lg leading-none">+</span> Add more photos
             </button>
@@ -279,7 +279,7 @@ export function TryFreeClient() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-b from-[hsl(40_35%_96%)] to-[hsl(36_26%_86%)] px-6 text-base font-semibold text-primary-foreground transition hover:brightness-[1.03] disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-base font-semibold text-white transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <>
@@ -290,7 +290,7 @@ export function TryFreeClient() {
             "Generate my headshots"
           )}
         </button>
-        {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
+        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       </form>
     </div>
   );

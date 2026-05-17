@@ -101,7 +101,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
   if (!status || status.status === "pending" || status.status === "processing") {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-24 text-center">
-        <div className="glass-panel-strong w-full rounded-3xl px-8 py-12">
+        <div className="w-full rounded-3xl border border-gray-100 bg-white px-8 py-12 shadow-sm">
           <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
           <h1 className="font-display mt-8 text-3xl font-normal text-gradient-display">
             Creating your headshots
@@ -147,7 +147,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
                 <p className="mb-4 text-sm font-semibold text-foreground">{displayLabel}</p>
                 <div className="grid gap-4 sm:grid-cols-3">
                   {styleUrls.map((imageUrl, i) => (
-                    <div key={imageUrl} className="glass-panel-strong overflow-hidden rounded-3xl p-2">
+                    <div key={imageUrl} className="overflow-hidden rounded-3xl border border-gray-100 bg-white p-2 shadow-sm">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageUrl}

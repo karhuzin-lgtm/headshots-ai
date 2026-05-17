@@ -157,7 +157,7 @@ export function JobResultsClient({ jobId }: Props) {
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             This usually takes about two to five minutes. Keep this tab open.
           </p>
-          <div className="mt-10 h-2.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+          <div className="mt-10 h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
             <div
               className="h-full rounded-full bg-gradient-to-r from-primary/80 to-primary transition-[width] duration-500 ease-out"
               style={{ width: `${pct}%` }}
@@ -189,7 +189,7 @@ export function JobResultsClient({ jobId }: Props) {
             type="button"
             disabled={checkoutLoading}
             onClick={() => void startCheckout()}
-            className="mt-10 h-12 w-full rounded-full border-0 bg-gradient-to-b from-[hsl(40_35%_96%)] to-[hsl(36_26%_86%)] text-[15px] font-semibold text-primary-foreground hover:brightness-[1.03]"
+            className="mt-10 h-12 w-full rounded-full border-0 bg-black text-[15px] font-semibold text-white hover:bg-gray-900"
           >
             {checkoutLoading ? (
               <>
@@ -200,7 +200,7 @@ export function JobResultsClient({ jobId }: Props) {
               "Pay & unlock downloads"
             )}
           </Button>
-          {loadError && <p className="mt-4 text-xs text-amber-200/90">{loadError}</p>}
+          {loadError && <p className="mt-4 text-xs text-amber-600">{loadError}</p>}
         </div>
       </div>
     );
@@ -209,7 +209,7 @@ export function JobResultsClient({ jobId }: Props) {
   if (job.paid && job.status === "completed") {
     return (
       <div className="mx-auto w-full max-w-[1100px] px-4 py-12 sm:py-16 md:px-6">
-        <div className="flex flex-col gap-3 border-b border-white/[0.06] pb-10 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-gray-100 pb-10 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Your gallery</p>
             <h1 className="font-display mt-3 text-3xl font-normal tracking-tight text-gradient-display sm:text-4xl">
@@ -220,7 +220,7 @@ export function JobResultsClient({ jobId }: Props) {
               Paid · {job.plan} pack
             </p>
           </div>
-          <Button asChild variant="outline" className="rounded-full border-white/[0.14] bg-white/[0.04]">
+          <Button asChild variant="outline" className="rounded-full border-gray-200 bg-white hover:bg-gray-50">
             <Link href="/">Home</Link>
           </Button>
         </div>
@@ -230,7 +230,7 @@ export function JobResultsClient({ jobId }: Props) {
             <li
               key={i}
               className={cn(
-                "group relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/[0.08] bg-card"
+                "group relative aspect-[3/4] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
               )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

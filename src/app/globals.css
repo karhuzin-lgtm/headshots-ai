@@ -4,29 +4,28 @@
 
 @layer base {
   :root {
-    /* Warm photographic studio — not flat black, not neon AI purple */
-    --background: 28 12% 7%;
-    --foreground: 40 28% 96%;
-    --card: 28 10% 10%;
-    --card-foreground: 40 28% 96%;
-    --primary: 36 48% 58%;
-    --primary-foreground: 28 20% 10%;
-    --secondary: 28 8% 14%;
-    --secondary-foreground: 40 22% 92%;
-    --muted: 28 8% 16%;
-    --muted-foreground: 35 10% 58%;
-    --accent: 32 14% 18%;
-    --accent-foreground: 40 28% 96%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 0 0% 4%;
     --destructive: 0 62% 50%;
-    --destructive-foreground: 40 28% 96%;
-    --border: 32 10% 18%;
-    --input: 32 10% 18%;
-    --ring: 36 48% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262 83% 58%;
     --radius: 1rem;
-    --canvas: #0c0a08;
-    --linen: 40 35% 97%;
-    --brass-glow: 36 55% 52%;
-    --glass-highlight: 40 40% 98%;
+    --canvas: #ffffff;
+    --linen: 0 0% 4%;
+    --brass-glow: 262 83% 58%;
+    --glass-highlight: 0 0% 100%;
   }
 }
 
@@ -39,43 +38,30 @@
   }
   body {
     @apply min-h-dvh font-sans antialiased;
-    background-color: var(--canvas);
+    background-color: #ffffff;
     color: hsl(var(--foreground));
-    background-image:
-      radial-gradient(ellipse 130% 70% at 50% -25%, hsl(32 28% 16% / 0.55), transparent 52%),
-      radial-gradient(ellipse 90% 55% at 100% 0%, hsl(28 22% 14% / 0.35), transparent 45%),
-      radial-gradient(ellipse 70% 45% at 0% 100%, hsl(22 18% 12% / 0.4), transparent 42%);
-    background-attachment: fixed;
   }
 
   body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    content: none;
   }
 }
 
 @layer utilities {
   .text-gradient-display {
-    @apply bg-gradient-to-br from-[hsl(var(--linen))] via-[hsl(40_30%_88%)] to-[hsl(35_22%_72%)] bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-[#0a0a0a] via-[#111827] to-[#4f46e5] bg-clip-text text-transparent;
   }
 
   .text-gradient-brass {
-    @apply bg-gradient-to-r from-[hsl(38_42%_72%)] via-[hsl(36_48%_58%)] to-[hsl(32_44%_52%)] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#2563eb] via-[#4f46e5] to-[#7c3aed] bg-clip-text text-transparent;
   }
 
   .glass-panel {
-    @apply border border-white/[0.08] bg-white/[0.035] shadow-[0_8px_32px_-12px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.06)];
-    @apply backdrop-blur-[28px] backdrop-saturate-150;
+    @apply border border-gray-100 bg-white shadow-sm;
   }
 
   .glass-panel-strong {
-    @apply border border-white/[0.1] bg-white/[0.055] shadow-[0_24px_64px_-28px_rgba(0,0,0,0.65),inset_0_1px_0_0_rgba(255,255,255,0.08)];
-    @apply backdrop-blur-[40px] backdrop-saturate-[1.35];
+    @apply border border-gray-100 bg-white shadow-sm;
   }
 
   .glow-brass-soft {

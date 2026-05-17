@@ -200,7 +200,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
             "relative block w-full min-w-0 cursor-pointer rounded-2xl border-2 border-dashed transition-all duration-300 sm:rounded-3xl",
             isDragging
               ? "border-primary/70 bg-primary/[0.07] shadow-[0_0_48px_-16px_hsl(var(--primary)/0.35)]"
-              : "border-white/[0.12] bg-white/[0.03] shadow-[0_8px_32px_-12px_rgba(0,0,0,0.45),inset_0_1px_0_0_rgba(255,255,255,0.05)] backdrop-blur-[28px] backdrop-saturate-150 hover:border-primary/30 hover:bg-white/[0.05]"
+              : "border-gray-200 bg-gray-50 shadow-sm hover:border-primary/30 hover:bg-white"
           )}
         >
           <input
@@ -215,7 +215,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
             }}
           />
           <div className="flex flex-col items-center px-4 py-12 sm:px-6 sm:py-16">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.1] bg-white/[0.05] text-foreground/85 backdrop-blur-sm">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-100 bg-white text-foreground/85 shadow-sm">
               <Upload className="h-6 w-6" strokeWidth={1.5} />
             </div>
             <p className="mt-5 text-base font-semibold tracking-tight text-foreground">
@@ -224,7 +224,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
             <p className="mt-2 text-sm tracking-tight text-muted-foreground">
               or click to browse · JPG or PNG · max {MAX_PHOTOS} files
             </p>
-            <span className="pointer-events-none mt-8 inline-flex h-11 items-center justify-center rounded-full border border-white/[0.14] bg-white/[0.06] px-6 text-[13px] font-semibold text-foreground backdrop-blur-sm">
+            <span className="pointer-events-none mt-8 inline-flex h-11 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-[13px] font-semibold text-foreground shadow-sm">
               <ImagePlus className="mr-2 h-4 w-4" />
               Choose files
             </span>
@@ -235,7 +235,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
           <p
             className={cn(
               "text-sm font-medium tabular-nums tracking-tight",
-              count >= MIN_PHOTOS ? "text-muted-foreground" : "text-amber-200/85"
+              count >= MIN_PHOTOS ? "text-muted-foreground" : "text-amber-600"
             )}
           >
             {count} / {MAX_PHOTOS} photos uploaded
@@ -246,7 +246,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
             )}
           </p>
           {hint && (
-            <p className="text-xs tracking-tight text-amber-200/90 sm:text-right">{hint}</p>
+            <p className="text-xs tracking-tight text-amber-600 sm:text-right">{hint}</p>
           )}
         </div>
 
@@ -255,7 +255,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
             {photos.map((p) => (
               <li
                 key={p.id}
-                className="group relative aspect-square overflow-hidden rounded-xl border border-white/[0.08] bg-card"
+                className="group relative aspect-square overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm"
               >
                 <Image
                   src={p.url}
@@ -282,12 +282,12 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
         )}
       </section>
 
-      <div className="mt-16 flex flex-col items-center gap-4 border-t border-white/[0.06] pt-12">
+      <div className="mt-16 flex flex-col items-center gap-4 border-t border-gray-100 pt-12">
         <Button
           type="button"
           disabled={!canContinue || submitting}
           onClick={() => void handleGenerate()}
-          className="h-12 w-full max-w-md rounded-full border-0 bg-gradient-to-b from-[hsl(40_35%_96%)] to-[hsl(36_26%_86%)] text-[15px] font-semibold tracking-tight text-primary-foreground shadow-none hover:brightness-[1.03] disabled:cursor-not-allowed disabled:from-white/20 disabled:to-white/15 disabled:text-foreground/40 md:w-auto md:min-w-[280px]"
+          className="h-12 w-full max-w-md rounded-full border-0 bg-black text-[15px] font-semibold tracking-tight text-white shadow-none hover:bg-gray-900 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 md:w-auto md:min-w-[280px]"
         >
           {submitting ? (
             <>
@@ -299,7 +299,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
           )}
         </Button>
         {submitError && (
-          <p className="max-w-md text-center text-xs text-amber-200/90">{submitError}</p>
+          <p className="max-w-md text-center text-xs text-amber-600">{submitError}</p>
         )}
         {!canContinue && (
           <p className="max-w-md text-center text-xs tracking-tight text-muted-foreground/90">

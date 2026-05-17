@@ -80,7 +80,7 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
         className={cn(
           "rounded-2xl border px-5 py-4 text-left",
           variant === "dark"
-            ? "border-white/15 bg-white/10 text-white"
+            ? "border-gray-100 bg-white text-[#0a0a0a] shadow-sm"
             : "border-[#e8e8e8] bg-white text-[#111]",
           className
         )}
@@ -99,7 +99,7 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
         htmlFor="waitlist-email"
         className={cn(
           "mb-2 block text-sm font-semibold",
-          variant === "dark" ? "text-white" : "text-[#111]"
+          variant === "dark" ? "text-[#0a0a0a]" : "text-[#111]"
         )}
       >
         Get my free headshot →
@@ -108,7 +108,7 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
         <p
           className={cn(
             "mb-3 text-sm",
-            variant === "dark" ? "text-white/65" : "text-[#666]"
+            variant === "dark" ? "text-[#6b7280]" : "text-[#666]"
           )}
         >
           {remaining} of 100 spots remaining
@@ -125,7 +125,7 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
           className={cn(
             "min-h-[52px] w-full min-w-0 flex-1 rounded-xl border px-4 text-[16px] outline-none transition focus:ring-2",
             variant === "dark"
-              ? "border-white/20 bg-white/10 text-white placeholder:text-white/40 focus:border-white/35 focus:ring-white/20"
+              ? "border-gray-200 bg-white text-[#111] placeholder:text-[#999] focus:border-[#111] focus:ring-[#111]/10"
               : "border-[#e8e8e8] bg-white text-[#111] placeholder:text-[#999] focus:border-[#111] focus:ring-[#111]/10"
           )}
         />
@@ -135,7 +135,7 @@ export function WaitlistForm({ variant = "light", className }: WaitlistFormProps
           className={cn(
             "inline-flex min-h-[52px] w-full items-center justify-center rounded-xl px-4 text-[16px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6",
             variant === "dark"
-              ? "bg-white text-black hover:bg-white/90"
+              ? "bg-black text-white hover:bg-gray-900"
               : "bg-[#111] text-white hover:bg-[#222]"
           )}
         >

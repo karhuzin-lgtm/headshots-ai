@@ -104,13 +104,13 @@ function BeforeAfterCard() {
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-white">
       <SiteHeader />
 
       <main className="flex-1">
         <LandingHero />
 
-        <section className="border-b border-white/[0.06] py-16 sm:py-20 md:py-20">
+        <section className="border-b border-gray-100 bg-[#f9fafb] py-16 sm:py-20 md:py-20">
           <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
@@ -123,12 +123,12 @@ export default function HomePage() {
               </h2>
             </ScrollReveal>
 
-            <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] md:mt-20 md:grid-cols-3 md:rounded-3xl">
+            <div className="mt-14 grid grid-cols-1 gap-4 md:mt-20 md:grid-cols-3">
               {steps.map((step, i) => (
                 <ScrollReveal
                   key={step.n}
                   delay={i * 0.08}
-                  className="glass-panel border-0 bg-background/80 p-7 sm:p-9 md:p-11"
+                  className="rounded-3xl border border-gray-100 bg-white p-7 shadow-sm sm:p-9 md:p-11"
                 >
                   <span className="font-display text-5xl font-normal tabular-nums tracking-tight text-primary/25">
                     {step.n}
@@ -145,7 +145,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="examples" className="scroll-mt-20 py-16 sm:py-20 md:py-20">
+        <section id="examples" className="scroll-mt-20 bg-white py-16 sm:py-20 md:py-20">
           <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
             <div className="flex flex-col justify-between gap-10 lg:flex-row lg:items-end">
               <ScrollReveal className="max-w-xl">
@@ -183,7 +183,7 @@ export default function HomePage() {
           </ScrollReveal>
         </section>
 
-        <section id="faq" className="scroll-mt-20 py-16 sm:py-20 md:py-20">
+        <section id="faq" className="scroll-mt-20 bg-[#f9fafb] py-16 sm:py-20 md:py-20">
           <div className="mx-auto max-w-2xl px-4 md:px-6 lg:px-10">
             <ScrollReveal className="text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">FAQ</p>
@@ -207,7 +207,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="border-t border-white/[0.06] bg-[hsl(26_14%_5%)] py-16 sm:py-20 md:py-24">
+        <section className="border-t border-gray-100 bg-white py-16 sm:py-20 md:py-24">
           <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <h2 className="font-display text-3xl font-normal leading-[1.15] tracking-[-0.02em] text-gradient-display sm:text-4xl">
@@ -216,7 +216,7 @@ export default function HomePage() {
               <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed tracking-tight text-muted-foreground">
                 Only 87 spots left. No credit card. No catch.
               </p>
-              <WaitlistForm variant="dark" className="mx-auto mt-11 max-w-lg" />
+              <WaitlistForm className="mx-auto mt-11 max-w-lg" />
             </ScrollReveal>
           </div>
         </section>

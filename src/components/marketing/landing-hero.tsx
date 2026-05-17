@@ -13,13 +13,7 @@ const fadeUp = {
 
 export function LandingHero() {
   return (
-    <section className="relative overflow-hidden border-b border-white/[0.06]">
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute left-1/2 top-0 h-[min(72vh,760px)] w-[min(130vw,880px)] -translate-x-1/2 rounded-full bg-gradient-to-b from-[hsl(36_42%_42%/0.22)] via-[hsl(28_30%_18%/0.12)] to-transparent blur-[100px] animate-shimmer-slow" />
-        <div className="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-[hsl(22_35%_22%/0.15)] blur-[90px]" />
-        <div className="absolute -right-32 top-1/4 h-96 w-96 rounded-full bg-[hsl(40_28%_28%/0.12)] blur-[100px]" />
-      </div>
-
+    <section className="relative overflow-hidden border-b border-gray-100 bg-white">
       <div className="relative mx-auto w-full max-w-[1400px] px-4 pb-16 pt-12 sm:pb-24 sm:pt-16 md:px-6 lg:px-10 lg:pb-28 lg:pt-24">
         <div className="flex flex-col gap-12 lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)] lg:items-center lg:gap-16">
           <div className="order-1 max-w-xl lg:order-none lg:max-w-none">
@@ -37,7 +31,7 @@ export function LandingHero() {
                 {MARKETING_AVATARS.map((src) => (
                   <span
                     key={src}
-                    className="relative inline-flex h-9 w-9 overflow-hidden rounded-full ring-2 ring-[hsl(28_12%_7%)] shadow-lg shadow-black/30"
+                    className="relative inline-flex h-9 w-9 overflow-hidden rounded-full ring-2 ring-white shadow-sm"
                   >
                     <Image
                       src={src}
@@ -57,19 +51,15 @@ export function LandingHero() {
             <motion.h1
               {...fadeUp}
               transition={{ duration: 0.6, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
-              className="font-display mt-7 text-[2.35rem] font-normal leading-[1.06] tracking-[-0.02em] sm:mt-9 sm:text-5xl sm:leading-[1.04] lg:text-[3.35rem]"
+              className="font-display mt-7 text-[2.55rem] font-semibold leading-[1.02] tracking-[-0.04em] text-[#0a0a0a] sm:mt-9 sm:text-6xl sm:leading-[1] lg:text-[4.25rem]"
             >
-              <span className="text-gradient-display">Portraits that</span>
+              <span>Portraits that</span>
               <br />
-              <span className="text-gradient-display">read as </span>
+              <span>read as </span>
               <span className="relative inline-block">
                 <span className="relative z-10 font-display italic text-gradient-brass">
                   investment-grade.
                 </span>
-                <span
-                  className="absolute -inset-x-2 -inset-y-1 -z-0 rounded-2xl bg-primary/15 blur-2xl"
-                  aria-hidden
-                />
               </span>
             </motion.h1>
 
@@ -78,7 +68,7 @@ export function LandingHero() {
               transition={{ duration: 0.58, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
               className="mt-7 max-w-md text-pretty text-base leading-relaxed tracking-tight text-muted-foreground sm:text-lg"
             >
-              Upload 3-20 selfies. We generate your first professional AI headshot — free, no credit
+              Upload 8-20 selfies. We generate your first professional AI headshot — free, no credit
               card. Limited to the first 100 testers.
             </motion.p>
 
@@ -87,7 +77,7 @@ export function LandingHero() {
               transition={{ duration: 0.58, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
               className="mt-11 w-full max-w-lg"
             >
-              <WaitlistForm variant="dark" />
+              <WaitlistForm />
             </motion.div>
           </div>
 
@@ -105,7 +95,7 @@ export function LandingHero() {
                   src={src}
                   width={720}
                   height={960}
-                  className="aspect-[3/4] w-full rounded-3xl object-cover shadow-2xl shadow-black/30"
+                  className="aspect-[3/4] w-full rounded-3xl object-cover shadow-sm ring-1 ring-gray-100"
                   alt="AI headshot"
                   sizes="(max-width: 1023px) 33vw, 320px"
                   priority={index === 0}

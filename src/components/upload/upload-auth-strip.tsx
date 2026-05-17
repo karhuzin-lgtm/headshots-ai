@@ -20,7 +20,7 @@ export function UploadAuthStrip() {
 
   if (!email) {
     return (
-      <div className="mb-8 flex flex-col items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-6 text-center backdrop-blur-sm sm:flex-row sm:justify-center sm:py-5">
+      <div className="mb-8 flex flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-6 text-center shadow-sm sm:flex-row sm:justify-center sm:py-5">
         <p className="text-sm text-muted-foreground">Sign in to upload your references.</p>
         <GoogleSignInButton className="h-10 shrink-0 rounded-full px-6" />
       </div>

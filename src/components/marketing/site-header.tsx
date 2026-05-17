@@ -27,13 +27,13 @@ export function SiteHeader() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.07] bg-[hsl(28_12%_7%/0.72)] backdrop-blur-2xl backdrop-saturate-150">
+    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/85 backdrop-blur-2xl backdrop-saturate-150">
       <div className="relative mx-auto flex h-[3.35rem] max-w-[1400px] items-center justify-between gap-3 px-4 md:h-16 md:px-6 lg:px-10">
         <Link
           href="/"
           className="group flex shrink-0 items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em] text-foreground"
         >
-          <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[hsl(40_35%_94%)] to-[hsl(32_30%_78%)] text-sm font-bold tracking-tight text-primary-foreground shadow-[0_0_0_1px_rgba(255,255,255,0.12)_inset] transition group-hover:brightness-105">
+          <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-black text-sm font-bold tracking-tight text-white shadow-sm transition group-hover:bg-gray-900">
             <span className="font-display text-[1.05rem] font-normal">H</span>
           </span>
           <span className="hidden min-[380px]:inline">
@@ -49,7 +49,7 @@ export function SiteHeader() {
             <Link
               key={href}
               href={href}
-              className="rounded-full px-3.5 py-2 text-sm font-medium tracking-tight text-muted-foreground transition hover:bg-white/[0.06] hover:text-foreground"
+              className="rounded-full px-3.5 py-2 text-sm font-medium tracking-tight text-muted-foreground transition hover:bg-gray-100 hover:text-foreground"
             >
               {label}
             </Link>
@@ -84,7 +84,7 @@ export function SiteHeader() {
         <button
           type="button"
           className={cn(
-            "absolute inset-0 bg-black/65 backdrop-blur-md transition-opacity duration-300",
+            "absolute inset-0 bg-black/20 backdrop-blur-md transition-opacity duration-300",
             menuOpen ? "opacity-100" : "opacity-0"
           )}
           aria-label="Close menu"
@@ -112,14 +112,14 @@ export function SiteHeader() {
               <Link
                 key={href}
                 href={href}
-                className="rounded-xl px-4 py-3.5 text-base font-medium tracking-tight text-muted-foreground transition hover:bg-white/[0.06] hover:text-foreground"
+                className="rounded-xl px-4 py-3.5 text-base font-medium tracking-tight text-muted-foreground transition hover:bg-gray-100 hover:text-foreground"
                 onClick={() => setMenuOpen(false)}
               >
                 {label}
               </Link>
             ))}
           </nav>
-          <p className="mt-8 border-t border-white/[0.06] pt-6 text-sm font-medium tracking-tight text-muted-foreground">
+          <p className="mt-8 border-t border-gray-100 pt-6 text-sm font-medium tracking-tight text-muted-foreground">
             Launching soon
           </p>
         </div>

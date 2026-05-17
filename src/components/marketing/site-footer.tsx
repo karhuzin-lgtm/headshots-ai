@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-white/[0.06] bg-[hsl(26_14%_5%)]">
+    <footer className="border-t border-gray-100 bg-white">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-10 px-4 py-14 sm:flex-row sm:items-start sm:justify-between sm:py-16 md:px-6 lg:px-10">
         <div className="max-w-sm">
           <p className="font-display text-2xl font-normal tracking-tight text-foreground">
@@ -28,7 +28,7 @@ export function SiteFooter() {
           </Link>
         </div>
       </div>
-      <div className="border-t border-white/[0.04] py-6 text-center text-xs tracking-tight text-muted-foreground/80">
+      <div className="border-t border-gray-100 py-6 text-center text-xs tracking-tight text-muted-foreground/80">
         © {new Date().getFullYear()} Headshots. All rights reserved.
       </div>
     </footer>
