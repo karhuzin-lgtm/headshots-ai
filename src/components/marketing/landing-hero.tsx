@@ -12,8 +12,8 @@ const fadeUp = {
 };
 
 export function LandingHero() {
-  const heroBefore = "/man-before.jpg";
-  const heroAfter = "/man-after.jpg";
+  const heroBefore = "/hero-before.jpg";
+  const heroAfter = "/hero-after.jpg";
 
   return (
     <section className="relative overflow-hidden border-b border-white/[0.06]">
@@ -81,7 +81,7 @@ export function LandingHero() {
               transition={{ duration: 0.58, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
               className="mt-7 max-w-md text-pretty text-base leading-relaxed tracking-tight text-muted-foreground sm:text-lg"
             >
-              Upload 3 selfies. We generate your first professional AI headshot — free, no credit
+              Upload 10-20 selfies. We generate your first professional AI headshot — free, no credit
               card. Limited to the first 100 testers.
             </motion.p>
 

@@ -25,8 +25,8 @@ const steps = [
   },
   {
     n: "03",
-    title: "Join the private beta",
-    body: "We are opening access in waves. Join the waitlist and we will email you when your early access invite is ready.",
+    title: "Receive your headshots",
+    body: "Your AI-generated headshots arrive in ~5 minutes. Download, share on LinkedIn, use anywhere.",
   },
 ];
 
@@ -57,7 +57,7 @@ const faqItems = [
   },
   {
     q: "Which AI model do you use?",
-    a: "We use fal.ai FLUX.1 dev image-to-image for portrait-consistent outputs from your references.",
+    a: "We use custom LoRA fine-tuning — your photos train a personal AI portrait model in minutes. Then we generate your headshots from that model. Your data is never used to train any shared model.",
   },
 ];
 
@@ -114,7 +114,7 @@ export default function HomePage() {
       <main className="flex-1">
         <LandingHero />
 
-        <section className="border-b border-white/[0.06] py-16 sm:py-20 md:py-28">
+        <section className="border-b border-white/[0.06] py-16 sm:py-20 md:py-20">
           <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
@@ -149,7 +149,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="examples" className="scroll-mt-20 py-16 sm:py-20 md:py-28">
+        <section id="examples" className="scroll-mt-20 py-16 sm:py-20 md:py-20">
           <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
             <div className="flex flex-col justify-between gap-10 lg:flex-row lg:items-end">
               <ScrollReveal className="max-w-xl">
@@ -187,7 +187,7 @@ export default function HomePage() {
           </ScrollReveal>
         </section>
 
-        <section id="faq" className="scroll-mt-20 py-16 sm:py-20 md:py-28">
+        <section id="faq" className="scroll-mt-20 py-16 sm:py-20 md:py-20">
           <div className="mx-auto max-w-2xl px-4 md:px-6 lg:px-10">
             <ScrollReveal className="text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">FAQ</p>
