@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useId, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ type WaitlistFormProps = {
 };
 
 export function WaitlistForm({ variant = "light", className, showLabel = true }: WaitlistFormProps) {
+  const router = useRouter();
   const inputId = useId();
   const [email, setEmail] = useState("");
   const [remaining, setRemaining] = useState<number | null>(null);
@@ -64,6 +66,9 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
 
       if (typeof json.remaining === "number") setRemaining(json.remaining);
       setSuccess(true);
+      window.setTimeout(() => {
+        router.push(`/try?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+      }, 700);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not join the waitlist");
     } finally {
@@ -84,7 +89,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
       >
         <p className="flex items-start gap-3 text-sm font-semibold">
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
-          <span>You&apos;re on the list! We&apos;ll email you when you can try it free.</span>
+          <span>You&apos;re in. Opening the upload page now...</span>
         </p>
       </div>
     );
@@ -100,7 +105,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
             variant === "dark" ? "text-white" : "text-[#111]"
           )}
         >
-          Get early access
+          Join the waitlist
         </label>
       )}
       {typeof remaining === "number" && (
@@ -144,7 +149,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
               Joining...
             </>
           ) : (
-            "Get early access"
+            "Join waitlist"
           )}
         </button>
       </form>

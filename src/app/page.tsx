@@ -198,14 +198,14 @@ export default function HomePage() {
                 In 10 minutes.
               </h1>
               <p className="mx-auto mt-7 max-w-xl text-lg font-light leading-relaxed text-[color:var(--text-2)] sm:text-xl">
-                Upload your selfies. Our AI trains a personal model on your face and generates studio-quality portraits across 6 professional styles. No photographer. No studio.
+                Join the waitlist, upload 8-20 selfies, and our AI creates studio-quality portraits across 6 professional styles. No photographer. No studio.
               </p>
             </ScrollReveal>
 
             <ScrollReveal className="mx-auto mt-9 max-w-[480px]" delay={0.08}>
               <WaitlistForm showLabel={false} />
               <p className="mt-4 text-sm text-[color:var(--text-3)]">
-                Free for early users · Results in ~10 minutes · No credit card
+                Join waitlist → upload 8-20 photos → get your headshots free
               </p>
             </ScrollReveal>
 
@@ -302,15 +302,15 @@ export default function HomePage() {
                 1,200+
               </p>
               <p className="mt-2 text-sm font-light text-[color:var(--text-2)]">
-                professionals waiting for early access
+                professionals waiting to upload 8-20 selfies and get early access
               </p>
             </ScrollReveal>
             <ScrollReveal className="mt-8">
               <Link
-                href="/try"
+                href="#waitlist"
                 className="inline-flex rounded-full bg-[#0a0a0a] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#222]"
               >
-                Claim your free headshot
+                Join waitlist to upload 8-20 selfies
               </Link>
             </ScrollReveal>
           </div>
@@ -444,10 +444,10 @@ export default function HomePage() {
               Your professional headshot is one upload away.
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-white/60">
-              Join early access - free for the first users. No credit card needed.
+              Join early access, then upload 8-20 selfies. We&apos;ll generate your first AI headshots free - no credit card needed.
             </p>
             <WaitlistForm variant="dark" showLabel={false} className="mx-auto mt-9 max-w-[480px]" />
-            <p className="mt-4 text-sm text-white/40">We&apos;ll email you a link to try it for free. No spam.</p>
+            <p className="mt-4 text-sm text-white/40">After joining, we&apos;ll open the upload page automatically. No spam.</p>
           </ScrollReveal>
         </section>
       </main>
