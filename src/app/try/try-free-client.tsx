@@ -83,8 +83,12 @@ export function TryFreeClient() {
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const email = useMemo(() => searchParams.get("email")?.trim().toLowerCase() ?? "", [searchParams]);
+  const initialStyle = useMemo(() => {
+    const style = searchParams.get("style")?.trim().toLowerCase() ?? "";
+    return STYLE_OPTIONS.some((option) => option.id === style) ? style : "";
+  }, [searchParams]);
   const [files, setFiles] = useState<File[]>([]);
-  const [selectedStyle, setSelectedStyle] = useState<string>("");
+  const [selectedStyle, setSelectedStyle] = useState<string>(initialStyle);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

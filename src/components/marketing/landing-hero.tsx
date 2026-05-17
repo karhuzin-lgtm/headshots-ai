@@ -4,77 +4,111 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { TiltCard } from "@/components/marketing/tilt-card";
 
 const fadeUp = {
   initial: { opacity: 0, y: 28 },
   animate: { opacity: 1, y: 0 },
 };
 
+const heroPhotos = [
+  { src: "/man-after.jpg?v=20260517-2", alt: "LinkedIn AI headshot", offset: "-translate-y-5", delay: "0s" },
+  { src: "/exec-after.jpg", alt: "Corporate AI headshot", offset: "translate-y-0", delay: "0.8s" },
+  { src: "/woman2-after.jpg", alt: "Executive AI headshot", offset: "-translate-y-9", delay: "1.4s" },
+];
+
+const avatarSources = [
+  "/man-after.jpg?v=20260517-2",
+  "/exec-after.jpg",
+  "/woman2-after.jpg",
+  "/images/corporate.jpg",
+  "/images/creative.jpg",
+  "/images/fal-1778531810-1.jpg",
+];
+
 export function LandingHero() {
   return (
-    <section className="relative min-h-[calc(100vh-3.35rem)] overflow-hidden border-b border-[color:var(--border)] bg-[radial-gradient(circle_at_50%_20%,oklch(12%_0.02_260),oklch(8%_0.008_260)_62%)]">
-      <motion.div
-        initial={{ opacity: 0, y: 20, rotate: -5 }}
-        animate={{ opacity: 0.7, y: 0, rotate: -3 }}
-        transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="pointer-events-none absolute -left-12 top-28 hidden w-52 overflow-hidden rounded-2xl shadow-[0_30px_90px_-40px_rgba(0,0,0,0.9)] ring-1 ring-white/10 md:block lg:left-16 lg:w-64"
-      >
-        <Image
-          src="/man-before.jpg?v=20260517-2"
-          width={720}
-          height={960}
-          alt=""
-          className="aspect-[3/4] w-full object-cover"
-          priority
-        />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 20, rotate: 5 }}
-        animate={{ opacity: 0.86, y: 0, rotate: 2 }}
-        transition={{ duration: 0.8, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        className="pointer-events-none absolute -right-10 bottom-20 hidden w-56 overflow-hidden rounded-2xl shadow-[0_30px_100px_-36px_rgba(0,0,0,0.95)] ring-1 ring-white/10 md:block lg:right-16 lg:w-72"
-      >
-        <Image
-          src="/man-after.jpg?v=20260517-2"
-          width={720}
-          height={960}
-          alt=""
-          className="aspect-[3/4] w-full object-cover"
-          priority
-        />
-      </motion.div>
+    <section className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-[radial-gradient(circle_at_50%_18%,#20205a_0%,#0f0f2e_42%,#0a0a1a_100%)] text-white">
+      <div className="absolute -left-20 top-10 h-80 w-80 rounded-full bg-indigo-500/35 blur-3xl" />
+      <div className="absolute right-0 top-24 h-96 w-96 rounded-full bg-teal-400/25 blur-3xl" />
+      <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-amber-400/25 blur-3xl" />
+      <div className="absolute -right-32 bottom-20 h-72 w-72 rounded-full bg-fuchsia-500/25 blur-3xl" />
 
-      <div className="relative mx-auto flex min-h-[calc(100vh-3.35rem)] w-full max-w-[1180px] flex-col items-center justify-center px-4 py-20 text-center md:px-6 lg:px-10">
-        <div className="max-w-4xl">
-            <motion.h1
-              {...fadeUp}
-            transition={{ duration: 0.7, delay: 0, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display text-[2.65rem] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-6xl lg:text-[72px]"
+      <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-8 flex items-center gap-4"
+          >
+            <div className="flex -space-x-3">
+              {avatarSources.map((src) => (
+                <span key={src} className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-white/70 bg-white/10">
+                  <Image src={src} alt="" width={56} height={56} className="h-full w-full object-cover" />
+                </span>
+              ))}
+            </div>
+            <p className="text-sm font-light text-white/65">1,200+ professionals waiting</p>
+          </motion.div>
+
+          <motion.h1
+            {...fadeUp}
+            transition={{ duration: 0.75, delay: 0, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[3.6rem] font-extrabold leading-[0.9] tracking-[-0.065em] sm:text-7xl lg:text-[6.5rem]"
             >
-            Professional headshots.
-              <br />
-            In 10 minutes.
-            </motion.h1>
+            <span className="animate-gradient bg-gradient-to-r from-amber-200 via-fuchsia-300 to-teal-200 bg-clip-text text-transparent">
+              Professional headshots.
+            </span>
+            <br />
+            <span>In 10 minutes.</span>
+          </motion.h1>
 
-            <motion.p
-              {...fadeUp}
+          <motion.p
+            {...fadeUp}
             transition={{ duration: 0.65, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto mt-7 max-w-2xl text-pretty text-lg font-light leading-relaxed tracking-tight text-muted-foreground sm:text-xl"
-            >
-            Upload your phone selfies, choose a visual direction, and receive editorial-grade AI headshots that look like you.
-            </motion.p>
+            className="mt-7 max-w-xl text-pretty text-xl font-light leading-relaxed text-white/68"
+          >
+            Join the waitlist, upload 8-20 selfies, and get colorful, studio-grade AI headshots across six professional styles.
+          </motion.p>
 
-            <motion.div
-              {...fadeUp}
+          <motion.div
+            {...fadeUp}
             transition={{ duration: 0.65, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto mt-10 w-full max-w-xl"
-            >
-            <WaitlistForm variant="dark" />
-            <p className="mt-5 text-sm text-muted-foreground">
-              No credit card · Results in 10 minutes · Free for early users
+            className="mt-10 w-full max-w-xl"
+          >
+            <WaitlistForm variant="dark" showLabel={false} />
+            <p className="mt-5 text-sm text-white/50">
+              Join waitlist → upload 8-20 photos → get your headshots free
             </p>
           </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 40, rotateX: 8 }}
+          animate={{ opacity: 1, y: 0, rotateX: 0 }}
+          transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="grid grid-cols-3 gap-4 [perspective:1400px]"
+        >
+          {heroPhotos.map((photo, index) => (
+            <div key={photo.src} className={`animate-float ${photo.offset}`} style={{ animationDelay: photo.delay }}>
+              <TiltCard
+                glowColor={index === 0 ? "#f59e0baa" : index === 1 ? "#14b8a6aa" : "#a855f7aa"}
+                className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-[0_40px_110px_-54px_rgba(0,0,0,0.95)]"
+              >
+                <Image
+                  src={photo.src}
+                  width={720}
+                  height={960}
+                  alt={photo.alt}
+                  className="aspect-[3/4] w-full object-cover"
+                  priority={index === 0}
+                  sizes="(max-width: 1024px) 33vw, 260px"
+                />
+              </TiltCard>
+            </div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );

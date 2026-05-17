@@ -3,7 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { LandingHero } from "@/components/marketing/landing-hero";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { SocialProofAvatars } from "@/components/marketing/social-proof-avatars";
+import { StyleGallery } from "@/components/marketing/style-gallery";
+import { TiltCard } from "@/components/marketing/tilt-card";
 
 const steps = [
   {
@@ -20,39 +24,6 @@ const steps = [
     n: "3",
     title: "Download your headshots",
     body: "Receive 3 professional portrait variations in your chosen style. Ready to use on LinkedIn, your website, or email signature. High resolution, no watermarks.",
-  },
-];
-
-const styleCards = [
-  {
-    name: "LinkedIn",
-    description: "Light blue shirt, neutral gray background. Perfect for job seekers and consultants.",
-    src: "/woman2-after.jpg",
-  },
-  {
-    name: "Corporate",
-    description: "Navy suit, professional studio lighting. Ideal for executives and business professionals.",
-    src: "/man-after.jpg?v=20260517-2",
-  },
-  {
-    name: "Executive",
-    description: "Charcoal jacket, dramatic dark backdrop. For senior leaders and C-suite profiles.",
-    src: "/exec-after.jpg",
-  },
-  {
-    name: "Tech",
-    description: "Dark crewneck, blurred modern office. Perfect for engineers, PMs, and startup founders.",
-    src: "/man-after.jpg?v=20260517-2",
-  },
-  {
-    name: "Creative",
-    description: "Smart casual blazer, warm natural light. For designers, marketers, and creative professionals.",
-    src: "/woman2-after.jpg",
-  },
-  {
-    name: "Startup",
-    description: "Clean t-shirt, minimal white background. Authentic, approachable, modern.",
-    src: "/exec-after.jpg",
   },
 ];
 
@@ -121,13 +92,6 @@ const comparisonRows = [
   ["Location", "Must travel to studio", "From anywhere"],
 ];
 
-const avatarGradients = [
-  "from-gray-200 to-gray-300",
-  "from-slate-200 to-slate-300",
-  "from-zinc-200 to-zinc-300",
-  "from-stone-200 to-stone-300",
-];
-
 function SectionIntro({
   label,
   title,
@@ -140,15 +104,15 @@ function SectionIntro({
   return (
     <ScrollReveal className="mx-auto max-w-3xl text-center">
       {label && (
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-3)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200/60">
           {label}
         </p>
       )}
-      <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.035em] text-[color:var(--text-1)] sm:text-5xl">
+      <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.04em] text-white sm:text-5xl">
         {title}
       </h2>
       {subtitle && (
-        <p className="mx-auto mt-5 max-w-2xl text-lg font-light leading-relaxed text-[color:var(--text-2)]">
+        <p className="mx-auto mt-5 max-w-2xl text-lg font-light leading-relaxed text-white/60">
           {subtitle}
         </p>
       )}
@@ -158,26 +122,26 @@ function SectionIntro({
 
 export default function HomePage() {
   return (
-    <div className="min-h-dvh bg-white text-[color:var(--text-1)]">
-      <header className="sticky top-0 z-50 border-b border-[color:var(--border)] bg-white/85 backdrop-blur-2xl">
+    <div className="min-h-dvh bg-[#0a0a1a] text-white">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a1a]/80 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link href="/" className="font-display text-xl font-semibold tracking-[-0.03em]">
             Headshots
           </Link>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-[color:var(--text-2)] md:flex">
-            <Link href="#how-it-works" className="transition hover:text-black">
+          <nav className="hidden items-center gap-8 text-sm font-medium text-white/60 md:flex">
+            <Link href="#how-it-works" className="transition hover:text-white">
               How it works
             </Link>
-            <Link href="#styles" className="transition hover:text-black">
+            <Link href="#styles" className="transition hover:text-white">
               Styles
             </Link>
-            <Link href="#faq" className="transition hover:text-black">
+            <Link href="#faq" className="transition hover:text-white">
               FAQ
             </Link>
           </nav>
           <Link
             href="#waitlist"
-            className="rounded-full bg-[#0a0a0a] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#222]"
+            className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#0a0a1a] shadow-[0_0_42px_-18px_rgba(245,158,11,0.9)] transition hover:-translate-y-0.5 hover:bg-amber-200"
           >
             Join waitlist
           </Link>
@@ -185,79 +149,66 @@ export default function HomePage() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden bg-white pb-24 pt-[120px]">
-          <div className="absolute inset-x-0 top-0 -z-0 h-[520px] bg-[radial-gradient(circle_at_50%_0%,#f3f4f6,transparent_58%)]" />
-          <div className="relative z-10 mx-auto max-w-7xl px-5 text-center lg:px-8">
-            <ScrollReveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--text-3)]">
-                AI professional headshots
-              </p>
-              <h1 className="mx-auto mt-6 max-w-4xl text-[42px] font-extrabold leading-[0.96] tracking-[-0.03em] text-[color:var(--text-1)] sm:text-6xl lg:text-[72px]">
-                Professional headshots.
-                <br />
-                In 10 minutes.
-              </h1>
-              <p className="mx-auto mt-7 max-w-xl text-lg font-light leading-relaxed text-[color:var(--text-2)] sm:text-xl">
-                Join the waitlist, upload 8-20 selfies, and our AI creates studio-quality portraits across 6 professional styles. No photographer. No studio.
-              </p>
-            </ScrollReveal>
+        <LandingHero />
+        <StyleGallery />
 
-            <ScrollReveal className="mx-auto mt-9 max-w-[480px]" delay={0.08}>
-              <WaitlistForm showLabel={false} />
-              <p className="mt-4 text-sm text-[color:var(--text-3)]">
-                Join waitlist → upload 8-20 photos → get your headshots free
-              </p>
-            </ScrollReveal>
-
-            <ScrollReveal className="mt-16" delay={0.14}>
-              <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
-                <div className="relative w-[220px] overflow-hidden rounded-2xl border border-[color:var(--border)] bg-gray-100">
-                  <Image
-                    src="/man-before.jpg?v=20260517-2"
-                    alt="Before casual selfie"
-                    width={440}
-                    height={586}
-                    className="aspect-[3/4] w-full object-cover opacity-80 grayscale"
-                    priority
-                  />
-                  <span className="absolute left-3 top-3 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
-                    Before
-                  </span>
-                </div>
-                <div className="font-display text-4xl font-semibold text-[color:var(--text-3)]">
-                  -&gt;
-                </div>
-                <div className="relative w-[220px] -translate-y-2 overflow-hidden rounded-2xl border border-[color:var(--border)] bg-white shadow-[0_30px_80px_-35px_rgba(15,23,42,0.55)]">
-                  <Image
-                    src="/man-after.jpg?v=20260517-2"
-                    alt="After AI generated headshot"
-                    width={440}
-                    height={586}
-                    className="aspect-[3/4] w-full object-cover"
-                    priority
-                  />
-                  <span className="absolute left-3 top-3 rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
-                    After - AI
-                  </span>
-                </div>
+        <section className="relative overflow-hidden bg-[linear-gradient(180deg,#0a0a1a,#0f0f2e)] py-24">
+          <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-teal-400/15 blur-3xl" />
+          <div className="relative mx-auto max-w-6xl px-5 text-center lg:px-8">
+            <SectionIntro
+              title="See what's possible"
+              subtitle="Your casual selfie becomes a polished professional portrait with color, depth, and studio-grade light."
+            />
+            <div className="mt-14 flex flex-col items-center justify-center gap-8 sm:flex-row">
+              <TiltCard className="relative w-[240px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]">
+                <Image
+                  src="/man-before.jpg?v=20260517-2"
+                  alt="Before casual selfie"
+                  width={520}
+                  height={690}
+                  className="aspect-[3/4] w-full object-cover opacity-80 grayscale"
+                />
+                <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-600">
+                  Before
+                </span>
+              </TiltCard>
+              <div className="animate-gradient rounded-full bg-gradient-to-r from-amber-300 via-fuchsia-300 to-teal-300 bg-clip-text font-display text-5xl font-extrabold text-transparent">
+                →
               </div>
-              <p className="mt-5 text-sm font-medium text-[color:var(--text-2)]">See what&apos;s possible</p>
-            </ScrollReveal>
+              <TiltCard
+                glowColor="#f59e0bcc"
+                className="relative w-[270px] overflow-hidden rounded-3xl border border-amber-200/20 bg-white/[0.04] shadow-[0_0_75px_-30px_rgba(245,158,11,0.95)]"
+              >
+                <Image
+                  src="/man-after.jpg?v=20260517-2"
+                  alt="After AI generated headshot"
+                  width={540}
+                  height={720}
+                  className="aspect-[3/4] w-full object-cover"
+                />
+                <span className="absolute left-4 top-4 rounded-full bg-amber-300 px-3 py-1 text-xs font-bold text-black shadow-[0_0_32px_-8px_rgba(245,158,11,1)]">
+                  After - AI
+                </span>
+                <span className="absolute right-4 top-16 animate-pulse rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                  +AI
+                </span>
+              </TiltCard>
+            </div>
           </div>
         </section>
 
-        <section className="bg-[color:var(--bg-soft)] py-12">
-          <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center md:grid-cols-3 md:divide-x md:divide-[color:var(--border)] lg:px-8">
+        <section className="border-y border-white/10 bg-[#0f0f2e] py-12">
+          <div className="mx-auto grid max-w-6xl gap-8 px-5 text-center md:grid-cols-3 md:divide-x md:divide-white/10 lg:px-8">
             {stats.map(([value, label], index) => (
               <ScrollReveal key={value} delay={index * 0.04} className="px-6">
-                <p className="font-display text-3xl font-bold tracking-[-0.03em]">{value}</p>
-                <p className="mt-2 text-sm leading-relaxed text-[color:var(--text-2)]">{label}</p>
+                <p className="font-display text-3xl font-bold tracking-[-0.03em] text-white">{value}</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/55">{label}</p>
               </ScrollReveal>
             ))}
           </div>
         </section>
 
-        <section id="how-it-works" className="scroll-mt-24 bg-white py-24">
+        <section id="how-it-works" className="scroll-mt-24 bg-[#0a0a1a] py-24">
           <div className="mx-auto max-w-7xl px-5 lg:px-8">
             <SectionIntro label="The process" title="Three steps to studio-quality portraits" />
             <div className="mt-16 grid gap-8 md:grid-cols-3">
@@ -265,99 +216,27 @@ export default function HomePage() {
                 <ScrollReveal
                   key={step.title}
                   delay={index * 0.06}
-                  className="rounded-[2rem] border border-transparent p-2 transition hover:border-[color:var(--border)] hover:bg-white hover:shadow-[0_24px_70px_-45px_rgba(15,23,42,0.35)]"
+                  className="glass-card rounded-[2rem] p-6 transition hover:-translate-y-1 hover:shadow-[0_30px_85px_-50px_rgba(20,184,166,0.8)]"
                 >
-                  <p className="font-display text-[80px] font-extrabold leading-none tracking-[-0.06em] text-[#e5e7eb]">
+                  <p className="animate-gradient bg-gradient-to-r from-amber-200 via-fuchsia-300 to-teal-200 bg-clip-text font-display text-[80px] font-extrabold leading-none tracking-[-0.06em] text-transparent">
                     {step.n}
                   </p>
-                  <h3 className="mt-4 text-2xl font-bold tracking-[-0.03em]">{step.title}</h3>
-                  <p className="mt-4 text-[15px] font-light leading-7 text-[color:var(--text-2)]">{step.body}</p>
+                  <h3 className="mt-4 text-2xl font-bold tracking-[-0.03em] text-white">{step.title}</h3>
+                  <p className="mt-4 text-[15px] font-light leading-7 text-white/58">{step.body}</p>
                 </ScrollReveal>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="bg-white py-16 text-center">
-          <div className="mx-auto max-w-5xl px-5 lg:px-8">
-            <SectionIntro
-              title="Join professionals already on the waitlist"
-              subtitle="Be among the first to get AI headshots that actually look like you."
-            />
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
-              {Array.from({ length: 12 }).map((_, index) => (
-                <ScrollReveal
-                  key={index}
-                  delay={(index % 6) * 0.025}
-                  className={`h-14 w-14 overflow-hidden rounded-full border-2 border-white bg-gradient-to-br shadow-md ${
-                    avatarGradients[index % avatarGradients.length]
-                  } ${index === 0 ? "" : "-ml-3"}`}
-                >
-                  <span className="block h-full w-full bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.9),transparent_34%)]" />
-                </ScrollReveal>
-              ))}
-            </div>
-            <ScrollReveal className="mt-8">
-              <p className="font-display text-4xl font-extrabold tracking-[-0.04em] text-[color:var(--text-1)]">
-                1,200+
-              </p>
-              <p className="mt-2 text-sm font-light text-[color:var(--text-2)]">
-                professionals waiting to upload 8-20 selfies and get early access
-              </p>
-            </ScrollReveal>
-            <ScrollReveal className="mt-8">
-              <Link
-                href="#waitlist"
-                className="inline-flex rounded-full bg-[#0a0a0a] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#222]"
-              >
-                Join waitlist to upload 8-20 selfies
-              </Link>
-            </ScrollReveal>
-          </div>
-        </section>
+        <SocialProofAvatars />
 
-        <section id="styles" className="scroll-mt-24 bg-[color:var(--bg-soft)] py-24">
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <SectionIntro
-              label="6 professional styles"
-              title="Pick the look that fits your brand"
-              subtitle="Every style generates 3 unique portrait variations so you always have options."
-            />
-            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {styleCards.map((style, index) => (
-                <ScrollReveal
-                  key={style.name}
-                  delay={index * 0.04}
-                  className="group rounded-2xl border border-[color:var(--border)] bg-white p-6 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-200/70"
-                >
-                  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-100 to-gray-200">
-                    <Image
-                      src={style.src}
-                      alt={`${style.name} professional style`}
-                      width={520}
-                      height={690}
-                      className="aspect-[3/4] w-full object-cover transition duration-500 group-hover:scale-105"
-                      sizes="(max-width: 1024px) 50vw, 33vw"
-                    />
-                  </div>
-                  <div className="mt-5 flex items-start justify-between gap-4">
-                    <h3 className="text-lg font-semibold tracking-[-0.02em]">{style.name}</h3>
-                    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-[color:var(--text-2)]">
-                      Included
-                    </span>
-                  </div>
-                  <p className="mt-3 text-sm font-light leading-6 text-[color:var(--text-2)]">{style.description}</p>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-white py-24">
+        <section className="relative overflow-hidden bg-[#0f0f2e] py-24">
+          <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-purple-500/15 blur-3xl" />
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1fr_0.85fr] lg:px-8">
             <div>
               <ScrollReveal>
-                <h2 className="text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">
+                <h2 className="text-4xl font-extrabold tracking-[-0.04em] text-white sm:text-5xl">
                   Why professionals choose AI headshots
                 </h2>
               </ScrollReveal>
@@ -366,19 +245,19 @@ export default function HomePage() {
                   const Icon = feature.icon;
                   return (
                     <ScrollReveal key={feature.title} delay={index * 0.04} className="flex gap-5">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gray-100 text-black">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-amber-200">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-semibold tracking-[-0.025em]">{feature.title}</h3>
-                        <p className="mt-2 text-sm font-light leading-7 text-[color:var(--text-2)]">{feature.body}</p>
+                        <h3 className="text-xl font-semibold tracking-[-0.025em] text-white">{feature.title}</h3>
+                        <p className="mt-2 text-sm font-light leading-7 text-white/58">{feature.body}</p>
                       </div>
                     </ScrollReveal>
                   );
                 })}
               </div>
             </div>
-            <ScrollReveal className="mx-auto w-full max-w-[400px] overflow-hidden rounded-2xl border border-[color:var(--border)] bg-gray-100 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.5)]">
+            <ScrollReveal className="glass-card mx-auto w-full max-w-[400px] overflow-hidden rounded-3xl shadow-[0_30px_90px_-44px_rgba(124,58,237,0.75)]">
               <Image
                 src="/exec-after.jpg"
                 alt="Professional AI headshot example"
@@ -390,25 +269,25 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[color:var(--bg-soft)] py-24">
+        <section className="bg-[#0a0a1a] py-24">
           <div className="mx-auto max-w-6xl px-5 lg:px-8">
             <SectionIntro title="AI headshots vs. traditional photography" />
-            <ScrollReveal className="mt-12 overflow-hidden rounded-3xl border border-[color:var(--border)] bg-white shadow-sm">
+            <ScrollReveal className="glass-card mt-12 overflow-hidden rounded-3xl">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-b border-[color:var(--border)] bg-white">
-                      <th className="px-6 py-5 font-semibold text-[color:var(--text-3)]">Feature</th>
-                      <th className="px-6 py-5 font-semibold text-[color:var(--text-3)]">Traditional photographer</th>
-                      <th className="px-6 py-5 font-semibold text-[color:var(--text-1)]">AI headshots</th>
+                    <tr className="border-b border-white/10 bg-white/[0.03]">
+                      <th className="px-6 py-5 font-semibold text-white/45">Feature</th>
+                      <th className="px-6 py-5 font-semibold text-white/45">Traditional photographer</th>
+                      <th className="px-6 py-5 font-semibold text-white">AI headshots</th>
                     </tr>
                   </thead>
                   <tbody>
                     {comparisonRows.map(([feature, traditional, ai], index) => (
-                      <tr key={feature} className={index % 2 === 0 ? "bg-gray-50/70" : "bg-white"}>
-                        <td className="px-6 py-5 font-medium">{feature}</td>
-                        <td className="px-6 py-5 text-[color:var(--text-2)]">{traditional}</td>
-                        <td className="px-6 py-5 font-medium text-[color:var(--text-1)]">
+                      <tr key={feature} className={index % 2 === 0 ? "bg-white/[0.03]" : "bg-transparent"}>
+                        <td className="px-6 py-5 font-medium text-white">{feature}</td>
+                        <td className="px-6 py-5 text-white/55">{traditional}</td>
+                        <td className="px-6 py-5 font-medium text-amber-200">
                           <span className="inline-flex items-center gap-2">
                             <Check className="h-4 w-4" />
                             {ai}
@@ -423,21 +302,36 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="faq" className="scroll-mt-24 bg-white py-24">
+        <section id="faq" className="scroll-mt-24 bg-[#0f0f2e] py-24">
           <div className="mx-auto max-w-4xl px-5 lg:px-8">
             <SectionIntro title="Frequently asked questions" />
-            <div className="mt-12 divide-y divide-[color:var(--border)] rounded-3xl border border-[color:var(--border)] bg-white px-6">
+            <div className="glass-card mt-12 divide-y divide-white/10 rounded-3xl px-6">
               {faqItems.map((item) => (
                 <ScrollReveal key={item.q} className="py-6">
-                  <h3 className="text-xl font-semibold tracking-[-0.025em]">{item.q}</h3>
-                  <p className="mt-3 text-sm font-light leading-7 text-[color:var(--text-2)]">{item.a}</p>
+                  <h3 className="text-xl font-semibold tracking-[-0.025em] text-white">{item.q}</h3>
+                  <p className="mt-3 text-sm font-light leading-7 text-white/58">{item.a}</p>
                 </ScrollReveal>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="waitlist" className="scroll-mt-24 bg-[#0a0a0a] px-6 py-24 text-center text-white">
+        <section id="waitlist" className="animate-gradient relative scroll-mt-24 overflow-hidden bg-gradient-to-r from-[#0a0a1a] via-[#3b0764] via-[#0f766e] to-[#0a0a1a] px-6 py-28 text-center text-white">
+          {["/man-after.jpg?v=20260517-2", "/exec-after.jpg", "/woman2-after.jpg", "/images/creative.jpg"].map((src, index) => (
+            <Image
+              key={src}
+              src={src}
+              alt=""
+              width={120}
+              height={160}
+              className="pointer-events-none absolute hidden aspect-[3/4] w-24 rounded-2xl object-cover opacity-30 blur-[2px] md:block"
+              style={{
+                left: `${8 + index * 24}%`,
+                top: index % 2 === 0 ? "18%" : "58%",
+                transform: `rotate(${index % 2 === 0 ? -8 : 10}deg)`,
+              }}
+            />
+          ))}
           <ScrollReveal className="mx-auto max-w-2xl">
             <Timer className="mx-auto h-8 w-8 text-white/50" />
             <h2 className="mt-6 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">
