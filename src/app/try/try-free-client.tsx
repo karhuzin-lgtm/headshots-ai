@@ -199,14 +199,15 @@ export function TryFreeClient() {
           </p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {[
-              { icon: "✓", text: "Good lighting — face clearly lit, not backlit" },
-              { icon: "✓", text: "Look directly at the camera" },
-              { icon: "✓", text: "Different angles: front, 3/4, slight side" },
-              { icon: "✓", text: "Variety of outfits across photos" },
-              { icon: "✗", text: "No sunglasses or hats covering face" },
-              { icon: "✗", text: "No group photos — only you" },
-              { icon: "✗", text: "No heavy filters or face editing apps" },
-              { icon: "✗", text: "No blurry or very dark photos" },
+              { icon: "✓", text: "Good lighting — face clearly visible, not backlit" },
+              { icon: "✓", text: "Different angles: front, slight left, slight right" },
+              { icon: "✓", text: "Different expressions: smile, neutral, serious" },
+              { icon: "✓", text: "2-3 different outfits across your photos" },
+              { icon: "✓", text: "Photos from the last 6 months — recent look only" },
+              { icon: "✗", text: "No sunglasses, hats, or face coverings" },
+              { icon: "✗", text: "No group photos — only you in the frame" },
+              { icon: "✗", text: "No heavy filters or beauty mode" },
+              { icon: "✗", text: "No photos when you look visibly tired, sick, or swollen" },
             ].map(({ icon, text }) => (
               <li key={text} className="flex items-start gap-2 text-xs text-muted-foreground">
                 <span

@@ -11,11 +11,11 @@ export const STYLE_PROMPTS = {
   corporate:
     `OHWX, navy blue suit jacket, white dress shirt, no tie, neutral light gray studio background, professional three-point lighting, confident expression, sharp focus, Canon portrait lens${STYLE_PROMPT_SUFFIX}`,
   tech_casual:
-    `OHWX, dark navy crewneck sweater, no jacket, blurred modern office background, soft window light, approachable expression, sharp focus${STYLE_PROMPT_SUFFIX}`,
+    `OHWX, dark navy crewneck sweater, open collar, no jacket, blurred modern office background, soft window light, approachable expression, sharp focus${STYLE_PROMPT_SUFFIX}`,
   executive:
     `OHWX, dark charcoal suit jacket, white dress shirt, dark studio backdrop, Rembrandt lighting, authoritative expression${STYLE_PROMPT_SUFFIX}`,
   creative:
-    `OHWX, black turtleneck, cream colored background, soft natural light, artistic expression${STYLE_PROMPT_SUFFIX}`,
+    `OHWX, smart casual blazer over white t-shirt, light warm background, soft natural light, relaxed creative expression${STYLE_PROMPT_SUFFIX}`,
   startup:
     `OHWX, grey t-shirt, white background, bright studio light, relaxed confident expression${STYLE_PROMPT_SUFFIX}`,
   linkedin:
