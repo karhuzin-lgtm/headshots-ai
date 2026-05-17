@@ -2,7 +2,7 @@
 
 import { Briefcase, Crown, Laptop, Linkedin, Loader2, Palette, Rocket, Upload } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -82,6 +82,7 @@ const STYLE_OPTIONS = [
 export function TryFreeClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const email = useMemo(() => searchParams.get("email")?.trim().toLowerCase() ?? "", [searchParams]);
   const [selectedStyle, setSelectedStyle] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
@@ -241,17 +242,55 @@ export function TryFreeClient() {
             Upload 10-20 selfies (more = better results). JPG, PNG, or WebP.
           </span>
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             multiple
             className="sr-only"
-            onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+            onChange={(event) => {
+              const newFiles = Array.from(event.target.files ?? []);
+              setFiles((prev) => {
+                const combined = [...prev, ...newFiles];
+                const seen = new Set<string>();
+                return combined.filter((file) => {
+                  const key = `${file.name}-${file.size}`;
+                  if (seen.has(key)) return false;
+                  seen.add(key);
+                  return true;
+                });
+              });
+              event.target.value = "";
+            }}
           />
         </label>
         {files.length > 0 && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            {files.length} file{files.length === 1 ? "" : "s"} selected
-          </p>
+          <div className="mt-4">
+            <div className="grid gap-2">
+              {files.map((file, idx) => (
+                <div
+                  key={`${file.name}-${file.size}-${idx}`}
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-muted-foreground"
+                >
+                  <span className="truncate">{file.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                    className="shrink-0 rounded-full px-2 py-1 text-base leading-none text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-3 text-xs font-semibold text-primary transition hover:text-primary/80"
+            >
+              Add more photos
+            </button>
+          </div>
         )}
 
         <button
