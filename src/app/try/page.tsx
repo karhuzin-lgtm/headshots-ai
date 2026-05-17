@@ -6,7 +6,7 @@ import { TryFreeClient } from "./try-free-client";
 
 export default function TryPage() {
   return (
-    <div className="flex min-h-dvh flex-col bg-white">
+    <div className="flex min-h-dvh flex-col bg-[color:var(--bg)]">
       <SiteHeader />
       <main className="relative flex-1">
         <div className="relative">

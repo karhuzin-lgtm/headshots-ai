@@ -10,7 +10,7 @@ type PageProps = {
 
 export default function TryResultPage({ params }: PageProps) {
   return (
-    <div className="flex min-h-dvh flex-col bg-white">
+    <div className="flex min-h-dvh flex-col bg-[color:var(--bg)]">
       <SiteHeader />
       <main className="relative flex-1">
         <div className="relative">

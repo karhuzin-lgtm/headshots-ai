@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, Upload } from "lucide-react";
+import NextImage from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useRef, useState } from "react";
 
@@ -9,31 +10,37 @@ const STYLE_OPTIONS = [
     id: "corporate",
     name: "Corporate",
     description: "Navy suit, gray studio background",
+    src: "/man-after.jpg?v=20260517-2",
   },
   {
     id: "tech",
     name: "Tech",
     description: "Dark sweater, modern office",
+    src: "/exec-after.jpg",
   },
   {
     id: "executive",
     name: "Executive",
     description: "Charcoal suit, dark backdrop",
+    src: "/exec-after.jpg",
   },
   {
     id: "creative",
     name: "Creative",
     description: "Smart casual blazer, warm background",
+    src: "/woman2-after.jpg",
   },
   {
     id: "startup",
     name: "Startup",
     description: "Plain t-shirt, clean white background",
+    src: "/man-after.jpg?v=20260517-2",
   },
   {
     id: "linkedin",
     name: "LinkedIn",
     description: "Dress shirt, neutral gray",
+    src: "/woman2-after.jpg",
   },
 ] as const;
 
@@ -130,7 +137,7 @@ export function TryFreeClient() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] w-full max-w-2xl flex-col justify-center px-4 py-16 text-center">
+    <div className="mx-auto flex min-h-[70vh] w-full max-w-4xl flex-col justify-center px-4 py-16 text-center">
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
         Early tester access
       </p>
@@ -142,7 +149,7 @@ export function TryFreeClient() {
         professional headshots in ~15 minutes. No credit card.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-10 rounded-3xl border border-gray-100 bg-white p-5 text-left shadow-sm sm:p-7">
+      <form onSubmit={onSubmit} className="mt-10 rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] p-5 text-left shadow-[0_32px_100px_-56px_rgba(0,0,0,0.95)] sm:p-7">
         <div>
           <p className="text-sm font-semibold text-foreground">
             Tips for best results
@@ -182,7 +189,7 @@ export function TryFreeClient() {
           <p className="text-sm font-semibold text-foreground">
             Choose your style
           </p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {STYLE_OPTIONS.map((style) => {
               const isSelected = selectedStyle === style.id;
               return (
@@ -190,23 +197,34 @@ export function TryFreeClient() {
                   key={style.id}
                   type="button"
                   onClick={() => setSelectedStyle(style.id)}
-                  className={`rounded-2xl border p-4 text-left transition ${
+                  className={`group overflow-hidden rounded-3xl border text-left transition duration-300 ${
                     isSelected
-                      ? "border-primary bg-primary/10"
-                      : "border-gray-100 bg-white hover:border-primary/35 hover:bg-gray-50"
+                      ? "scale-[1.02] border-primary bg-primary/10 ring-2 ring-primary"
+                      : "border-[color:var(--border)] bg-[color:var(--bg-3)] hover:scale-[1.02] hover:border-primary/50"
                   } cursor-pointer`}
                   aria-pressed={isSelected}
                 >
-                  <span className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-semibold text-foreground">{style.name}</span>
+                  <span className="relative block aspect-[4/5] overflow-hidden">
+                    <NextImage
+                      src={style.src}
+                      alt={`${style.name} headshot style`}
+                      width={480}
+                      height={600}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      sizes="(max-width: 1024px) 50vw, 260px"
+                    />
+                    <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 to-transparent" />
+                  </span>
+                  <span className="flex items-center justify-between gap-3 p-4 pb-0">
+                    <span className="font-display text-2xl text-foreground">{style.name}</span>
                     <span
                       className={`h-3 w-3 rounded-full border ${
-                        isSelected ? "border-primary bg-primary" : "border-gray-300"
+                        isSelected ? "border-primary bg-primary" : "border-white/25"
                       }`}
                       aria-hidden
                     />
                   </span>
-                  <span className="mt-2 block text-xs leading-relaxed text-muted-foreground">
+                  <span className="block px-4 pb-4 pt-2 text-xs leading-relaxed text-muted-foreground">
                     {style.description}
                   </span>
                 </button>
@@ -221,7 +239,7 @@ export function TryFreeClient() {
             Upload 8-20 selfies
           </span>
         </label>
-        <label className="mt-3 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center transition hover:border-primary/35 hover:bg-white">
+        <label className="mt-3 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[color:var(--border)] bg-[color:var(--bg-3)] px-4 py-8 text-center transition hover:border-primary">
           <Upload className="h-7 w-7 text-muted-foreground" />
           <span className="mt-3 text-sm font-medium text-foreground">
             Click to choose images
@@ -248,13 +266,13 @@ export function TryFreeClient() {
               {files.map((file, idx) => (
                 <div
                   key={`${file.name}-${file.size}-${idx}`}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-white px-3 py-2 text-xs text-muted-foreground shadow-sm"
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-[color:var(--border)] bg-[color:var(--bg-3)] px-3 py-2 text-xs text-muted-foreground"
                 >
                   <span className="truncate">{file.name}</span>
                   <button
                     type="button"
                     onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                    className="shrink-0 rounded-full px-2 py-1 text-base leading-none text-muted-foreground transition hover:bg-gray-100 hover:text-foreground"
+                    className="shrink-0 rounded-full px-2 py-1 text-base leading-none text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
                     aria-label={`Remove ${file.name}`}
                   >
                     ×
@@ -265,7 +283,7 @@ export function TryFreeClient() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-[#0a0a0a] transition hover:border-gray-300 hover:bg-gray-50"
+              className="mt-4 flex items-center gap-2 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-semibold text-white transition hover:border-primary hover:bg-white/5"
             >
               <span className="text-lg leading-none">+</span> Add more photos
             </button>
@@ -279,7 +297,7 @@ export function TryFreeClient() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-base font-semibold text-white transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-[color:var(--accent)] px-6 text-base font-semibold text-black transition hover:scale-[1.01] hover:bg-[color:var(--accent-2)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <>
@@ -290,7 +308,7 @@ export function TryFreeClient() {
             "Generate my headshots"
           )}
         </button>
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
       </form>
     </div>
   );

@@ -101,7 +101,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
   if (!status || status.status === "pending" || status.status === "processing") {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-24 text-center">
-        <div className="w-full rounded-3xl border border-gray-100 bg-white px-8 py-12 shadow-sm">
+        <div className="w-full rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] px-8 py-12 shadow-[0_32px_100px_-56px_rgba(0,0,0,0.95)]">
           <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
           <h1 className="font-display mt-8 text-3xl font-normal text-gradient-display">
             Creating your headshots
@@ -133,8 +133,8 @@ export function TryResultClient({ requestId }: { requestId: string }) {
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
         Your free headshots
       </p>
-      <h1 className="font-display mt-5 text-3xl font-normal text-gradient-display sm:text-4xl">
-        Your professional AI headshots are ready
+      <h1 className="font-display mt-5 text-4xl font-normal tracking-[-0.03em] text-gradient-display sm:text-5xl">
+        Your headshots are ready
       </h1>
       {outputUrls.length > 0 && (
         <div className="mt-10 space-y-10">
@@ -147,7 +147,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
                 <p className="mb-4 text-sm font-semibold text-foreground">{displayLabel}</p>
                 <div className="grid gap-4 sm:grid-cols-3">
                   {styleUrls.map((imageUrl, i) => (
-                    <div key={imageUrl} className="overflow-hidden rounded-3xl border border-gray-100 bg-white p-2 shadow-sm">
+                    <div key={imageUrl} className="overflow-hidden rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] p-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageUrl}
@@ -157,7 +157,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
                       <a
                         href={imageUrl}
                         download={`headshot-${displayLabel.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`}
-                        className="mt-2 flex items-center justify-center gap-1 rounded-xl py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+                        className="mt-3 flex items-center justify-center gap-1 rounded-full border border-[color:var(--border)] py-2 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:bg-primary hover:text-black"
                       >
                         ↓ Download
                       </a>

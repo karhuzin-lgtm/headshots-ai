@@ -15,18 +15,51 @@ import { SiteHeader } from "@/components/marketing/site-header";
 const steps = [
   {
     n: "01",
-    title: "Upload 3-20 selfies",
-    body: "Phone selfies are fine. We learn lighting, angles, and bone structure — no studio visit.",
+    title: "Upload your selfies",
+    body: "Eight to twenty recent phone photos are enough. Natural light, clean angles, no studio visit.",
   },
   {
     n: "02",
-    title: "Pick your favorite styles",
-    body: "LinkedIn, Corporate, Casual, Professional, and Creative — each tuned for believable skin, wardrobe, and lighting.",
+    title: "Choose one direction",
+    body: "Corporate, Executive, Tech, Creative, Startup, or LinkedIn. Each style is tuned for believable wardrobe and lighting.",
   },
   {
     n: "03",
     title: "Receive your headshots",
-    body: "Your AI-generated headshots arrive in ~15 minutes. Download, share on LinkedIn, use anywhere.",
+    body: "Your headshots arrive in about 10-15 minutes. Download them, share them, use them anywhere.",
+  },
+];
+
+const styleCards = [
+  {
+    label: "LinkedIn",
+    description: "Clean shirt, neutral gray, soft studio light.",
+    src: "/woman2-after.jpg",
+  },
+  {
+    label: "Corporate",
+    description: "Tailored suit energy without the studio day.",
+    src: "/man-after.jpg?v=20260517-2",
+  },
+  {
+    label: "Executive",
+    description: "Dark backdrop, confident expression, premium polish.",
+    src: "/exec-after.jpg",
+  },
+  {
+    label: "Tech",
+    description: "Modern office feel, approachable and sharp.",
+    src: "/man-after.jpg?v=20260517-2",
+  },
+  {
+    label: "Creative",
+    description: "Warm background, relaxed direction, editorial finish.",
+    src: "/woman2-after.jpg",
+  },
+  {
+    label: "Startup",
+    description: "Simple, bright, founder-friendly profile image.",
+    src: "/exec-after.jpg",
   },
 ];
 
@@ -45,7 +78,7 @@ const faqItems = [
   },
   {
     q: "What photos should I upload?",
-    a: "Use 3-20 clear selfies of your face with varied lighting and angles. Avoid heavy filters, sunglasses, or group shots. The better the input, the better the output.",
+    a: "Use 8-20 clear selfies of your face with varied lighting and angles. Avoid heavy filters, sunglasses, or group shots. The better the input, the better the output.",
   },
   {
     q: "What happens when I join the waitlist?",
@@ -57,44 +90,28 @@ const faqItems = [
   },
 ];
 
-function BeforeAfterCard() {
-  const pairs = [
-    { before: "/man-before.jpg?v=20260517-2", after: "/man-after.jpg?v=20260517-2", label: "Man" },
-    { before: "/exec-before.jpg", after: "/exec-after.jpg", label: "Executive" },
-    { before: "/woman2-before.jpg", after: "/woman2-after.jpg", label: "Woman" },
-  ];
-
+function StyleShowcase() {
   return (
-    <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 md:grid-cols-3">
-      {pairs.map((pair, i) => (
-        <div key={pair.before} className="grid gap-4">
-          <div className="relative overflow-hidden rounded-2xl bg-card">
-            <Image
-              src={pair.before}
-              alt={`${pair.label} before reference photo`}
-              width={900}
-              height={1200}
-              className="aspect-[3/4] max-h-[320px] w-full rounded-2xl object-cover"
-              sizes="(max-width: 768px) 100vw, 33vw"
-              priority={i === 0}
-            />
-            <div className="absolute left-3 top-3 rounded-full bg-black/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-              Before
-            </div>
-          </div>
-          <div className="relative overflow-hidden rounded-2xl bg-card">
-            <Image
-              src={pair.after}
-              alt={`${pair.label} after AI generated headshot`}
-              width={900}
-              height={1200}
-              className="aspect-[3/4] max-h-[320px] w-full rounded-2xl object-cover"
-              sizes="(max-width: 768px) 100vw, 33vw"
-              priority={i === 0}
-            />
-            <div className="absolute left-3 top-3 rounded-full bg-black/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-              After — AI
-            </div>
+    <div className="-mx-4 flex snap-x gap-5 overflow-x-auto px-4 pb-4 [scrollbar-width:none] md:mx-0 md:px-0">
+      {styleCards.map((style, index) => (
+        <div
+          key={style.label}
+          className="group relative h-[380px] w-[280px] shrink-0 snap-start overflow-hidden rounded-3xl border border-white/10 bg-[color:var(--bg-2)] transition duration-300 hover:scale-[1.03] hover:ring-2 hover:ring-[color:var(--accent)]"
+        >
+          <Image
+            src={style.src}
+            alt={`${style.label} AI headshot style`}
+            width={560}
+            height={760}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            sizes="280px"
+            priority={index < 2}
+          />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-5">
+            <p className="font-display text-3xl text-white">{style.label}</p>
+            <p className="mt-2 translate-y-2 text-sm font-light leading-relaxed text-white/70 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+              {style.description}
+            </p>
           </div>
         </div>
       ))}
@@ -104,72 +121,73 @@ function BeforeAfterCard() {
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-dvh flex-col bg-white">
+    <div className="flex min-h-dvh flex-col bg-[color:var(--bg)]">
       <SiteHeader />
 
       <main className="flex-1">
         <LandingHero />
 
-        <section className="border-b border-gray-100 bg-[#f9fafb] py-16 sm:py-20 md:py-20">
+        <section id="styles" className="border-b border-[color:var(--border)] bg-[color:var(--bg)] py-20 sm:py-24">
+          <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
+            <ScrollReveal className="max-w-2xl">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">Style showcase</p>
+              <h2 className="font-display mt-5 text-4xl font-normal leading-none tracking-[-0.03em] text-white sm:text-5xl">
+                Choose your style
+              </h2>
+              <p className="mt-5 max-w-xl text-base font-light leading-relaxed text-muted-foreground">
+                Scroll through editorial directions built for LinkedIn, founders, executives, and creative profiles.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal className="mt-12">
+              <StyleShowcase />
+            </ScrollReveal>
+          </div>
+        </section>
+
+        <section id="process" className="scroll-mt-20 border-b border-[color:var(--border)] bg-[color:var(--bg-2)] py-20 sm:py-24">
           <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
             <ScrollReveal className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                Process
-              </p>
-              <h2 className="font-display mt-5 text-3xl font-normal leading-[1.12] tracking-[-0.02em] text-gradient-display sm:text-4xl lg:text-[2.65rem]">
-                Three steps.
-                <br />
-                <span className="text-muted-foreground">Zero friction.</span>
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">How it works</p>
+              <h2 className="font-display mt-5 text-4xl font-normal leading-none tracking-[-0.03em] text-white sm:text-5xl">
+                Three steps, no studio.
               </h2>
             </ScrollReveal>
 
-            <div className="mt-14 grid grid-cols-1 gap-4 md:mt-20 md:grid-cols-3">
+            <div className="relative mt-16 grid gap-8 md:grid-cols-3 md:gap-10">
+              <div className="absolute left-0 right-0 top-10 hidden h-px bg-[color:var(--border)] md:block" />
               {steps.map((step, i) => (
-                <ScrollReveal
-                  key={step.n}
-                  delay={i * 0.08}
-                  className="rounded-3xl border border-gray-100 bg-white p-7 shadow-sm sm:p-9 md:p-11"
-                >
-                  <span className="font-display text-5xl font-normal tabular-nums tracking-tight text-primary/25">
-                    {step.n}
-                  </span>
-                  <h3 className="mt-7 text-lg font-semibold tracking-[-0.02em] text-foreground">
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed tracking-tight text-muted-foreground">
+                <ScrollReveal key={step.n} delay={i * 0.08} className="relative">
+                  <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--bg)]">
+                    <span className="font-display text-4xl text-primary">{step.n}</span>
+                  </div>
+                  <h3 className="text-lg font-medium tracking-[-0.02em] text-white">{step.title}</h3>
+                  <p className="mt-3 max-w-sm text-sm font-light leading-relaxed tracking-tight text-muted-foreground">
                     {step.body}
                   </p>
                 </ScrollReveal>
               ))}
             </div>
-          </div>
-        </section>
 
-        <section id="examples" className="scroll-mt-20 bg-white py-16 sm:py-20 md:py-20">
-          <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
-            <div className="flex flex-col justify-between gap-10 lg:flex-row lg:items-end">
-              <ScrollReveal className="max-w-xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                  Transformations
-                </p>
-                <h2 className="font-display mt-5 text-3xl font-normal leading-[1.12] tracking-[-0.02em] text-gradient-display sm:text-4xl lg:text-[2.65rem]">
-                  See what&apos;s possible.
-                </h2>
-                <p className="mt-6 text-base leading-relaxed tracking-tight text-muted-foreground">
-                  Example transformations — your results are built from your own photos.
-                </p>
-              </ScrollReveal>
-            </div>
-
-            <ScrollReveal className="mt-12 sm:mt-16" delay={0.08}>
-              <BeforeAfterCard />
+            <ScrollReveal className="mt-16 rounded-[2rem] border border-[color:var(--border)] bg-[color:var(--bg-3)] p-8 md:p-10">
+              <div className="grid gap-8 text-center md:grid-cols-3">
+                {[
+                  ["10 min", "average first results"],
+                  ["6 styles", "editorial directions"],
+                  ["Free trial", "for early users"],
+                ].map(([value, label]) => (
+                  <div key={value}>
+                    <p className="font-display text-5xl text-white">{value}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{label}</p>
+                  </div>
+                ))}
+              </div>
             </ScrollReveal>
           </div>
         </section>
 
         <section
           id="waitlist"
-          className="scroll-mt-20 px-6 max-w-2xl mx-auto mb-28 text-center"
+          className="scroll-mt-20 mx-auto max-w-2xl px-6 py-24 text-center"
         >
           <ScrollReveal>
             <h2 className="font-display text-3xl font-normal tracking-[-0.02em] text-gradient-display sm:text-4xl">
@@ -179,11 +197,11 @@ export default function HomePage() {
               After launch: $29–$69 one-time. Right now: 1 free headshot, no card needed. Join the
               waitlist → upload 8+ photos → get your headshots in ~15 minutes.
             </p>
-            <WaitlistForm className="mx-auto mt-8 max-w-lg" />
+              <WaitlistForm variant="dark" className="mx-auto mt-8 max-w-lg" />
           </ScrollReveal>
         </section>
 
-        <section id="faq" className="scroll-mt-20 bg-[#f9fafb] py-16 sm:py-20 md:py-20">
+        <section id="faq" className="scroll-mt-20 border-y border-[color:var(--border)] bg-[color:var(--bg-2)] py-20 sm:py-24">
           <div className="mx-auto max-w-2xl px-4 md:px-6 lg:px-10">
             <ScrollReveal className="text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">FAQ</p>
@@ -207,13 +225,13 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="border-t border-gray-100 bg-white py-16 sm:py-20 md:py-24">
+        <section className="bg-[color:var(--accent)] py-16 sm:py-20 md:py-24">
           <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-10">
             <ScrollReveal className="mx-auto max-w-2xl text-center">
-              <h2 className="font-display text-3xl font-normal leading-[1.15] tracking-[-0.02em] text-gradient-display sm:text-4xl">
-                Your professional headshot is free — for now.
+              <h2 className="font-display text-4xl font-normal leading-[1.05] tracking-[-0.03em] text-black sm:text-5xl">
+                Your professional headshot awaits.
               </h2>
-              <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed tracking-tight text-muted-foreground">
+              <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed tracking-tight text-black/60">
                 Only 87 spots left. No credit card. No catch.
               </p>
               <WaitlistForm className="mx-auto mt-11 max-w-lg" />
