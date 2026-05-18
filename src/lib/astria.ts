@@ -3,7 +3,7 @@ const BASE = "https://api.astria.ai";
 const HEADSHOT_CROP_SUFFIX =
   ", tight headshot crop, face and shoulders only, no torso, no waist, close-up portrait framing";
 const GLOBAL_NEGATIVE_PROMPT =
-  "wrong outfit, same clothes as input, casual wear if not startup style, distorted face, extra limbs, bad anatomy, blurry, low quality";
+  "wrong outfit, same clothes as input, casual wear if not startup style, distorted face, extra limbs, bad anatomy, blurry, low quality, different hairstyle, added hair, receding hairline, beard, facial hair, mustache, bald, changed hair color, swollen face, puffiness";
 
 export const HEADSHOT_STYLES = {
   linkedin: {
@@ -42,6 +42,7 @@ export type HeadshotStyle = keyof typeof HEADSHOT_STYLES;
 
 function buildStylePrompt(style: (typeof HEADSHOT_STYLES)[HeadshotStyle]): string {
   return [
+    "Same hairstyle and facial features as in the reference photos. Do not add or remove hair.",
     style.prompt,
     "The outfit must match this style exactly and should not copy the clothing from the input selfies.",
     `Avoid: ${style.negative}, ${GLOBAL_NEGATIVE_PROMPT}.`,
@@ -85,7 +86,7 @@ export async function createAstrinaTune(
       token: "OHWX",
       preset: "flux-lora-portrait",
       face_detection: true,
-      steps: 500,
+      steps: 1000,
       image_urls: imageUrls,
       callback: callbackUrl,
       prompts_attributes: [{
