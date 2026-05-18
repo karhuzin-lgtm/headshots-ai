@@ -50,7 +50,7 @@ const faqItems = [
   },
   {
     q: "What if I don't like the results?",
-    a: "During early access, reach out to us directly and we'll make it right.",
+    a: "If you don't find at least 5 photos you'd actually use on LinkedIn — we retrain your model for free or refund every cent. One condition: follow the selfie guide when uploading.",
   },
 ];
 
@@ -75,8 +75,8 @@ const stats = [
 const features = [
   {
     icon: Camera,
-    title: "Studio quality without the studio",
-    body: "Traditional headshots cost $200-$500 and require scheduling a photographer. AI delivers the same quality in minutes, at a fraction of the cost.",
+    title: "Looks like you — not like AI",
+    body: "Most AI headshot tools apply a generic filter. We train a private model on your face specifically. The result passes the LinkedIn test: colleagues won't know it's AI.",
   },
   {
     icon: Sparkles,
@@ -96,7 +96,7 @@ const features = [
 ];
 
 const comparisonRows = [
-  ["Cost", "$200-$500", "From $19 at launch"],
+  ["Cost", "$200-$500", "Fraction of the cost"],
   ["Time to results", "1-2 weeks", "~15 minutes"],
   ["Scheduling required", "Yes", "No"],
   ["Multiple styles", "Usually 1 look", "6 professional styles"],
@@ -140,6 +140,7 @@ const industryStats = [
 const offerBullets = [
   "Priority access when generation opens",
   "40% founding member discount at launch",
+  "GPU capacity limits us to 100 users per batch — quality guaranteed",
   "Professional headshots for LinkedIn, resumes, websites, and press",
 ];
 

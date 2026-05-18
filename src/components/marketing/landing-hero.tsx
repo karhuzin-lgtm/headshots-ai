@@ -54,9 +54,9 @@ export function LandingHero() {
           </motion.div>
 
           <h1 className="max-w-3xl text-5xl font-normal leading-[0.92] tracking-tight text-[#111827] sm:text-6xl lg:text-7xl">
-            Headshots that help you get picked.
+            Looks like you.
             <br />
-            No studio.
+            Not like AI.
           </h1>
 
           <motion.p
@@ -64,7 +64,7 @@ export function LandingHero() {
             transition={{ duration: 0.65, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="mt-7 max-w-md text-pretty text-lg font-light leading-relaxed text-gray-600 sm:text-xl"
           >
-            Look credible before the first call. Get studio-quality AI headshots for LinkedIn, resumes, founder pages, and press kits — without booking a photographer.
+            We train a private AI model on your face — not a generic filter. The result: headshots colleagues won&apos;t question. No studio, no scheduling.
           </motion.p>
 
           <motion.div
@@ -74,7 +74,7 @@ export function LandingHero() {
           >
             <WaitlistForm showLabel={false} />
             <p className="mt-5 text-sm text-gray-500">
-              Join early access → get 40% off at launch → headshots in 15 minutes
+              Join waitlist → skip the queue → 40% off at launch · ready in 15 min
             </p>
           </motion.div>
         </div>
