@@ -1,45 +1,14 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
-
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
+import { getWaitlistCount, insertWaitlistEmail } from "@/lib/waitlist-db";
+
 export const runtime = "nodejs";
 
-type WaitlistEntry = {
-  email: string;
-  date: string;
-};
-
-const WAITLIST_PATH = path.join("/tmp", "waitlist.json");
 const INITIAL_REMAINING_SPOTS = 1000;
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-async function readWaitlist(): Promise<WaitlistEntry[]> {
-  try {
-    const raw = await readFile(WAITLIST_PATH, "utf8");
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (entry): entry is WaitlistEntry =>
-        typeof entry === "object" &&
-        entry !== null &&
-        "email" in entry &&
-        "date" in entry &&
-        typeof entry.email === "string" &&
-        typeof entry.date === "string"
-    );
-  } catch {
-    return [];
-  }
-}
-
-async function saveWaitlist(entries: WaitlistEntry[]) {
-  await mkdir(path.dirname(WAITLIST_PATH), { recursive: true });
-  await writeFile(WAITLIST_PATH, `${JSON.stringify(entries, null, 2)}\n`, "utf8");
 }
 
 async function sendTelegramNotification(email: string, count: number) {
@@ -59,11 +28,18 @@ async function sendTelegramNotification(email: string, count: number) {
 }
 
 export async function GET() {
-  const entries = await readWaitlist();
-  return NextResponse.json({
-    count: entries.length,
-    remaining: Math.max(0, INITIAL_REMAINING_SPOTS - entries.length),
-  });
+  try {
+    const count = await getWaitlistCount();
+    return NextResponse.json({
+      count,
+      remaining: Math.max(0, INITIAL_REMAINING_SPOTS - count),
+    });
+  } catch {
+    return NextResponse.json(
+      { success: false, message: "Something went wrong" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
@@ -78,25 +54,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const entries = await readWaitlist();
-    const exists = entries.some((entry) => entry.email.toLowerCase() === email);
-
-    if (exists) {
+    const insertResult = await insertWaitlistEmail(email);
+    if (insertResult === "duplicate") {
       return NextResponse.json({
         success: false,
         message: "Already on the list",
       });
     }
 
-    const nextEntries = [...entries, { email, date: new Date().toISOString() }];
-    const totalCount = nextEntries.length;
-
-    try {
-      await saveWaitlist(nextEntries);
-    } catch {
-      // Vercel functions only guarantee writable storage under /tmp, and even
-      // that is best-effort. Telegram is the source of truth for signups.
-    }
+    const totalCount = await getWaitlistCount();
 
     try {
       await sendTelegramNotification(email, totalCount);

@@ -494,16 +494,20 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="waitlist" className="relative scroll-mt-24 overflow-hidden bg-gray-950 px-5 py-16 text-center text-white sm:px-6 sm:py-20 md:py-28">
+        <section
+          id="waitlist"
+          className="scroll-mt-24 border-t border-gray-100 bg-[#f9fafb] px-5 py-16 text-center sm:px-6 sm:py-20 md:py-28"
+        >
           <ScrollReveal className="mx-auto max-w-2xl">
-            <Timer className="mx-auto h-8 w-8 text-white/50" />
-            <h2 className="mt-6 text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">
+            <Timer className="mx-auto h-8 w-8 text-gray-400" />
+            <h2 className="mt-6 font-display text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
               Be ready before the next opportunity finds you.
             </h2>
-            <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-white/60">
-              Join early access now. We&apos;ll email you when your spot opens and reserve your founding member launch discount.
+            <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-gray-500">
+              Join early access now. We&apos;ll email you when your spot opens and reserve your
+              founding member launch discount.
             </p>
-            <WaitlistForm variant="dark" showLabel={false} className="mx-auto mt-9 max-w-[480px]" />
+            <WaitlistForm showLabel={false} className="mx-auto mt-9 max-w-[480px] text-left" />
           </ScrollReveal>
         </section>
       </main>

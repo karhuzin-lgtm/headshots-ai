@@ -55,6 +55,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const secret = process.env.ASTRIA_WEBHOOK_SECRET;
+  if (secret) {
+    const sig = request.headers.get("x-astria-signature") ?? "";
+    if (sig !== secret) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
   const url = new URL(request.url);
   const generationId = url.searchParams.get("generationId");
 

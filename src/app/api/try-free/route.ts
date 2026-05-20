@@ -135,6 +135,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ id: generation.id });
   } catch (err) {
     console.error("try-free error:", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong. Please try again." },
+      { status: 500 }
+    );
   }
 }
