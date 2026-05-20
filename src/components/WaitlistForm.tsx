@@ -90,7 +90,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           className={cn(
             "min-h-[52px] w-full min-w-0 flex-1 rounded-xl border px-4 text-[16px] outline-none transition focus:ring-2",
             variant === "hero"
-              ? "border-white/15 bg-white/5 text-white placeholder:text-white/40 focus:border-white/30 focus:ring-white/20"
+              ? "glass-card rounded-xl text-[#f5f5f5] placeholder:text-[#888] focus:border-white/20 focus:ring-white/10"
               : variant === "dark"
                 ? "border-white/15 bg-white text-[#111] placeholder:text-[#999] focus:border-white focus:ring-white/20"
                 : "border-[#e8e8e8] bg-white text-[#111] placeholder:text-[#999] focus:border-[#111] focus:ring-[#111]/10"
@@ -102,7 +102,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           className={cn(
             "inline-flex min-h-[52px] w-full items-center justify-center rounded-xl px-4 text-[16px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6",
             variant === "hero"
-              ? "bg-[#f5f0e8] text-[#0a0a0a] hover:bg-white"
+              ? "bg-white text-black hover:bg-[#f5f5f5]"
               : variant === "dark"
                 ? "border border-white/15 bg-black text-white hover:bg-gray-900"
                 : "bg-[#0a0a0a] text-white hover:bg-[#222]"

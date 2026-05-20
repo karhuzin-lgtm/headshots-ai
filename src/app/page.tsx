@@ -98,43 +98,19 @@ function SectionIntro({
   label,
   title,
   subtitle,
-  dark = false,
 }: {
   label?: string;
   title: string;
   subtitle?: string;
-  dark?: boolean;
 }) {
   return (
     <ScrollReveal className="mx-auto max-w-3xl text-center">
       {label && (
-        <p
-          className={
-            dark
-              ? "text-xs font-semibold uppercase tracking-[0.22em] text-white/45"
-              : "text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500"
-          }
-        >
-          {label}
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#888]">{label}</p>
       )}
-      <h2
-        className={
-          dark
-            ? "mt-4 text-4xl font-normal tracking-tight text-white sm:text-5xl"
-            : "mt-4 text-4xl font-normal tracking-tight text-[#0a0a0a] sm:text-5xl"
-        }
-      >
-        {title}
-      </h2>
+      <h2 className="mt-4 text-4xl font-normal tracking-tight text-[#f5f5f5] sm:text-5xl">{title}</h2>
       {subtitle && (
-        <p
-          className={
-            dark
-              ? "mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-white/55"
-              : "mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-neutral-500"
-          }
-        >
+        <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-[#888]">
           {subtitle}
         </p>
       )}
@@ -142,15 +118,23 @@ function SectionIntro({
   );
 }
 
+function PillLabel({ children }: { children: string }) {
+  return (
+    <span className="absolute left-3 top-3 rounded-full border border-white/[0.08] bg-black/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-[#f5f5f5] backdrop-blur-sm">
+      {children}
+    </span>
+  );
+}
+
 export default function HomePage() {
   return (
-    <div className="min-h-dvh bg-[#fafafa] text-[#0a0a0a]">
+    <div className="min-h-dvh bg-[#080808] text-[#f5f5f5]">
       <LandingNav />
 
       <main>
         <LandingHero />
 
-        <section className="bg-white py-20 sm:py-28">
+        <section className="bg-[#080808] py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <SectionIntro
               label="Results"
@@ -160,34 +144,32 @@ export default function HomePage() {
             <div className="mt-14 grid gap-6 lg:grid-cols-3">
               {beforeAfterPairs.map((pair, index) => (
                 <ScrollReveal key={pair.before} delay={index * 0.06}>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="relative overflow-hidden rounded-2xl border border-neutral-200/80">
-                      <Image
-                        src={`${pair.before}?v=20260517-3`}
-                        alt="Before selfie"
-                        width={320}
-                        height={400}
-                        className="aspect-[4/5] w-full object-cover"
-                        priority={index === 0}
-                        sizes="(max-width: 1024px) 45vw, 200px"
-                      />
-                      <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">
-                        Before
-                      </span>
-                    </div>
-                    <div className="relative overflow-hidden rounded-2xl border border-neutral-200/80 shadow-lg shadow-black/5">
-                      <Image
-                        src={`${pair.after}?v=20260517-3`}
-                        alt="After AI headshot"
-                        width={320}
-                        height={400}
-                        className="aspect-[4/5] w-full object-cover"
-                        priority={index === 0}
-                        sizes="(max-width: 1024px) 45vw, 200px"
-                      />
-                      <span className="absolute left-2 top-2 rounded-full bg-[#0a0a0a] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">
-                        After
-                      </span>
+                  <div className="glass-card rounded-2xl p-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="relative overflow-hidden rounded-xl border border-white/[0.08]">
+                        <Image
+                          src={`${pair.before}?v=20260517-3`}
+                          alt="Before selfie"
+                          width={320}
+                          height={400}
+                          className="aspect-[4/5] w-full object-cover"
+                          priority={index === 0}
+                          sizes="(max-width: 1024px) 45vw, 200px"
+                        />
+                        <PillLabel>Before</PillLabel>
+                      </div>
+                      <div className="relative overflow-hidden rounded-xl border border-white/[0.08]">
+                        <Image
+                          src={`${pair.after}?v=20260517-3`}
+                          alt="After AI headshot"
+                          width={320}
+                          height={400}
+                          className="aspect-[4/5] w-full object-cover"
+                          priority={index === 0}
+                          sizes="(max-width: 1024px) 45vw, 200px"
+                        />
+                        <PillLabel>After — AI</PillLabel>
+                      </div>
                     </div>
                   </div>
                 </ScrollReveal>
@@ -196,17 +178,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="border-y border-neutral-200/80 bg-white py-14">
+        <section className="border-y border-white/[0.06] bg-[#080808] py-14">
           <div className="mx-auto max-w-7xl px-5 text-center sm:px-6 lg:px-8">
             <ScrollReveal>
-              <p className="text-sm font-medium text-neutral-500">
-                Professionals from
-              </p>
+              <p className="text-sm font-medium text-[#888]">Professionals from</p>
               <div className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
                 {companies.map((name) => (
                   <span
                     key={name}
-                    className="font-display text-2xl font-normal tracking-tight text-neutral-300 sm:text-3xl"
+                    className="font-display text-2xl font-normal tracking-tight text-white/20 sm:text-3xl"
                   >
                     {name}
                   </span>
@@ -216,23 +196,47 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="how-it-works" className="scroll-mt-24 bg-[#fafafa] py-20 sm:py-28">
+        <section className="bg-[#080808] py-20 sm:py-28">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <SectionIntro title="Built for professionals who care how they look online" />
+            <div className="mt-14 grid gap-5 sm:grid-cols-2">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <ScrollReveal
+                    key={feature.title}
+                    delay={index * 0.04}
+                    className="glass-card glass-card-hover flex gap-5 rounded-2xl p-6"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#f5f5f5]">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium tracking-tight text-[#f5f5f5]">
+                        {feature.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-[#888]">{feature.body}</p>
+                    </div>
+                  </ScrollReveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="scroll-mt-24 bg-[#080808] py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <SectionIntro label="How it works" title="Three steps to studio-quality portraits" />
             <div className="mt-16 grid gap-6 md:grid-cols-3">
               {steps.map((step, index) => (
-                <ScrollReveal
-                  key={step.title}
-                  delay={index * 0.06}
-                  className="rounded-2xl border border-neutral-200/80 bg-white p-8 shadow-sm"
-                >
-                  <p className="font-display text-6xl font-normal leading-none text-neutral-200">
+                <ScrollReveal key={step.title} delay={index * 0.06} className="glass-card rounded-2xl p-8">
+                  <p className="font-display text-7xl font-normal leading-none text-[#f5f5f5] opacity-20">
                     {step.n}
                   </p>
-                  <h3 className="mt-6 text-xl font-medium tracking-tight text-[#0a0a0a]">
+                  <h3 className="mt-6 text-xl font-medium tracking-tight text-[#f5f5f5]">
                     {step.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-neutral-500">{step.body}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-[#888]">{step.body}</p>
                 </ScrollReveal>
               ))}
             </div>
@@ -241,25 +245,22 @@ export default function HomePage() {
 
         <StylesSection />
 
-        <section className="bg-white py-20 sm:py-28">
+        <section className="bg-[#080808] py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
             <SectionIntro title="AI headshots vs. traditional photography" />
             <ScrollReveal className="mt-12">
               <div className="grid gap-3 md:hidden">
                 {comparisonRows.map(([feature, traditional, ai]) => (
-                  <div
-                    key={feature}
-                    className="rounded-2xl border border-neutral-200/80 bg-[#fafafa] p-5"
-                  >
-                    <h3 className="text-base font-semibold text-[#0a0a0a]">{feature}</h3>
+                  <div key={feature} className="glass-card rounded-2xl p-5">
+                    <h3 className="text-base font-semibold text-[#f5f5f5]">{feature}</h3>
                     <div className="mt-4 grid gap-3 text-sm">
                       <div>
-                        <p className="font-medium text-neutral-400">Traditional</p>
-                        <p className="mt-1 text-neutral-600">{traditional}</p>
+                        <p className="font-medium text-[#888]">Traditional</p>
+                        <p className="mt-1 text-[#888]">{traditional}</p>
                       </div>
                       <div>
-                        <p className="font-medium text-neutral-400">AI headshots</p>
-                        <p className="mt-1 inline-flex items-center gap-2 font-medium text-[#0a0a0a]">
+                        <p className="font-medium text-[#888]">AI headshots</p>
+                        <p className="mt-1 inline-flex items-center gap-2 font-medium text-[#f5f5f5]">
                           <Check className="h-4 w-4" />
                           {ai}
                         </p>
@@ -268,26 +269,26 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-              <div className="hidden overflow-hidden rounded-2xl border border-neutral-200/80 md:block">
+              <div className="glass-card hidden overflow-hidden rounded-2xl md:block">
                 <table className="w-full border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-200/80 bg-[#fafafa]">
-                      <th className="px-6 py-5 font-semibold text-neutral-500">Feature</th>
-                      <th className="px-6 py-5 font-semibold text-neutral-500">
+                    <tr className="border-b border-white/[0.08]">
+                      <th className="px-6 py-5 font-semibold text-[#888]">Feature</th>
+                      <th className="px-6 py-5 font-semibold text-[#888]">
                         Traditional photographer
                       </th>
-                      <th className="px-6 py-5 font-semibold text-[#0a0a0a]">AI headshots</th>
+                      <th className="px-6 py-5 font-semibold text-[#f5f5f5]">AI headshots</th>
                     </tr>
                   </thead>
                   <tbody>
                     {comparisonRows.map(([feature, traditional, ai], index) => (
                       <tr
                         key={feature}
-                        className={index % 2 === 0 ? "bg-white" : "bg-[#fafafa]/80"}
+                        className={index % 2 === 0 ? "bg-white/[0.02]" : "bg-transparent"}
                       >
-                        <td className="px-6 py-5 font-medium text-[#0a0a0a]">{feature}</td>
-                        <td className="px-6 py-5 text-neutral-500">{traditional}</td>
-                        <td className="px-6 py-5 font-medium text-[#0a0a0a]">
+                        <td className="px-6 py-5 font-medium text-[#f5f5f5]">{feature}</td>
+                        <td className="px-6 py-5 text-[#888]">{traditional}</td>
+                        <td className="px-6 py-5 font-medium text-[#f5f5f5]">
                           <span className="inline-flex items-center gap-2">
                             <Check className="h-4 w-4" />
                             {ai}
@@ -302,75 +303,43 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[#fafafa] py-20 sm:py-28">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-            <SectionIntro title="Built for professionals who care how they look online" />
-            <div className="mt-14 grid gap-6 sm:grid-cols-2">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <ScrollReveal
-                    key={feature.title}
-                    delay={index * 0.04}
-                    className="flex gap-5 rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm"
-                  >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f5f0e8] text-[#0a0a0a]">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-medium tracking-tight text-[#0a0a0a]">
-                        {feature.title}
-                      </h3>
-                      <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                        {feature.body}
-                      </p>
-                    </div>
-                  </ScrollReveal>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
         <LandingFaq items={faqItems} />
 
         <section
           id="waitlist"
-          className="relative scroll-mt-24 overflow-hidden bg-[#0a0a0a] px-5 py-20 text-center text-white sm:px-6 sm:py-28"
+          className="relative scroll-mt-24 overflow-hidden bg-[#050505] px-5 py-20 text-center sm:px-6 sm:py-28"
         >
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_100%,rgba(201,169,110,0.12),transparent_60%)]" />
+          <div className="pointer-events-none absolute inset-0 glow-amber-center" />
           <ScrollReveal className="relative mx-auto max-w-2xl">
-            <SectionIntro
-              dark
-              title="Your professional headshot is one upload away"
-              subtitle="Join early access. Founding members get 40% off when generation opens."
-            />
-            <WaitlistForm variant="hero" showLabel={false} className="mx-auto mt-10 max-w-xl text-left" />
+            <h2 className="font-display text-4xl font-normal tracking-tight text-[#f5f5f5] sm:text-5xl">
+              Your professional headshot is one upload away
+            </h2>
+            <p className="mx-auto mt-5 max-w-xl text-base font-light leading-relaxed text-[#888]">
+              Join early access. Founding members get 40% off when generation opens.
+            </p>
+            <WaitlistForm variant="hero" showLabel={false} className="mx-auto mt-10 max-w-lg text-left" />
           </ScrollReveal>
         </section>
       </main>
 
-      <footer className="border-t border-neutral-200/80 bg-white px-5 py-12 sm:px-6 lg:px-8">
+      <footer className="border-t border-white/[0.06] bg-[#080808] px-5 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-display text-lg font-semibold tracking-tight text-[#0a0a0a]">
+          <p className="font-display text-lg font-semibold tracking-tight text-[#f5f5f5]">
             Headshots
           </p>
-          <div className="flex flex-wrap gap-6 text-sm text-neutral-500">
-            <Link href="/privacy" className="transition hover:text-[#0a0a0a]">
+          <div className="flex flex-wrap gap-6 text-sm text-[#888]">
+            <Link href="/privacy" className="transition hover:text-[#f5f5f5]">
               Privacy
             </Link>
-            <Link href="/terms" className="transition hover:text-[#0a0a0a]">
+            <Link href="/terms" className="transition hover:text-[#f5f5f5]">
               Terms
             </Link>
-            <a
-              href="mailto:aleksei@alekseimedia.com"
-              className="transition hover:text-[#0a0a0a]"
-            >
+            <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-[#f5f5f5]">
               Contact
             </a>
           </div>
         </div>
-        <p className="mx-auto mt-8 max-w-7xl text-xs text-neutral-400">
+        <p className="mx-auto mt-8 max-w-7xl text-xs text-[#888]">
           © 2026 Aleksei Media. All rights reserved.
         </p>
       </footer>
