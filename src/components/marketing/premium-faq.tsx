@@ -7,12 +7,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 
-export type FaqItem = { q: string; a: string };
+import type { LandingFaqItem } from "@/lib/landing-content";
 
 type PremiumFaqProps = {
   heading?: string;
   subheading?: string;
-  items: FaqItem[];
+  items: LandingFaqItem[];
 };
 
 export function PremiumFaq({
