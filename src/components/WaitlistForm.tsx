@@ -6,7 +6,7 @@ import { FormEvent, useId, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type WaitlistFormProps = {
-  variant?: "dark" | "light" | "hero";
+  variant?: "dark" | "light";
   className?: string;
   showLabel?: boolean;
 };
@@ -52,7 +52,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
       <div
         className={cn(
           "rounded-2xl border px-5 py-4 text-left",
-          variant === "dark" || variant === "hero"
+          variant === "dark"
             ? "border-white/15 bg-white/10 text-white"
             : "border-[#e8e8e8] bg-white text-[#111]",
           className
@@ -73,7 +73,7 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           htmlFor={inputId}
           className={cn(
             "mb-2 block text-sm font-semibold",
-            variant === "dark" || variant === "hero" ? "text-white" : "text-[#111]"
+            variant === "dark" ? "text-white" : "text-[#111]"
           )}
         >
           Get early access
@@ -89,11 +89,9 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           placeholder="Enter your email"
           className={cn(
             "min-h-[52px] w-full min-w-0 flex-1 rounded-xl border px-4 text-[16px] outline-none transition focus:ring-2",
-            variant === "hero"
-              ? "glass-card rounded-xl text-[#f5f5f5] placeholder:text-[#888] focus:border-white/20 focus:ring-white/10"
-              : variant === "dark"
-                ? "border-white/15 bg-white text-[#111] placeholder:text-[#999] focus:border-white focus:ring-white/20"
-                : "border-[#e8e8e8] bg-white text-[#111] placeholder:text-[#999] focus:border-[#111] focus:ring-[#111]/10"
+            variant === "dark"
+              ? "border-white/15 bg-white text-[#111] placeholder:text-[#999] focus:border-white focus:ring-white/20"
+              : "border-[#e8e8e8] bg-white text-[#111] placeholder:text-[#999] focus:border-[#111] focus:ring-[#111]/10"
           )}
         />
         <button
@@ -101,11 +99,9 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           disabled={loading}
           className={cn(
             "inline-flex min-h-[52px] w-full items-center justify-center rounded-xl px-4 text-[16px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6",
-            variant === "hero"
-              ? "bg-white text-black hover:bg-[#f5f5f5]"
-              : variant === "dark"
-                ? "border border-white/15 bg-black text-white hover:bg-gray-900"
-                : "bg-[#0a0a0a] text-white hover:bg-[#222]"
+            variant === "dark"
+              ? "border border-white/15 bg-black text-white hover:bg-gray-900"
+              : "bg-[#0a0a0a] text-white hover:bg-[#222]"
           )}
         >
           {loading ? (
@@ -118,18 +114,11 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
           )}
         </button>
       </form>
-      {variant !== "hero" && (
-        <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/70" : "text-[#666]")}>
-          Founding members get 40% off at launch. Join 1,200+ already on the list.
-        </p>
-      )}
+      <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/70" : "text-[#666]")}>
+        Founding members get 40% off at launch. Join 1,200+ already on the list.
+      </p>
       {error && (
-        <p
-          className={cn(
-            "mt-3 text-sm",
-            variant === "dark" || variant === "hero" ? "text-red-200" : "text-red-600"
-          )}
-        >
+        <p className={cn("mt-3 text-sm", variant === "dark" ? "text-red-200" : "text-red-600")}>
           {error}
         </p>
       )}
