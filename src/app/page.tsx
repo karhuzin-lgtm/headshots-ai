@@ -512,6 +512,12 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-display text-xl font-normal tracking-tight text-[#111827]">Headshots</p>
           <div className="flex flex-wrap gap-5 text-sm">
+            <Link href="/privacy" className="transition hover:text-gray-900">
+              Privacy
+            </Link>
+            <Link href="/terms" className="transition hover:text-gray-900">
+              Terms
+            </Link>
             <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-gray-900">
               Contact: aleksei@alekseimedia.com
             </a>
