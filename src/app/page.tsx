@@ -92,8 +92,6 @@ const beforeAfterPairs = [
   { before: "/woman2-before.jpg", after: "/woman2-after.jpg" },
 ];
 
-const companies = ["Google", "Stripe", "Apple"];
-
 function SectionIntro({
   label,
   title,
@@ -181,46 +179,11 @@ export default function HomePage() {
         <section className="border-y border-white/[0.06] bg-[#080808] py-14">
           <div className="mx-auto max-w-7xl px-5 text-center sm:px-6 lg:px-8">
             <ScrollReveal>
-              <p className="text-sm font-medium text-[#888]">Professionals from</p>
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
-                {companies.map((name) => (
-                  <span
-                    key={name}
-                    className="font-display text-2xl font-normal tracking-tight text-white/20 sm:text-3xl"
-                  >
-                    {name}
-                  </span>
-                ))}
-              </div>
+              <p className="text-sm font-medium text-[#888]">
+                Professionals from{" "}
+                <span className="text-[#f5f5f5]">Google, Stripe, Apple</span> on the waitlist
+              </p>
             </ScrollReveal>
-          </div>
-        </section>
-
-        <section className="bg-[#080808] py-20 sm:py-28">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-            <SectionIntro title="Built for professionals who care how they look online" />
-            <div className="mt-14 grid gap-5 sm:grid-cols-2">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <ScrollReveal
-                    key={feature.title}
-                    delay={index * 0.04}
-                    className="glass-card glass-card-hover flex gap-5 rounded-2xl p-6"
-                  >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#f5f5f5]">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-medium tracking-tight text-[#f5f5f5]">
-                        {feature.title}
-                      </h3>
-                      <p className="mt-2 text-sm leading-relaxed text-[#888]">{feature.body}</p>
-                    </div>
-                  </ScrollReveal>
-                );
-              })}
-            </div>
           </div>
         </section>
 
@@ -303,6 +266,34 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section className="bg-[#080808] py-20 sm:py-28">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <SectionIntro title="Built for professionals who care how they look online" />
+            <div className="mt-14 grid gap-5 sm:grid-cols-2">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <ScrollReveal
+                    key={feature.title}
+                    delay={index * 0.04}
+                    className="glass-card glass-card-hover flex gap-5 rounded-2xl p-6"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#f5f5f5]">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium tracking-tight text-[#f5f5f5]">
+                        {feature.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-[#888]">{feature.body}</p>
+                    </div>
+                  </ScrollReveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         <LandingFaq items={faqItems} />
 
         <section
@@ -315,7 +306,7 @@ export default function HomePage() {
               Your professional headshot is one upload away
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-base font-light leading-relaxed text-[#888]">
-              Join early access. Founding members get 40% off when generation opens.
+              Join early access. Founding members get 40% off at launch.
             </p>
             <WaitlistForm variant="hero" showLabel={false} className="mx-auto mt-10 max-w-lg text-left" />
           </ScrollReveal>
