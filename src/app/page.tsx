@@ -1,11 +1,15 @@
-import { Camera, Check, Lock, Sparkles, Wand2 } from "lucide-react";
+import { Camera, Lock, Sparkles, Wand2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
-import { LandingFaq } from "@/components/marketing/landing-faq";
+import {
+  FeatureComparisonTable,
+  type ComparisonFeature,
+} from "@/components/marketing/feature-comparison-table";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { LandingNav } from "@/components/marketing/landing-nav";
+import { PremiumFaq } from "@/components/marketing/premium-faq";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { StylesSection } from "@/components/marketing/styles-section";
 
@@ -77,13 +81,13 @@ const features = [
   },
 ];
 
-const comparisonRows = [
-  ["Cost", "$200-$500", "Fraction of the cost"],
-  ["Time to results", "1-2 weeks", "~15 minutes"],
-  ["Scheduling required", "Yes", "No"],
-  ["Multiple styles", "Usually 1 look", "6 professional styles"],
-  ["Reshoots", "Extra cost", "Included"],
-  ["Location", "Must travel to studio", "From anywhere"],
+const comparisonFeatures: ComparisonFeature[] = [
+  { name: "Cost", traditional: "$200–$500", ai: "Fraction of the cost" },
+  { name: "Time to results", traditional: "1–2 weeks", ai: "~15 minutes" },
+  { name: "Scheduling required", traditional: "Yes", ai: "No" },
+  { name: "Multiple styles", traditional: "Usually 1 look", ai: "6 professional styles" },
+  { name: "Reshoots", traditional: "Extra cost", ai: "Included" },
+  { name: "Location", traditional: "Must travel to studio", ai: "From anywhere" },
 ];
 
 const beforeAfterPairs = [
@@ -209,59 +213,9 @@ export default function HomePage() {
         <StylesSection />
 
         <section className="bg-[#080808] py-20 sm:py-28">
-          <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-            <SectionIntro title="AI headshots vs. traditional photography" />
-            <ScrollReveal className="mt-12">
-              <div className="grid gap-3 md:hidden">
-                {comparisonRows.map(([feature, traditional, ai]) => (
-                  <div key={feature} className="glass-card rounded-2xl p-5">
-                    <h3 className="text-base font-semibold text-[#f5f5f5]">{feature}</h3>
-                    <div className="mt-4 grid gap-3 text-sm">
-                      <div>
-                        <p className="font-medium text-[#888]">Traditional</p>
-                        <p className="mt-1 text-[#888]">{traditional}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium text-[#888]">AI headshots</p>
-                        <p className="mt-1 inline-flex items-center gap-2 font-medium text-[#f5f5f5]">
-                          <Check className="h-4 w-4" />
-                          {ai}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="glass-card hidden overflow-hidden rounded-2xl md:block">
-                <table className="w-full border-collapse text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-white/[0.08]">
-                      <th className="px-6 py-5 font-semibold text-[#888]">Feature</th>
-                      <th className="px-6 py-5 font-semibold text-[#888]">
-                        Traditional photographer
-                      </th>
-                      <th className="px-6 py-5 font-semibold text-[#f5f5f5]">AI headshots</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {comparisonRows.map(([feature, traditional, ai], index) => (
-                      <tr
-                        key={feature}
-                        className={index % 2 === 0 ? "bg-white/[0.02]" : "bg-transparent"}
-                      >
-                        <td className="px-6 py-5 font-medium text-[#f5f5f5]">{feature}</td>
-                        <td className="px-6 py-5 text-[#888]">{traditional}</td>
-                        <td className="px-6 py-5 font-medium text-[#f5f5f5]">
-                          <span className="inline-flex items-center gap-2">
-                            <Check className="h-4 w-4" />
-                            {ai}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+          <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
+            <ScrollReveal>
+              <FeatureComparisonTable features={comparisonFeatures} />
             </ScrollReveal>
           </div>
         </section>
@@ -294,7 +248,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <LandingFaq items={faqItems} />
+        <PremiumFaq items={faqItems} />
 
         <section
           id="waitlist"
