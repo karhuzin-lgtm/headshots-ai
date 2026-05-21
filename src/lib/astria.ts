@@ -40,6 +40,10 @@ export const HEADSHOT_STYLES = {
 
 export type HeadshotStyle = keyof typeof HEADSHOT_STYLES;
 
+export const IMAGES_PER_STYLE = 3;
+const STYLE_KEYS = Object.keys(HEADSHOT_STYLES) as HeadshotStyle[];
+export const EXPECTED_HEADSHOT_COUNT = STYLE_KEYS.length * IMAGES_PER_STYLE;
+
 function buildStylePrompt(style: (typeof HEADSHOT_STYLES)[HeadshotStyle]): string {
   return [
     "Same hairstyle and facial features as in the reference photos. Do not add or remove hair.",
@@ -71,12 +75,24 @@ async function parseAstriaResponse(res: Response): Promise<any> {
   return data;
 }
 
-export async function createAstrinaTune(
+function buildPromptsAttributes(callbackUrl: string) {
+  return STYLE_KEYS.map((styleKey) => ({
+    text: buildStylePrompt(HEADSHOT_STYLES[styleKey]),
+    callback: callbackUrl,
+    num_images: IMAGES_PER_STYLE,
+    w: 640,
+    h: 768,
+    super_resolution: true,
+    face_correct: true,
+    steps: 30,
+  }));
+}
+
+/** Creates one Astria tune and queues all 6 styles (3 images each = 18 total). */
+export async function generateHeadshots(
   imageUrls: string[],
-  callbackUrl: string,
-  selectedStyle: HeadshotStyle
+  callbackUrl: string
 ): Promise<string> {
-  const style = HEADSHOT_STYLES[selectedStyle];
   const body = {
     tune: {
       title: "headshot-user",
@@ -89,16 +105,7 @@ export async function createAstrinaTune(
       steps: 1000,
       image_urls: imageUrls,
       callback: callbackUrl,
-      prompts_attributes: [{
-        text: buildStylePrompt(style),
-        callback: callbackUrl,
-        num_images: 3,
-        w: 640,
-        h: 768,
-        super_resolution: true,
-        face_correct: true,
-        steps: 30,
-      }],
+      prompts_attributes: buildPromptsAttributes(callbackUrl),
     },
   };
 
@@ -118,3 +125,6 @@ export async function createAstrinaTune(
 
   return String(data.id);
 }
+
+/** @deprecated Use generateHeadshots */
+export const createAstrinaTune = generateHeadshots;

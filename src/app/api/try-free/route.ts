@@ -7,7 +7,7 @@ import {
   updateGenerationStatus,
 } from "@/lib/generations-db";
 import {
-  createAstrinaTune,
+  generateHeadshots,
   HEADSHOT_STYLES,
   type HeadshotStyle,
 } from "@/lib/astria";
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       await updateGenerationStatus({ id: generation.id, status: "processing" });
       const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com").replace(/\/$/, "");
       const callbackUrl = `${appUrl}/api/webhook/astria?generationId=${encodeURIComponent(generation.id)}`;
-      const tuneId = await createAstrinaTune(inputUrls, callbackUrl, style as HeadshotStyle);
+      const tuneId = await generateHeadshots(inputUrls, callbackUrl);
       await updateGenerationStatus({
         id: generation.id,
         status: "processing",

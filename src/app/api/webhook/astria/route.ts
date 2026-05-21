@@ -1,3 +1,4 @@
+import { EXPECTED_HEADSHOT_COUNT } from "@/lib/astria";
 import { getGeneration, updateGenerationStatus } from "@/lib/generations-db";
 import { sendHeadshotsReady } from "@/lib/email";
 
@@ -88,7 +89,8 @@ export async function POST(request: Request) {
   }
 
   const combinedOutputUrls = Array.from(new Set([...generation.output_urls, ...outputUrls]));
-  const nextStatus = combinedOutputUrls.length >= 3 ? "done" : "processing";
+  const nextStatus =
+    combinedOutputUrls.length >= EXPECTED_HEADSHOT_COUNT ? "done" : "processing";
   const updatedGeneration = await updateGenerationStatus({
     id: generationId,
     status: nextStatus,
