@@ -16,15 +16,6 @@ const heroPhotos = [
   { src: "/my/executive.jpg", alt: "Executive AI headshot", offset: "md:-translate-y-8", delay: "1.4s" },
 ];
 
-const avatarSources = [
-  "/my/linkedin.jpg",
-  "/my/corporate.jpg",
-  "/my/executive.jpg",
-  "/my/tech.jpg",
-  "/my/creative.jpg",
-  "/my/startup.jpg",
-];
-
 export function LandingHero() {
   return (
     <section className="relative min-h-[calc(100dvh-4rem)] overflow-hidden bg-white text-[#111827]">
@@ -32,26 +23,14 @@ export function LandingHero() {
 
       <div className="relative mx-auto grid min-h-[calc(100dvh-4rem)] max-w-7xl items-center gap-12 px-5 py-16 sm:px-6 sm:py-20 md:py-28 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div>
-          <motion.div
+          <motion.p
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-8 flex items-center gap-4"
+            className="mb-8 text-sm font-light text-gray-500"
           >
-            <div className="flex -space-x-3">
-              {avatarSources.map((src, index) => (
-                <span
-                  key={src}
-                  className={`relative h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-gray-100 shadow-sm ${
-                    index > 3 ? "hidden sm:inline-flex" : "inline-flex"
-                  }`}
-                >
-                  <Image src={src} alt="" width={56} height={56} className="h-full w-full object-cover object-top" sizes="40px" />
-                </span>
-              ))}
-            </div>
-            <p className="text-sm font-light text-gray-500">Join early access — first batch opens soon</p>
-          </motion.div>
+            Join early access — first batch opens soon
+          </motion.p>
 
           <h1 className="max-w-3xl text-5xl font-normal leading-[0.92] tracking-tight text-[#111827] sm:text-6xl lg:text-7xl">
             Looks like you.
