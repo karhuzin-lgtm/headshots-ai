@@ -6,6 +6,7 @@ import {
   updateGenerationStatus,
 } from "@/lib/generations-db";
 import { createAstrinaTune } from "@/lib/astria";
+import { buildAstriaCallbackUrl } from "@/lib/generation-complete";
 import { sendHeadshotsStarted } from "@/lib/email";
 
 export const runtime = "nodejs";
@@ -74,11 +75,7 @@ export async function POST(request: Request) {
 
     try {
       await updateGenerationStatus({ id: generation.id, status: "processing" });
-      const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com").replace(
-        /\/$/,
-        ""
-      );
-      const callbackUrl = `${appUrl}/api/webhook/astria?generationId=${encodeURIComponent(generation.id)}`;
+      const callbackUrl = buildAstriaCallbackUrl(generation.id);
       const tuneId = await createAstrinaTune(inputUrls, callbackUrl);
       await updateGenerationStatus({
         id: generation.id,

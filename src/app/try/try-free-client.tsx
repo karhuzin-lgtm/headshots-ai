@@ -47,6 +47,7 @@ export function TryFreeClient() {
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [generationId, setGenerationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -100,6 +101,7 @@ export function TryFreeClient() {
         throw new Error(json.error || text || "Could not start generation.");
       }
       setEmail(normalizedEmail);
+      setGenerationId(json.id);
       setSuccess(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start generation.");
@@ -123,11 +125,19 @@ export function TryFreeClient() {
             with all 6 styles (18 headshots) in ~15 minutes.
           </p>
           <div className="mt-6 space-y-1.5 rounded-2xl bg-gray-50 p-4 text-left text-sm text-gray-500">
-            <p>✓ 6 styles × 3 photos each</p>
+            <p>✓ 6 styles × 3 photos each (18 total)</p>
             <p>✓ Check your email in ~15 minutes</p>
             <p>✓ Check spam if nothing arrives</p>
           </div>
-          <p className="mt-6 text-xs text-gray-400">You can safely close this tab.</p>
+          {generationId && (
+            <a
+              href={`/try/result/${generationId}`}
+              className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-full bg-[#0a0a0a] px-6 text-sm font-semibold text-white transition hover:bg-[#222]"
+            >
+              View status &amp; download page
+            </a>
+          )}
+          <p className="mt-4 text-xs text-gray-400">You can safely close this tab.</p>
         </div>
       </div>
     );

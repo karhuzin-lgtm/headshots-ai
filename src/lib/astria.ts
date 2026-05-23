@@ -1,3 +1,5 @@
+import { collectAstriaImageUrls } from "@/lib/astria-images";
+
 const ASTRIA_API_KEY = process.env.ASTRIA_API_KEY;
 const BASE = "https://api.astria.ai";
 const HEADSHOT_CROP_SUFFIX =
@@ -124,3 +126,18 @@ export async function createAstrinaTune(
 
 /** @deprecated Use createAstrinaTune */
 export const generateHeadshots = createAstrinaTune;
+
+/** Fetch all generated image URLs for a tune (fallback when webhooks fail). */
+export async function fetchTuneOutputUrls(tuneId: string): Promise<string[]> {
+  const res = await fetch(`${BASE}/tunes/${tuneId}/prompts`, {
+    headers: {
+      Authorization: `Bearer ${getAstriaApiKey()}`,
+      Accept: "application/json",
+    },
+  });
+  const data = await parseAstriaResponse(res);
+  const prompts = Array.isArray(data) ? data : [];
+
+  const urls = prompts.flatMap((prompt) => collectAstriaImageUrls(prompt));
+  return Array.from(new Set(urls));
+}

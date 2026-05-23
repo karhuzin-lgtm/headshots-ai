@@ -37,47 +37,42 @@ export function TryResultClient({ requestId }: { requestId: string }) {
 
   useEffect(() => {
     let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     const startedAt = Date.now();
     const timeoutMs = 45 * 60 * 1000;
 
-    async function poll() {
+    async function poll(): Promise<boolean> {
       if (Date.now() - startedAt >= timeoutMs) {
         if (!cancelled) setTimedOut(true);
-        return;
+        return true;
       }
 
       try {
-        let statusUrl: string;
-        try {
-          statusUrl = `/api/status/${requestId}`;
-        } catch (urlError) {
-          console.error("Invalid requestId for status URL:", requestId, urlError);
-          throw new Error("Could not check status for this generation.");
-        }
-        const res = await fetch(statusUrl, { cache: "no-store" });
+        const res = await fetch(`/api/status/${requestId}`, { cache: "no-store" });
         const json = (await res.json()) as StatusResponse;
         if (!res.ok) throw new Error(json.error ?? "Could not load status.");
         if (!cancelled) {
           setStatus(json);
           setError(null);
         }
+        return json.status === "done" || json.status === "failed";
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load status.");
+        return false;
       }
     }
 
-    void poll();
-    const id = setInterval(() => {
-      if (Date.now() - startedAt >= timeoutMs) {
-        setTimedOut(true);
-        clearInterval(id);
-        return;
-      }
-      void poll();
-    }, 5000);
+    void poll().then((finished) => {
+      if (finished || cancelled) return;
+      intervalId = setInterval(async () => {
+        const done = await poll();
+        if (done && intervalId) clearInterval(intervalId);
+      }, 5000);
+    });
+
     return () => {
       cancelled = true;
-      clearInterval(id);
+      if (intervalId) clearInterval(intervalId);
     };
   }, [requestId]);
 
