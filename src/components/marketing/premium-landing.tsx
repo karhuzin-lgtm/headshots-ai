@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -18,9 +18,8 @@ const HERO_PHOTOS = [
 ] as const;
 
 const STATS = [
-  { value: "~15 min", label: "Upload to ready" },
-  { value: "6", label: "Pro styles" },
-  { value: "18", label: "Photos per run" },
+  { value: "~15 min", label: "Ready time" },
+  { value: "6", label: "At launch" },
   { value: "40%", label: "Founding discount" },
 ] as const;
 
@@ -96,10 +95,10 @@ function PhotoShowcase({ reducedMotion }: { reducedMotion: boolean }) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9, duration: 0.6, ease }}
-        className="absolute bottom-[6%] left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full border border-gray-100 bg-white/95 px-4 py-2 text-xs font-medium text-gray-600 shadow-lg backdrop-blur-md"
+        className="absolute bottom-[6%] left-1/2 z-50 max-w-[92%] -translate-x-1/2 rounded-full border border-gray-100 bg-white/95 px-4 py-2 text-center text-xs font-medium text-gray-600 shadow-lg backdrop-blur-md"
       >
         <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 landing-pulse" />
-        Studio-quality · trained on your face
+        Sample output · AI-generated from selfies
       </motion.div>
     </div>
   );
@@ -135,11 +134,7 @@ function StyleTicker({ reducedMotion }: { reducedMotion: boolean }) {
 export function PremiumLanding() {
   const reducedMotion = useReducedMotion();
   const [spotlight, setSpotlight] = useState(0);
-  const highlights = [
-    "Private model on your face",
-    "6 styles · 3 photos each",
-    "No studio. No scheduling.",
-  ];
+  const highlights = ["Private model on your face", "No studio. No scheduling."];
 
   useEffect(() => {
     const html = document.documentElement;
@@ -175,7 +170,7 @@ export function PremiumLanding() {
             Headshots
           </Link>
           <div className="hidden items-center gap-6 text-xs font-medium text-gray-500 sm:flex">
-            <span>6 professional styles</span>
+            <span>6 styles at launch</span>
             <span className="h-3 w-px bg-gray-200" />
             <span>Ready in ~15 minutes</span>
           </div>
@@ -191,18 +186,6 @@ export function PremiumLanding() {
 
       <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <section className="relative z-20 flex min-h-0 flex-1 flex-col justify-center bg-gradient-to-b from-white via-white/95 to-white/88 px-4 py-4 sm:px-6 sm:py-5 lg:max-w-[52%] lg:bg-transparent lg:px-8 lg:py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease }}
-            className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-gray-100 bg-white/90 px-3 py-1.5 text-xs text-gray-500 shadow-sm backdrop-blur-sm sm:mb-5"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-gray-400" />
-            <span>
-              <strong className="font-semibold text-[#111827]">1,200+</strong> on early access
-            </span>
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -265,7 +248,7 @@ export function PremiumLanding() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="mt-4 grid grid-cols-4 gap-1.5 sm:mt-5 sm:gap-2 lg:mt-6"
+            className="mt-4 grid grid-cols-3 gap-1.5 sm:mt-5 sm:gap-2 lg:mt-6"
           >
             {STATS.map((stat, index) => (
               <motion.li
