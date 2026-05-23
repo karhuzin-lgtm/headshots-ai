@@ -3,12 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
-import { GalleryMasonry } from "@/components/marketing/gallery-masonry";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
-import { SocialProofAvatars } from "@/components/marketing/social-proof-avatars";
 import { StylesSection } from "@/components/marketing/styles-section";
-import { MY_BEFORE_PHOTO, MY_STYLE_PHOTOS } from "@/lib/my-photos";
+
+const beforeAfterPairs = [
+  { before: "/my/before.jpg", after: "/my/linkedin.jpg" },
+];
 
 const steps = [
   {
@@ -24,7 +25,7 @@ const steps = [
   {
     n: "3",
     title: "Download your headshots",
-    body: "Receive professional portrait headshots in your chosen style. Ready to use on LinkedIn, your website, or email signature. High resolution, no watermarks.",
+    body: "Receive professional headshots in your chosen styles. High resolution, no watermarks.",
   },
 ];
 
@@ -51,7 +52,7 @@ const faqItems = [
   },
   {
     q: "What if I don't like the results?",
-    a: "If you don't find at least 5 photos you'd actually use on LinkedIn — we retrain your model for free or refund every cent. One condition: follow the selfie guide when uploading.",
+    a: "If you don't find 5 photos you'd use — we retrain for free or refund every cent.",
   },
 ];
 
@@ -224,41 +225,50 @@ export default function HomePage() {
       <main>
         <LandingHero />
 
-        <section className="bg-white py-16 sm:py-20">
-          <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
-            <p className="mb-10 text-center text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
-              Before → After
-            </p>
-            <div className="grid grid-cols-2 gap-4 sm:gap-8">
-              <div className="overflow-hidden rounded-3xl">
-                <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-gray-400">
-                  Before
-                </p>
-                <Image
-                  src={MY_BEFORE_PHOTO}
-                  alt="Before — regular selfie"
-                  width={600}
-                  height={800}
-                  className="aspect-[3/4] w-full rounded-3xl object-cover shadow-sm"
-                />
-              </div>
-              <div className="overflow-hidden rounded-3xl">
-                <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-gray-900">
-                  After
-                </p>
-                <Image
-                  src={MY_STYLE_PHOTOS[0]}
-                  alt="After — AI headshot LinkedIn style"
-                  width={600}
-                  height={800}
-                  className="aspect-[3/4] w-full rounded-3xl object-cover shadow-xl"
-                />
-              </div>
+        <StylesSection />
+
+        <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
+          <div className="relative mx-auto max-w-6xl px-5 text-center sm:px-6 lg:px-8">
+            <SectionIntro
+              title="Turn everyday selfies into a profile that sells you."
+              subtitle="Your photo is often the first trust signal. Make it look intentional, polished, and current."
+            />
+            <div className="mx-auto mt-14 grid max-w-md grid-cols-1 gap-6">
+              {beforeAfterPairs.map((pair, index) => (
+                <div key={pair.before} className="flex flex-col gap-3">
+                  <div className="relative">
+                    <Image
+                      src={pair.before}
+                      alt="Casual selfie before professional headshot"
+                      width={540}
+                      height={720}
+                      className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
+                      priority={index === 0}
+                      sizes="(max-width: 768px) 100vw, 380px"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                      Before
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <Image
+                      src={pair.after}
+                      alt="AI-generated professional headshot"
+                      width={540}
+                      height={720}
+                      className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
+                      priority={index === 0}
+                      sizes="(max-width: 768px) 100vw, 380px"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-black px-2.5 py-1 text-xs font-medium text-white">
+                      After — AI
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
-
-        <StylesSection />
 
         <section className="bg-[#f9fafb] py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -287,8 +297,6 @@ export default function HomePage() {
             />
           </div>
         </section>
-
-        <GalleryMasonry />
 
         <section className="bg-[#f9fafb] py-12">
           <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 px-5 text-center sm:grid-cols-3 sm:px-6 lg:px-8">
@@ -367,8 +375,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        <SocialProofAvatars />
-
         <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 sm:px-6 lg:grid-cols-[1fr_0.85fr] lg:px-8">
             <div>
@@ -396,7 +402,7 @@ export default function HomePage() {
             </div>
             <ScrollReveal className="mx-auto w-full max-w-[400px] overflow-hidden rounded-3xl bg-white shadow-xl shadow-black/10">
               <Image
-                src={MY_STYLE_PHOTOS[1]}
+                src="/my/executive.jpg"
                 alt="Professional AI headshot example"
                 width={800}
                 height={1066}
