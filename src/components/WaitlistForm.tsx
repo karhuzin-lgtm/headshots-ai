@@ -9,9 +9,17 @@ type WaitlistFormProps = {
   variant?: "dark" | "light";
   className?: string;
   showLabel?: boolean;
+  hideFooter?: boolean;
+  submitLabel?: string;
 };
 
-export function WaitlistForm({ variant = "light", className, showLabel = true }: WaitlistFormProps) {
+export function WaitlistForm({
+  variant = "light",
+  className,
+  showLabel = true,
+  hideFooter = false,
+  submitLabel = "Join early access",
+}: WaitlistFormProps) {
   const inputId = useId();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -110,13 +118,15 @@ export function WaitlistForm({ variant = "light", className, showLabel = true }:
               Joining...
             </>
           ) : (
-            "Join early access"
+            submitLabel
           )}
         </button>
       </form>
-      <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/70" : "text-[#666]")}>
-        Founding members get 40% off at launch. First batch opens soon.
-      </p>
+      {!hideFooter && (
+        <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/70" : "text-[#666]")}>
+          Founding members get 40% off at launch. First batch opens soon.
+        </p>
+      )}
       {error && (
         <p className={cn("mt-3 text-sm", variant === "dark" ? "text-red-200" : "text-red-600")}>
           {error}
