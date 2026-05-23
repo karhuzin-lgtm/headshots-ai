@@ -3,6 +3,7 @@
  * This module re-exports the public API for callers that import from @/lib/fal.
  */
 export {
+  createAstrinaTune,
   EXPECTED_HEADSHOT_COUNT,
   generateHeadshots,
   HEADSHOT_STYLES,

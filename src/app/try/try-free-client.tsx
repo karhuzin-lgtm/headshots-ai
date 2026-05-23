@@ -1,12 +1,8 @@
 "use client";
 
 import { CheckCircle2, Loader2, Upload } from "lucide-react";
-import NextImage from "next/image";
 import { FormEvent, useRef, useState } from "react";
 
-import { DISPLAY_STYLES } from "@/lib/display-styles";
-
-const STYLE_OPTIONS = DISPLAY_STYLES;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function compressImage(file: File): Promise<File> {
@@ -47,7 +43,6 @@ export function TryFreeClient() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
   const [files, setFiles] = useState<File[]>([]);
-  const [selectedStyle, setSelectedStyle] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,11 +57,6 @@ export function TryFreeClient() {
       return;
     }
 
-    if (!selectedStyle) {
-      setError("Please select a style");
-      return;
-    }
-
     if (files.length < 8 || files.length > 20) {
       setError("Upload at least 8 selfies for best results.");
       return;
@@ -76,7 +66,6 @@ export function TryFreeClient() {
     try {
       const form = new FormData();
       form.set("email", normalizedEmail);
-      form.set("style", selectedStyle);
       const compressed = await Promise.all(files.map(compressImage));
       compressed.forEach((file) => form.append("photos", file));
 
@@ -114,12 +103,12 @@ export function TryFreeClient() {
           <p className="mt-3 leading-relaxed text-gray-500">
             Your AI model is training now. We&apos;ll email you at{" "}
             <span className="font-medium text-gray-700">{email}</span>{" "}
-            as soon as your headshots are ready (~15 minutes).
+            with all 6 styles (18 headshots) in ~15 minutes.
           </p>
           <div className="mt-6 space-y-1.5 rounded-2xl bg-gray-50 p-4 text-left text-sm text-gray-500">
+            <p>✓ 6 styles × 3 photos each</p>
             <p>✓ Check your email in ~15 minutes</p>
             <p>✓ Check spam if nothing arrives</p>
-            <p>✓ High resolution, no watermarks</p>
           </div>
           <p className="mt-6 text-xs text-gray-400">You can safely close this tab.</p>
         </div>
@@ -148,63 +137,9 @@ export function TryFreeClient() {
           </p>
         </div>
 
-        <div className="mt-7">
-          <p className="text-sm font-semibold text-foreground">
-            Choose your style
-          </p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {STYLE_OPTIONS.map((style) => {
-              const isSelected = selectedStyle === style.key;
-              return (
-                <button
-                  key={style.key}
-                  type="button"
-                  onClick={() => setSelectedStyle(style.key)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setSelectedStyle(style.key);
-                    }
-                  }}
-                  className={`group overflow-hidden rounded-2xl border text-left transition-all duration-300 ${
-                    isSelected
-                      ? "scale-[1.02] border-primary bg-primary/10 ring-2 ring-white"
-                      : "border-[color:var(--border)] bg-[color:var(--bg-3)] hover:scale-[1.02] hover:border-primary/50"
-                  } cursor-pointer`}
-                  aria-pressed={isSelected}
-                  tabIndex={0}
-                >
-                  <span className="relative block aspect-[3/4] overflow-hidden rounded-t-2xl">
-                    <NextImage
-                      src={style.photo}
-                      alt={`${style.name} style AI headshot example`}
-                      width={480}
-                      height={600}
-                      className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 300px"
-                    />
-                    <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 to-transparent" />
-                  </span>
-                  <span className="flex items-center justify-between gap-3 p-4 pb-0">
-                    <span className="text-base font-semibold text-foreground">{style.name}</span>
-                    <span
-                      className={`h-3 w-3 rounded-full border ${
-                        isSelected ? "border-primary bg-primary" : "border-white/25"
-                      }`}
-                      aria-hidden
-                    />
-                  </span>
-                  <span className="block px-4 pt-2 text-xs font-medium text-foreground">
-                    {style.tagline}
-                  </span>
-                  <span className="block px-4 pb-4 pt-2 text-xs leading-relaxed text-muted-foreground">
-                    {style.description}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <p className="mt-7 rounded-2xl border border-gray-100 bg-[#f9fafb] px-4 py-3 text-sm leading-relaxed text-gray-600">
+          We&apos;ll generate all 6 professional styles automatically.
+        </p>
 
         <div className="mt-7">
           <p className="text-sm font-semibold text-foreground">

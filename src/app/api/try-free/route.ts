@@ -6,11 +6,7 @@ import {
   findRateLimitedGeneration,
   updateGenerationStatus,
 } from "@/lib/generations-db";
-import {
-  generateHeadshots,
-  HEADSHOT_STYLES,
-  type HeadshotStyle,
-} from "@/lib/astria";
+import { createAstrinaTune } from "@/lib/astria";
 import { sendHeadshotsStarted } from "@/lib/email";
 
 export const runtime = "nodejs";
@@ -52,15 +48,10 @@ export async function POST(request: Request) {
   try {
     const form = await request.formData();
     const email = String(form.get("email") ?? "").trim().toLowerCase();
-    const style = String(form.get("style") ?? "");
     const files = form.getAll("photos").filter((value): value is File => value instanceof File);
 
     if (!EMAIL_RE.test(email)) {
       return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
-    }
-
-    if (!(style in HEADSHOT_STYLES)) {
-      return NextResponse.json({ error: "Select a valid headshot style." }, { status: 400 });
     }
 
     if (files.length < 8 || files.length > 20) {
@@ -116,7 +107,7 @@ export async function POST(request: Request) {
       await updateGenerationStatus({ id: generation.id, status: "processing" });
       const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com").replace(/\/$/, "");
       const callbackUrl = `${appUrl}/api/webhook/astria?generationId=${encodeURIComponent(generation.id)}`;
-      const tuneId = await generateHeadshots(inputUrls, callbackUrl);
+      const tuneId = await createAstrinaTune(inputUrls, callbackUrl);
       await updateGenerationStatus({
         id: generation.id,
         status: "processing",

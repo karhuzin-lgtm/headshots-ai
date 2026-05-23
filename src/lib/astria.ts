@@ -75,21 +75,8 @@ async function parseAstriaResponse(res: Response): Promise<any> {
   return data;
 }
 
-function buildPromptsAttributes(callbackUrl: string) {
-  return STYLE_KEYS.map((styleKey) => ({
-    text: buildStylePrompt(HEADSHOT_STYLES[styleKey]),
-    callback: callbackUrl,
-    num_images: IMAGES_PER_STYLE,
-    w: 640,
-    h: 768,
-    super_resolution: true,
-    face_correct: true,
-    steps: 30,
-  }));
-}
-
 /** Creates one Astria tune and queues all 6 styles (3 images each = 18 total). */
-export async function generateHeadshots(
+export async function createAstrinaTune(
   imageUrls: string[],
   callbackUrl: string
 ): Promise<string> {
@@ -105,7 +92,16 @@ export async function generateHeadshots(
       steps: 1000,
       image_urls: imageUrls,
       callback: callbackUrl,
-      prompts_attributes: buildPromptsAttributes(callbackUrl),
+      prompts_attributes: Object.values(HEADSHOT_STYLES).map((style) => ({
+        text: buildStylePrompt(style),
+        callback: callbackUrl,
+        num_images: 3,
+        w: 640,
+        h: 768,
+        super_resolution: true,
+        face_correct: true,
+        steps: 30,
+      })),
     },
   };
 
@@ -126,5 +122,5 @@ export async function generateHeadshots(
   return String(data.id);
 }
 
-/** @deprecated Use generateHeadshots */
-export const createAstrinaTune = generateHeadshots;
+/** @deprecated Use createAstrinaTune */
+export const generateHeadshots = createAstrinaTune;
