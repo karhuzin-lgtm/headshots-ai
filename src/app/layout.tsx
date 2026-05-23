@@ -28,14 +28,14 @@ export const metadata: Metadata = {
     description: "Studio-quality headshots from phone selfies. 15 minutes. 6 styles.",
     url: "https://headshots.alekseimedia.com",
     siteName: "Headshots AI",
-    images: [{ url: "/avatars/avatar-07.jpg", width: 1024, height: 1024 }],
+    images: [{ url: "/my/linkedin.jpg", width: 1024, height: 1024 }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "AI Headshots — Professional portraits from your selfies",
     description: "Studio-quality headshots from phone selfies in 15 minutes.",
-    images: ["/avatars/avatar-07.jpg"],
+    images: ["/my/linkedin.jpg"],
   },
 };
 

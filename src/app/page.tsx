@@ -8,6 +8,7 @@ import { LandingHero } from "@/components/marketing/landing-hero";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { SocialProofAvatars } from "@/components/marketing/social-proof-avatars";
 import { StylesSection } from "@/components/marketing/styles-section";
+import { MY_BEFORE_PHOTO, MY_STYLE_PHOTOS } from "@/lib/my-photos";
 
 const steps = [
   {
@@ -102,12 +103,6 @@ const comparisonRows = [
   ["Multiple styles", "Usually 1 look", "6 professional styles"],
   ["Reshoots", "Extra cost", "Included"],
   ["Location", "Must travel to studio", "From anywhere"],
-];
-
-const beforeAfterPairs = [
-  { before: "/man-before.jpg", after: "/man-after.jpg" },
-  { before: "/exec-before.jpg", after: "/exec-after.jpg" },
-  { before: "/woman2-before.jpg", after: "/woman2-after.jpg" },
 ];
 
 const industryStats = [
@@ -240,7 +235,7 @@ export default function HomePage() {
                   Before
                 </p>
                 <Image
-                  src="/my/before.jpg"
+                  src={MY_BEFORE_PHOTO}
                   alt="Before — regular selfie"
                   width={600}
                   height={800}
@@ -252,56 +247,13 @@ export default function HomePage() {
                   After
                 </p>
                 <Image
-                  src="/my/linkedin.jpg"
+                  src={MY_STYLE_PHOTOS[0]}
                   alt="After — AI headshot LinkedIn style"
                   width={600}
                   height={800}
                   className="aspect-[3/4] w-full rounded-3xl object-cover shadow-xl"
                 />
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
-          <div className="relative mx-auto max-w-6xl px-5 text-center sm:px-6 lg:px-8">
-            <SectionIntro
-              title="Turn everyday selfies into a profile that sells you."
-              subtitle="Your photo is often the first trust signal. Make it look intentional, polished, and current."
-            />
-            <div className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-3">
-              {beforeAfterPairs.map((pair, index) => (
-                <div key={pair.before} className="flex flex-col gap-3">
-                  <div className="relative">
-                    <Image
-                      src={`${pair.before}?v=20260517-3`}
-                      alt="Casual selfie before professional headshot"
-                      width={540}
-                      height={720}
-                      className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
-                      priority={index === 0}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 380px"
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                      Before
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <Image
-                      src={`${pair.after}?v=20260517-3`}
-                      alt="AI-generated professional headshot"
-                      width={540}
-                      height={720}
-                      className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
-                      priority={index === 0}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 380px"
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-black px-2.5 py-1 text-xs font-medium text-white">
-                      After — AI
-                    </span>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </section>
@@ -444,7 +396,7 @@ export default function HomePage() {
             </div>
             <ScrollReveal className="mx-auto w-full max-w-[400px] overflow-hidden rounded-3xl bg-white shadow-xl shadow-black/10">
               <Image
-                src="/avatars/avatar-19.jpg"
+                src={MY_STYLE_PHOTOS[1]}
                 alt="Professional AI headshot example"
                 width={800}
                 height={1066}

@@ -1,19 +1,6 @@
 import Image from "next/image";
 
-const photos = [
-  "/my/linkedin.jpg",
-  "/my/corporate.jpg",
-  "/my/executive.jpg",
-  "/my/tech.jpg",
-  "/my/creative.jpg",
-  "/my/startup.jpg",
-  "/avatars/avatar-09.jpg",
-  "/avatars/avatar-11.jpg",
-  "/avatars/avatar-12.jpg",
-  "/avatars/avatar-14.jpg",
-  "/avatars/avatar-16.jpg",
-  "/avatars/avatar-19.jpg",
-];
+import { MY_STYLE_PHOTOS } from "@/lib/my-photos";
 
 export function GalleryMasonry() {
   return (
@@ -21,24 +8,24 @@ export function GalleryMasonry() {
       <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-normal tracking-tight sm:text-5xl">
-            Generated for 1,200+ professionals on the waitlist.
+            Six professional styles. One upload.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-gray-500">
-            Real diversity. Real results.
+            Real AI headshots from the same selfies — LinkedIn through Startup.
           </p>
         </div>
 
-        <div className="mx-auto mt-14 max-w-6xl columns-2 gap-3 sm:columns-3 lg:columns-4">
-          {photos.map((src) => (
+        <div className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {MY_STYLE_PHOTOS.map((src) => (
             <Image
               key={src}
               src={src}
               alt="AI generated professional headshot"
               width={520}
               height={700}
-              className="mb-3 aspect-[3/4] w-full rounded-2xl object-cover shadow-sm"
+              className="aspect-[3/4] w-full rounded-2xl object-cover object-top shadow-sm"
               loading="lazy"
-              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes="(max-width: 640px) 50vw, 33vw"
             />
           ))}
         </div>

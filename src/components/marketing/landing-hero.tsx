@@ -4,25 +4,20 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { MY_STYLE_PHOTOS } from "@/lib/my-photos";
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0 },
 };
 
-const heroPhotos = [
-  { src: "/my/linkedin.jpg", alt: "LinkedIn AI headshot", offset: "md:-translate-y-5", delay: "0s" },
-  { src: "/my/corporate.jpg", alt: "Corporate AI headshot", offset: "md:translate-y-0", delay: "0.8s" },
-  { src: "/my/executive.jpg", alt: "Executive AI headshot", offset: "md:-translate-y-8", delay: "1.4s" },
-];
-
-const avatarSources = [
-  "/avatars/avatar-02.jpg",
-  "/avatars/avatar-03.jpg",
-  "/avatars/avatar-creative.jpg",
-  "/avatars/avatar-07.jpg",
-  "/avatars/avatar-08.jpg",
-  "/avatars/avatar-10.jpg",
+const heroLayout = [
+  { offset: "md:-translate-y-4", delay: "0s" },
+  { offset: "md:translate-y-2", delay: "0.5s" },
+  { offset: "md:-translate-y-6", delay: "1s" },
+  { offset: "md:translate-y-0", delay: "0.3s" },
+  { offset: "md:-translate-y-3", delay: "0.8s" },
+  { offset: "md:translate-y-4", delay: "1.2s" },
 ];
 
 export function LandingHero() {
@@ -39,18 +34,25 @@ export function LandingHero() {
             className="mb-8 flex items-center gap-4"
           >
             <div className="flex -space-x-3">
-              {avatarSources.map((src, index) => (
+              {MY_STYLE_PHOTOS.map((src, index) => (
                 <span
                   key={src}
                   className={`relative h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-gray-100 shadow-sm ${
-                    index > 3 ? "hidden sm:inline-flex" : "inline-flex"
+                    index > 4 ? "hidden sm:inline-flex" : "inline-flex"
                   }`}
                 >
-                  <Image src={src} alt="" width={56} height={56} className="h-full w-full object-cover" sizes="40px" />
+                  <Image
+                    src={src}
+                    alt=""
+                    width={56}
+                    height={56}
+                    className="h-full w-full object-cover object-top"
+                    sizes="40px"
+                  />
                 </span>
               ))}
             </div>
-            <p className="text-sm font-light text-gray-500">1,200+ professionals joined early access</p>
+            <p className="text-sm font-light text-gray-500">6 styles from one upload</p>
           </motion.div>
 
           <h1 className="max-w-3xl text-5xl font-normal leading-[0.92] tracking-tight text-[#111827] sm:text-6xl lg:text-7xl">
@@ -83,23 +85,31 @@ export function LandingHero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3"
+          className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3"
         >
-          {heroPhotos.map((photo, index) => (
-            <div key={photo.src} className={`motion-safe:animate-float ${photo.offset}`} style={{ animationDelay: photo.delay }}>
-              <div className="max-h-[280px] overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 sm:max-h-none">
-                <Image
-                  src={photo.src}
-                  width={720}
-                  height={960}
-                  alt={photo.alt}
-                  className="aspect-[3/4] w-full object-cover object-top"
-                  priority={index === 0}
-                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 280px"
-                />
+          {MY_STYLE_PHOTOS.map((src, index) => {
+            const layout = heroLayout[index] ?? heroLayout[0];
+            const name = src.replace("/my/", "").replace(".jpg", "");
+            return (
+              <div
+                key={src}
+                className={`motion-safe:animate-float ${layout.offset}`}
+                style={{ animationDelay: layout.delay }}
+              >
+                <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10">
+                  <Image
+                    src={src}
+                    width={720}
+                    height={960}
+                    alt={`${name} AI headshot`}
+                    className="aspect-[3/4] w-full object-cover object-top"
+                    priority={index < 3}
+                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 220px"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </motion.div>
       </div>
     </section>
