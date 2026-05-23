@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-import { getWaitlistCount, insertWaitlistEmail } from "@/lib/waitlist-db";
+import { getWaitlistCount, insertWaitlistEmail, unsubscribeWaitlistEmail } from "@/lib/waitlist-db";
 
 export const runtime = "nodejs";
 
@@ -44,8 +44,16 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { email?: unknown };
+    const body = (await request.json()) as {
+      email?: unknown;
+      privacyAccepted?: unknown;
+      termsAccepted?: unknown;
+      marketingConsent?: unknown;
+    };
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const privacyAccepted = body.privacyAccepted === true;
+    const termsAccepted = body.termsAccepted === true;
+    const marketingConsent = body.marketingConsent === true;
 
     if (!isValidEmail(email)) {
       return NextResponse.json(
@@ -54,7 +62,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const insertResult = await insertWaitlistEmail(email);
+    if (!privacyAccepted || !termsAccepted) {
+      return NextResponse.json(
+        { success: false, message: "Privacy Policy and Terms acceptance is required" },
+        { status: 400 }
+      );
+    }
+
+    const insertResult = await insertWaitlistEmail({
+      email,
+      privacyAccepted,
+      termsAccepted,
+      marketingConsent,
+    });
     if (insertResult === "duplicate") {
       return NextResponse.json({
         success: false,
@@ -74,6 +94,7 @@ export async function POST(request: Request) {
       const apiKey = process.env.RESEND_API_KEY;
       if (apiKey) {
         const resend = new Resend(apiKey);
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://headshots.alekseimedia.com";
         await resend.emails.send({
           from: "Headshots AI <hello@alekseimedia.com>",
           to: email,
@@ -93,9 +114,9 @@ export async function POST(request: Request) {
     <p style="font-size:14px;color:#6b7280;margin:0 0 8px;">✓ Get studio-quality headshots in ~15 minutes</p>
     <p style="font-size:14px;color:#6b7280;margin:0;">✓ 6 styles: LinkedIn, Corporate, Executive, Tech, Creative, Startup</p>
   </div>
-  <p style="font-size:14px;color:#6b7280;line-height:1.7;margin:0 0 32px;">We'll email you the moment your spot opens. No spam, ever.</p>
+  <p style="font-size:14px;color:#6b7280;line-height:1.7;margin:0 0 32px;">We'll email you the moment your spot opens.</p>
   <div style="border-top:1px solid #e5e7eb;padding-top:24px;">
-    <p style="font-size:13px;color:#9ca3af;margin:0;">headshots.alekseimedia.com · <a href="mailto:aleksei@alekseimedia.com" style="color:#9ca3af;">Contact us</a></p>
+    <p style="font-size:13px;color:#9ca3af;margin:0;">headshots.alekseimedia.com · <a href="mailto:aleksei@alekseimedia.com" style="color:#9ca3af;">Contact us</a> · <a href="${siteUrl}/api/waitlist/unsubscribe?email=${encodeURIComponent(email)}" style="color:#9ca3af;">Unsubscribe</a></p>
   </div>
 </div>
 </body>
@@ -116,5 +137,19 @@ export async function POST(request: Request) {
       { success: false, message: "Something went wrong" },
       { status: 500 }
     );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const body = (await request.json()) as { email?: unknown };
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ success: false, message: "Invalid email" }, { status: 400 });
+    }
+    const ok = await unsubscribeWaitlistEmail(email);
+    return NextResponse.json({ success: ok, message: ok ? "Unsubscribed" : "Email not found" });
+  } catch {
+    return NextResponse.json({ success: false, message: "Something went wrong" }, { status: 500 });
   }
 }

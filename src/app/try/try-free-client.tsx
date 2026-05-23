@@ -4,6 +4,13 @@ import { upload } from "@vercel/blob/client";
 import { CheckCircle2, Loader2, Upload } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
 
+import {
+  emptyWaitlistConsent,
+  isPhotoConsentValid,
+  PhotoProcessingConsentFields,
+  type LegalConsentState,
+} from "@/components/legal/legal-consent-fields";
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function compressImage(file: File): Promise<File> {
@@ -48,6 +55,7 @@ export function TryFreeClient() {
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [generationId, setGenerationId] = useState<string | null>(null);
+  const [consent, setConsent] = useState<LegalConsentState>(emptyWaitlistConsent);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -57,6 +65,11 @@ export function TryFreeClient() {
     const normalizedEmail = email.trim().toLowerCase();
     if (!EMAIL_RE.test(normalizedEmail)) {
       setError("Enter a valid email address.");
+      return;
+    }
+
+    if (!isPhotoConsentValid(consent)) {
+      setError("Please confirm age, accept the policies, and consent to photo processing.");
       return;
     }
 
@@ -267,9 +280,15 @@ export function TryFreeClient() {
           </div>
         )}
 
+        <PhotoProcessingConsentFields
+          value={consent}
+          onChange={setConsent}
+          className="mt-7"
+        />
+
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !isPhotoConsentValid(consent)}
           className="mt-6 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-[#0a0a0a] px-6 text-base font-semibold text-white transition hover:scale-[1.01] hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (

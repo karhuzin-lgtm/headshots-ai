@@ -6,6 +6,12 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ImagePlus, Loader2, Trash2, Upload } from "lucide-react";
 
+import {
+  emptyWaitlistConsent,
+  isPhotoConsentValid,
+  PhotoProcessingConsentFields,
+  type LegalConsentState,
+} from "@/components/legal/legal-consent-fields";
 import { Button } from "@/components/ui/button";
 import { isPlanId, type PlanId } from "@/lib/plans";
 import { cn } from "@/lib/utils";
@@ -51,6 +57,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
   const [hint, setHint] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [consent, setConsent] = useState<LegalConsentState>(emptyWaitlistConsent);
 
   useEffect(() => {
     photosRef.current = photos;
@@ -143,7 +150,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
   const canContinue = count >= MIN_PHOTOS && count <= MAX_PHOTOS;
 
   const handleGenerate = async () => {
-    if (!canContinue || submitting) return;
+    if (!canContinue || submitting || !isPhotoConsentValid(consent)) return;
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -283,9 +290,14 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
       </section>
 
       <div className="mt-16 flex flex-col items-center gap-4 border-t border-gray-100 pt-12">
+        <PhotoProcessingConsentFields
+          value={consent}
+          onChange={setConsent}
+          className="w-full max-w-md"
+        />
         <Button
           type="button"
-          disabled={!canContinue || submitting}
+          disabled={!canContinue || submitting || !isPhotoConsentValid(consent)}
           onClick={() => void handleGenerate()}
           className="h-12 w-full max-w-md rounded-full border-0 bg-black text-[15px] font-semibold tracking-tight text-white shadow-none hover:bg-gray-900 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 md:w-auto md:min-w-[280px]"
         >

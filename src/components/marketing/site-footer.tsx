@@ -14,22 +14,34 @@ export function SiteFooter() {
           </p>
         </div>
         <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm font-medium tracking-tight text-muted-foreground">
-          <Link href="/upload" className="transition hover:text-foreground">
-            Upload
+          <Link href="/#before-after" className="transition hover:text-foreground">
+            Before / After
           </Link>
-          <Link href="/#examples" className="transition hover:text-foreground">
-            Examples
-          </Link>
-          <Link href="/#pricing" className="transition hover:text-foreground">
-            Pricing
+          <Link href="/#styles" className="transition hover:text-foreground">
+            Styles
           </Link>
           <Link href="/#faq" className="transition hover:text-foreground">
             FAQ
           </Link>
+          <Link href="/#waitlist" className="transition hover:text-foreground">
+            Waitlist
+          </Link>
+          <Link href="/privacy" className="transition hover:text-foreground">
+            Privacy
+          </Link>
+          <Link href="/terms" className="transition hover:text-foreground">
+            Terms
+          </Link>
+          <Link href="/legal" className="transition hover:text-foreground">
+            Legal
+          </Link>
         </div>
       </div>
       <div className="border-t border-[color:var(--border)] py-6 text-center text-xs tracking-tight text-muted-foreground/80">
-        © {new Date().getFullYear()} Headshots. All rights reserved.
+        © {new Date().getFullYear()} Aleksei Media ·{" "}
+        <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-foreground">
+          aleksei@alekseimedia.com
+        </a>
       </div>
     </footer>
   );

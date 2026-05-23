@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 
 import { SiteHeader } from "@/components/marketing/site-header";
@@ -23,7 +24,18 @@ export default function TryGeneratePage() {
         </div>
       </main>
       <footer className="border-t border-gray-100 py-6 text-center text-xs text-gray-400">
-        © 2026 Aleksei Media · headshots.alekseimedia.com
+        <p>© 2026 Aleksei Media · headshots.alekseimedia.com</p>
+        <p className="mt-2 flex flex-wrap justify-center gap-3">
+          <Link href="/privacy" className="transition hover:text-gray-600">
+            Privacy
+          </Link>
+          <Link href="/terms" className="transition hover:text-gray-600">
+            Terms
+          </Link>
+          <Link href="/legal" className="transition hover:text-gray-600">
+            Legal
+          </Link>
+        </p>
       </footer>
     </div>
   );

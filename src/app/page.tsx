@@ -3,13 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { BeforeAfterSection } from "@/components/marketing/before-after-section";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { StylesSection } from "@/components/marketing/styles-section";
-
-const beforeAfterPairs = [
-  { before: "/my/before.jpg", after: "/my/linkedin.jpg" },
-];
 
 const steps = [
   {
@@ -136,7 +133,7 @@ const industryStats = [
 const offerBullets = [
   "Priority access when generation opens",
   "40% founding member discount at launch",
-  "GPU capacity limits us to 100 users per batch — quality guaranteed",
+  "Limited batch sizes to maintain generation quality",
   "Professional headshots for LinkedIn, resumes, websites, and press",
 ];
 
@@ -225,50 +222,9 @@ export default function HomePage() {
       <main>
         <LandingHero />
 
-        <StylesSection />
+        <BeforeAfterSection />
 
-        <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
-          <div className="relative mx-auto max-w-6xl px-5 text-center sm:px-6 lg:px-8">
-            <SectionIntro
-              title="Turn everyday selfies into a profile that sells you."
-              subtitle="Your photo is often the first trust signal. Make it look intentional, polished, and current."
-            />
-            <div className="mx-auto mt-14 grid max-w-md grid-cols-1 gap-6">
-              {beforeAfterPairs.map((pair, index) => (
-                <div key={pair.before} className="flex flex-col gap-3">
-                  <div className="relative">
-                    <Image
-                      src={pair.before}
-                      alt="Casual selfie before professional headshot"
-                      width={540}
-                      height={720}
-                      className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
-                      priority={index === 0}
-                      sizes="(max-width: 768px) 100vw, 380px"
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                      Before
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <Image
-                      src={pair.after}
-                      alt="AI-generated professional headshot"
-                      width={540}
-                      height={720}
-                      className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg"
-                      priority={index === 0}
-                      sizes="(max-width: 768px) 100vw, 380px"
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-black px-2.5 py-1 text-xs font-medium text-white">
-                      After — AI
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <StylesSection />
 
         <section className="bg-[#f9fafb] py-20 sm:py-28">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -290,6 +246,9 @@ export default function HomePage() {
                 </ScrollReveal>
               ))}
             </div>
+            <p className="mx-auto mt-8 max-w-2xl text-center text-xs text-gray-400">
+              Industry figures are from published research; individual results vary.
+            </p>
             <FunnelCTA
               eyebrow="Career ROI"
               title="A better first impression pays for itself."
@@ -513,6 +472,9 @@ export default function HomePage() {
             </Link>
             <Link href="/terms" className="transition hover:text-gray-900">
               Terms
+            </Link>
+            <Link href="/legal" className="transition hover:text-gray-900">
+              Legal
             </Link>
             <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-gray-900">
               Contact: aleksei@alekseimedia.com

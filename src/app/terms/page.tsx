@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { LegalPageFooter } from "@/components/legal/legal-page-footer";
+
 export const metadata = {
   title: "Terms of Service — Headshots",
   description: "Terms of use for Headshots AI professional headshot generation.",
@@ -27,26 +29,25 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-[#111827]">The service</h2>
             <p className="mt-3">
-              Headshots provides AI-generated professional headshots from photos you upload. During
-              the waitlist and beta period, access and features may change as we improve the
-              product.
+              Headshots provides AI-generated professional headshots from photos you upload. During early
+              access, features and availability may change as we improve the product.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-[#111827]">Your photos</h2>
             <p className="mt-3">
-              You must upload only photos of yourself (or someone you are legally authorized to
-              represent). Do not upload third-party faces without their explicit consent. You are
-              responsible for ensuring you have the right to use the images you submit.
+              You must upload only photos of yourself (or someone you are legally authorized to represent).
+              Do not upload third-party faces without their explicit consent. You are responsible for ensuring
+              you have the right to use the images you submit.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-[#111827]">Ownership</h2>
             <p className="mt-3">
-              You own 100% of the headshots generated for you. You may use them for LinkedIn,
-              websites, business cards, press, and any other personal or commercial purpose.
+              You own 100% of the headshots generated for you. You may use them for LinkedIn, websites,
+              business cards, press, and any other personal or commercial purpose.
             </p>
           </section>
 
@@ -56,28 +57,70 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Pricing during waitlist</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Waitlist &amp; pricing</h2>
             <p className="mt-3">
-              Headshots is in free beta while we onboard waitlist members. No payment is required
-              during the waitlist period. Paid plans and pricing will be communicated before any
-              charge is made.
+              Joining the waitlist is free. No payment is required during early access signup. When paid plans
+              launch, pricing and payment terms will be shown clearly before any charge. Founding member
+              discounts apply only as described at signup.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#111827]">EU consumer rights (paid plans)</h2>
+            <p className="mt-3">
+              When paid checkout becomes available to EU consumers, you will receive pre-contract information
+              (price, deliverables, identity of the trader) before payment. Where applicable law provides a
+              14-day withdrawal period for digital services, we will explain how it applies — noting that
+              generation may begin immediately after your explicit consent, which can affect withdrawal rights
+              for completed digital content.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-[#111827]">Refund policy at launch</h2>
             <p className="mt-3">
-              When paid generation launches: if you receive fewer than five headshots you would
-              actually use on LinkedIn (or equivalent professional use), contact us within 14
-              days — we will retrain your model at no extra cost or issue a full refund.
+              When paid generation launches: if you receive fewer than five headshots you would actually use
+              on LinkedIn (or equivalent professional use), contact us within 14 days — we will retrain your
+              model at no extra cost or issue a full refund.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-[#111827]">Acceptable use</h2>
             <p className="mt-3">
-              You may not use the service for illegal purposes, impersonation, non-consensual
-              deepfakes, or content that violates applicable law. We may suspend access for abuse.
+              You may not use the service for illegal purposes, impersonation, non-consensual deepfakes, or
+              content that violates applicable law. We may suspend access for abuse.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#111827]">Disclaimer</h2>
+            <p className="mt-3">
+              The service is provided &quot;as is&quot; during early access. We strive for high-quality results but
+              do not guarantee a specific aesthetic outcome. AI output may vary based on your uploads.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#111827]">Governing law</h2>
+            <p className="mt-3">
+              These terms are governed by the laws of Spain, without prejudice to mandatory consumer
+              protection rules in your country of residence. See our{" "}
+              <Link href="/legal" className="font-medium text-[#111827] underline underline-offset-4">
+                Legal Notice
+              </Link>{" "}
+              for dispute resolution information.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#111827]">Privacy</h2>
+            <p className="mt-3">
+              Our{" "}
+              <Link href="/privacy" className="font-medium text-[#111827] underline underline-offset-4">
+                Privacy Policy
+              </Link>{" "}
+              explains how we process your personal data, including facial photos.
             </p>
           </section>
 
@@ -97,9 +140,7 @@ export default function TermsPage() {
         </div>
       </main>
 
-      <footer className="border-t border-gray-100 bg-gray-50 py-8 text-center text-xs text-gray-500">
-        © 2026 Aleksei Media. All rights reserved.
-      </footer>
+      <LegalPageFooter />
     </div>
   );
 }

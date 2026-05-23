@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 
+import { CookieNotice } from "@/components/legal/cookie-notice";
+
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -48,6 +50,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${bricolage.variable} ${GeistMono.variable}`}>
       <body className="min-h-dvh font-sans">
         {children}
+        <CookieNotice />
       </body>
     </html>
   );
