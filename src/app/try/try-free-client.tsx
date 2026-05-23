@@ -1,5 +1,6 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import { CheckCircle2, Loader2, Upload } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
 
@@ -11,7 +12,7 @@ async function compressImage(file: File): Promise<File> {
     const url = URL.createObjectURL(file);
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const maxDim = 1536;
+      const maxDim = 1024;
       let w = img.width;
       let h = img.height;
       if (w > maxDim || h > maxDim) {
@@ -32,7 +33,7 @@ async function compressImage(file: File): Promise<File> {
           URL.revokeObjectURL(url);
         },
         "image/jpeg",
-        0.85
+        0.72
       );
     };
     img.src = url;
@@ -44,6 +45,7 @@ export function TryFreeClient() {
   const [email, setEmail] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,15 +65,29 @@ export function TryFreeClient() {
     }
 
     setLoading(true);
+    setUploadProgress(null);
     try {
-      const form = new FormData();
-      form.set("email", normalizedEmail);
       const compressed = await Promise.all(files.map(compressImage));
-      compressed.forEach((file) => form.append("photos", file));
+      const photoUrls: string[] = [];
+
+      for (let i = 0; i < compressed.length; i++) {
+        setUploadProgress(`Uploading photo ${i + 1} of ${compressed.length}…`);
+        const file = compressed[i];
+        const pathname = `try-free/${crypto.randomUUID()}.jpg`;
+        const blob = await upload(pathname, file, {
+          access: "public",
+          handleUploadUrl: "/api/try-free/upload",
+          contentType: "image/jpeg",
+        });
+        photoUrls.push(blob.url);
+      }
+
+      setUploadProgress("Starting generation…");
 
       const res = await fetch("/api/try-free", {
         method: "POST",
-        body: form,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail, photoUrls }),
       });
       const text = await res.text();
       let json: { id?: string; error?: string } = {};
@@ -89,6 +105,7 @@ export function TryFreeClient() {
       setError(e instanceof Error ? e.message : "Could not start generation.");
     } finally {
       setLoading(false);
+      setUploadProgress(null);
     }
   }
 
@@ -248,7 +265,7 @@ export function TryFreeClient() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating your headshots...
+              {uploadProgress ?? "Creating your headshots..."}
             </>
           ) : (
             "Generate my headshots"

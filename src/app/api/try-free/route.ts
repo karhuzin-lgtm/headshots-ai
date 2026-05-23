@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 
 import {
   createGeneration,
@@ -11,65 +10,49 @@ import { sendHeadshotsStarted } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ALLOWED_IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-]);
+
+function isValidPhotoUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") return false;
+    return (
+      parsed.hostname.endsWith(".public.blob.vercel-storage.com") ||
+      parsed.hostname.endsWith(".blob.vercel-storage.com")
+    );
+  } catch {
+    return false;
+  }
+}
 
 export async function GET() {
   return NextResponse.json(
-    { error: "Use POST with email and photos to start a free generation." },
+    { error: "Use POST with email and photoUrls to start a free generation." },
     { status: 405 }
   );
 }
 
-function isImage(file: File): boolean {
-  const name = file.name.toLowerCase();
-  return (
-    ALLOWED_IMAGE_TYPES.has(file.type) ||
-    /\.(jpe?g|png|webp|heic|heif)$/.test(name)
-  );
-}
-
-function blobPath(file: File, index: number): string {
-  const extension = file.name.toLowerCase().match(/\.(jpe?g|png|webp|heic|heif)$/)?.[1] ?? "jpg";
-  return `try-free/${crypto.randomUUID()}-${index + 1}.${extension}`;
-}
-
 export async function POST(request: Request) {
-  console.log("try-free called");
-  console.log("env APP_URL:", process.env.NEXT_PUBLIC_APP_URL);
-
   try {
-    const form = await request.formData();
-    const email = String(form.get("email") ?? "").trim().toLowerCase();
-    const files = form.getAll("photos").filter((value): value is File => value instanceof File);
+    const body = (await request.json()) as { email?: unknown; photoUrls?: unknown };
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const photoUrls = Array.isArray(body.photoUrls)
+      ? body.photoUrls.filter((url): url is string => typeof url === "string")
+      : [];
 
     if (!EMAIL_RE.test(email)) {
       return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
     }
 
-    if (files.length < 8 || files.length > 20) {
+    if (photoUrls.length < 8 || photoUrls.length > 20) {
       return NextResponse.json(
         { error: "Upload at least 8 selfies." },
         { status: 400 }
       );
     }
 
-    if (files.some((file) => !isImage(file))) {
-      return NextResponse.json({ error: "Only image files are allowed" }, { status: 400 });
-    }
-
-    if (files.some((file) => file.size > MAX_FILE_SIZE)) {
-      return NextResponse.json(
-        { error: "Each image must be 10MB or less" },
-        { status: 400 }
-      );
+    if (!photoUrls.every(isValidPhotoUrl)) {
+      return NextResponse.json({ error: "Invalid photo URLs." }, { status: 400 });
     }
 
     const existingGeneration = await findRateLimitedGeneration(email);
@@ -80,21 +63,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let inputUrls: string[];
-    try {
-      const uploaded = await Promise.all(
-        files.map((file, index) =>
-          put(blobPath(file, index), file, {
-            access: "public",
-            contentType: file.type || "image/jpeg",
-          })
-        )
-      );
-      inputUrls = uploaded.map((blob) => blob.url);
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Unknown blob upload error";
-      return NextResponse.json({ error: `blob upload failed: ${message}` }, { status: 500 });
-    }
+    const inputUrls = photoUrls;
 
     const generation = await createGeneration({ email, inputUrls });
     try {
@@ -105,7 +74,10 @@ export async function POST(request: Request) {
 
     try {
       await updateGenerationStatus({ id: generation.id, status: "processing" });
-      const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com").replace(/\/$/, "");
+      const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com").replace(
+        /\/$/,
+        ""
+      );
       const callbackUrl = `${appUrl}/api/webhook/astria?generationId=${encodeURIComponent(generation.id)}`;
       const tuneId = await createAstrinaTune(inputUrls, callbackUrl);
       await updateGenerationStatus({
