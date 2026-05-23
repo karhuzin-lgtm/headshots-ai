@@ -5,7 +5,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Clock, Lock, Sparkles } from "lucide-react";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
-import { MY_BEFORE_PHOTO } from "@/lib/my-photos";
+import { DISPLAY_STYLES } from "@/lib/display-styles";
+import { MY_STYLE_PHOTOS } from "@/lib/my-photos";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -15,13 +16,33 @@ const trustPoints = [
   { icon: Lock, label: "Private & deleted in 30 days" },
 ];
 
-const styleStrip = [
-  { src: "/my/linkedin.jpg", name: "LinkedIn", featured: true },
-  { src: "/my/corporate.jpg", name: "Corporate", featured: false },
-  { src: "/my/executive.jpg", name: "Executive", featured: false },
-  { src: "/my/tech.jpg", name: "Tech", featured: false },
-  { src: "/my/creative.jpg", name: "Creative", featured: false },
-  { src: "/my/startup.jpg", name: "Startup", featured: false },
+const heroShowcase = [
+  {
+    src: MY_STYLE_PHOTOS[0],
+    name: "LinkedIn",
+    offset: "right-0 top-[8%]",
+    width: "w-[68%]",
+    z: "z-10",
+    delay: "0.6s",
+  },
+  {
+    src: MY_STYLE_PHOTOS[1],
+    name: "Corporate",
+    offset: "left-[4%] bottom-[12%]",
+    width: "w-[46%]",
+    z: "z-30",
+    delay: "1s",
+    rotate: "rotate-3",
+  },
+  {
+    src: MY_STYLE_PHOTOS[2],
+    name: "Executive",
+    offset: "left-0 top-[4%]",
+    width: "w-[42%]",
+    z: "z-20",
+    delay: "0.2s",
+    rotate: "-rotate-6",
+  },
 ];
 
 export function LandingHero() {
@@ -103,88 +124,60 @@ export function LandingHero() {
           <div className="relative mx-auto aspect-[4/5] w-full max-w-[380px] sm:max-w-[420px]">
             <div className="absolute inset-[8%] rounded-[2rem] bg-gradient-to-br from-gray-100 to-gray-50 blur-2xl" />
 
-            <motion.div
-              {...fade(0.28)}
-              className="absolute left-0 top-[6%] z-20 w-[42%] motion-safe:animate-float"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <div className="relative -rotate-6">
-                <div className="overflow-hidden rounded-2xl border-4 border-white bg-white shadow-xl shadow-black/10">
-                  <Image
-                    src={MY_BEFORE_PHOTO}
-                    alt="Casual selfie before AI headshot"
-                    width={320}
-                    height={420}
-                    className="aspect-[3/4] w-full object-cover object-top"
-                    priority
-                    sizes="160px"
-                  />
+            {heroShowcase.map((photo, index) => (
+              <motion.div
+                key={photo.src}
+                {...fade(0.2 + index * 0.08)}
+                className={`absolute ${photo.offset} ${photo.width} ${photo.z} motion-safe:animate-float`}
+                style={{ animationDelay: photo.delay }}
+              >
+                <div className={`relative ${photo.rotate ?? ""}`}>
+                  <div
+                    className={`overflow-hidden bg-white shadow-xl shadow-black/10 ${
+                      index === 0
+                        ? "rounded-[1.75rem] border border-gray-100 ring-brass-pulse shadow-2xl"
+                        : "rounded-2xl border-4 border-white"
+                    }`}
+                  >
+                    <Image
+                      src={photo.src}
+                      alt={`AI headshot — ${photo.name} style`}
+                      width={520}
+                      height={693}
+                      className="aspect-[3/4] w-full object-cover object-top"
+                      priority={index === 0}
+                      sizes={index === 0 ? "(max-width: 1024px) 68vw, 320px" : "180px"}
+                    />
+                  </div>
+                  <span
+                    className={`absolute whitespace-nowrap rounded-full px-3 py-1 font-semibold shadow-md ${
+                      index === 0
+                        ? "left-4 top-4 bg-white/95 text-xs text-gray-900 shadow-sm backdrop-blur-sm"
+                        : "-bottom-2 left-1/2 -translate-x-1/2 bg-white text-[10px] uppercase tracking-wider text-gray-700 ring-1 ring-gray-100"
+                    }`}
+                  >
+                    {photo.name}
+                  </span>
                 </div>
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow-md">
-                  Your selfie
-                </span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              {...fade(0.2)}
-              className="absolute right-0 top-[10%] z-10 w-[68%] motion-safe:animate-float"
-              style={{ animationDelay: "0.6s" }}
-            >
-              <div className="ring-brass-pulse relative overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white shadow-2xl shadow-black/12">
-                <Image
-                  src="/my/linkedin.jpg"
-                  alt="AI headshot — LinkedIn style"
-                  width={520}
-                  height={693}
-                  className="aspect-[3/4] w-full object-cover object-top"
-                  priority
-                  sizes="(max-width: 1024px) 68vw, 320px"
-                />
-                <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-gray-900 shadow-sm backdrop-blur-sm">
-                  LinkedIn
-                </span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              {...fade(0.32)}
-              className="absolute bottom-[14%] left-[8%] z-30 w-[46%] motion-safe:animate-float"
-              style={{ animationDelay: "1s" }}
-            >
-              <div className="relative rotate-3">
-                <div className="overflow-hidden rounded-2xl border-4 border-white bg-white shadow-xl shadow-black/10">
-                  <Image
-                    src="/my/corporate.jpg"
-                    alt="AI headshot — Corporate style"
-                    width={360}
-                    height={480}
-                    className="aspect-[3/4] w-full object-cover object-top"
-                    sizes="180px"
-                  />
-                </div>
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-gray-700 shadow-md ring-1 ring-gray-100">
-                  Corporate
-                </span>
-              </div>
-            </motion.div>
+              </motion.div>
+            ))}
 
             <div className="absolute bottom-2 right-2 z-40 rounded-full border border-gray-100 bg-white/95 px-3.5 py-2 text-xs font-medium text-gray-700 shadow-lg backdrop-blur-sm">
-              +4 more styles
+              6 styles
             </div>
           </div>
 
           <motion.div {...fade(0.36)} className="mt-8 flex justify-center gap-2 sm:gap-2.5">
-            {styleStrip.map((style) => (
+            {DISPLAY_STYLES.map((style, index) => (
               <div
-                key={style.src}
+                key={style.key}
                 className={`overflow-hidden rounded-xl ring-2 ring-offset-2 ring-offset-white ${
-                  style.featured ? "ring-gray-900" : "ring-transparent opacity-75"
+                  index === 0 ? "ring-gray-900" : "ring-transparent opacity-75"
                 }`}
                 title={style.name}
               >
                 <Image
-                  src={style.src}
+                  src={style.photo}
                   alt={`${style.name} style preview`}
                   width={72}
                   height={96}
