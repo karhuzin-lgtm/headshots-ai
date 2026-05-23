@@ -1,13 +1,13 @@
 import Image from "next/image";
 
 const photos = [
-  "/avatars/avatar-02.jpg",
-  "/avatars/avatar-03.jpg",
-  "/avatars/avatar-creative.jpg",
-  "/avatars/avatar-07.jpg",
-  "/avatars/avatar-08.jpg",
+  "/my/linkedin.jpg",
+  "/my/corporate.jpg",
+  "/my/executive.jpg",
+  "/my/tech.jpg",
+  "/my/creative.jpg",
+  "/my/startup.jpg",
   "/avatars/avatar-09.jpg",
-  "/avatars/avatar-10.jpg",
   "/avatars/avatar-11.jpg",
   "/avatars/avatar-12.jpg",
   "/avatars/avatar-14.jpg",

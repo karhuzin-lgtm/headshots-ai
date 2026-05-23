@@ -11,9 +11,9 @@ const fadeUp = {
 };
 
 const heroPhotos = [
-  { src: "/avatars/avatar-07.jpg", alt: "LinkedIn AI headshot example", offset: "md:-translate-y-5", delay: "0s" },
-  { src: "/avatars/avatar-19.jpg", alt: "Corporate AI headshot example", offset: "md:translate-y-0", delay: "0.8s" },
-  { src: "/avatars/avatar-10.jpg", alt: "Executive AI headshot example", offset: "md:-translate-y-8", delay: "1.4s" },
+  { src: "/my/linkedin.jpg", alt: "LinkedIn AI headshot", offset: "md:-translate-y-5", delay: "0s" },
+  { src: "/my/corporate.jpg", alt: "Corporate AI headshot", offset: "md:translate-y-0", delay: "0.8s" },
+  { src: "/my/executive.jpg", alt: "Executive AI headshot", offset: "md:-translate-y-8", delay: "1.4s" },
 ];
 
 const avatarSources = [

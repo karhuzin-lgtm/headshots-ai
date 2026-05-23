@@ -229,6 +229,40 @@ export default function HomePage() {
       <main>
         <LandingHero />
 
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
+            <p className="mb-10 text-center text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
+              Before → After
+            </p>
+            <div className="grid grid-cols-2 gap-4 sm:gap-8">
+              <div className="overflow-hidden rounded-3xl">
+                <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-gray-400">
+                  Before
+                </p>
+                <Image
+                  src="/my/before.jpg"
+                  alt="Before — regular selfie"
+                  width={600}
+                  height={800}
+                  className="aspect-[3/4] w-full rounded-3xl object-cover shadow-sm"
+                />
+              </div>
+              <div className="overflow-hidden rounded-3xl">
+                <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-gray-900">
+                  After
+                </p>
+                <Image
+                  src="/my/linkedin.jpg"
+                  alt="After — AI headshot LinkedIn style"
+                  width={600}
+                  height={800}
+                  className="aspect-[3/4] w-full rounded-3xl object-cover shadow-xl"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="relative overflow-hidden bg-white py-16 sm:py-20 md:py-28">
           <div className="relative mx-auto max-w-6xl px-5 text-center sm:px-6 lg:px-8">
             <SectionIntro

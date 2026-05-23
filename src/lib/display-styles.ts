@@ -1,44 +1,49 @@
 export const DISPLAY_STYLES = [
   {
     key: "linkedin",
+    photo: "/my/linkedin.jpg",
     name: "LinkedIn",
-    photo: "/avatars/avatar-07.jpg",
-    tagline: "Approachable & confident",
-    description: "Warm smile, business casual, light background",
+    tagline: "Gets you 3× more replies",
+    description:
+      "Light blue oxford, clean gray studio. The shot that makes recruiters stop scrolling.",
   },
   {
     key: "corporate",
+    photo: "/my/corporate.jpg",
     name: "Corporate",
-    photo: "/avatars/avatar-corporate.jpg",
-    tagline: "Board-room ready",
-    description: "Classic suit, professional gray backdrop",
+    tagline: "Closes deals before you speak",
+    description: "Dark navy suit, polished backdrop. Instant trust for enterprise clients.",
   },
   {
     key: "executive",
+    photo: "/my/executive.jpg",
     name: "Executive",
-    photo: "/avatars/avatar-executive.jpg",
-    tagline: "Commands the room",
-    description: "Polished authority, dark studio backdrop",
+    tagline: "The face of a decision-maker",
+    description:
+      "Charcoal suit, deep studio tones. For when you need to walk in and own the room.",
   },
   {
     key: "tech",
+    photo: "/my/tech.jpg",
     name: "Tech",
-    photo: "/avatars/avatar-tech.jpg",
-    tagline: "Built for builders",
-    description: "Smart casual, clean neutral background",
+    tagline: "Smart. Not stiff.",
+    description:
+      "Dark button-up, modern office blur. Serious enough for investors, human enough for users.",
   },
   {
     key: "creative",
+    photo: "/my/creative.jpg",
     name: "Creative",
-    photo: "/avatars/avatar-creative.jpg",
-    tagline: "Stands out in any feed",
-    description: "Warm atmospheric light, editorial feel",
+    tagline: "Looks like a €4,000 agency shoot",
+    description:
+      "Warm bokeh, editorial light. Stands out on every platform — especially Instagram.",
   },
   {
     key: "startup",
+    photo: "/my/startup.jpg",
     name: "Startup",
-    photo: "/avatars/avatar-startup.jpg",
-    tagline: "Founder energy",
-    description: "Clean white background, relaxed confidence",
+    tagline: "Founder energy, zero budget",
+    description:
+      "White background, relaxed confidence. Because great ideas deserve great photos.",
   },
 ] as const;
