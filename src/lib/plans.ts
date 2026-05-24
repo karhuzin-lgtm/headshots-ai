@@ -56,6 +56,7 @@ export function validateStyleSelection(plan: PlanId, selected: string[]): string
   return null;
 }
 
+/** @deprecated Replace with LemonSqueezy variant checkout — see docs/billing-lemonsqueezy.md */
 export function stripeAmountCents(plan: PlanId): number {
   return PLANS[plan].priceEur * 100;
 }

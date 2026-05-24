@@ -2,7 +2,8 @@
 
 import { upload } from "@vercel/blob/client";
 import { CheckCircle2, Loader2, Upload } from "lucide-react";
-import { FormEvent, useRef, useState } from "react";
+import Image from "next/image";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import {
   emptyWaitlistConsent,
@@ -10,12 +11,29 @@ import {
   PhotoProcessingConsentFields,
   type LegalConsentState,
 } from "@/components/legal/legal-consent-fields";
+import { DISPLAY_STYLES } from "@/lib/display-styles";
+import { cn } from "@/lib/utils";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const TIPS_GOOD = [
+  "Good lighting — face clearly visible, not backlit",
+  "Different angles: front, slight left, slight right",
+  "Different expressions: smile, neutral, serious",
+  "2–3 different outfits across your photos",
+  "Photos from the last 6 months — recent look only",
+];
+
+const TIPS_BAD = [
+  "No sunglasses, hats, or face coverings",
+  "No group photos — only you in the frame",
+  "No heavy filters or beauty mode",
+  "No photos when you look visibly tired, sick, or swollen",
+];
+
 async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
-    const img = new Image();
+    const img = document.createElement("img");
     const url = URL.createObjectURL(file);
     img.onload = () => {
       const canvas = document.createElement("canvas");
@@ -47,16 +65,51 @@ async function compressImage(file: File): Promise<File> {
   });
 }
 
+function StylePreviewStrip() {
+  return (
+    <div className="flex justify-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {DISPLAY_STYLES.map((style) => (
+        <div
+          key={style.key}
+          className="relative h-14 w-11 shrink-0 overflow-hidden rounded-lg ring-1 ring-gray-200/80"
+          title={style.name}
+        >
+          <Image
+            src={style.photo}
+            alt=""
+            width={44}
+            height={56}
+            className="h-full w-full object-cover object-top"
+            sizes="44px"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function TryFreeClient() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [generationId, setGenerationId] = useState<string | null>(null);
   const [consent, setConsent] = useState<LegalConsentState>(emptyWaitlistConsent);
   const [error, setError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const urls = files.map((f) => URL.createObjectURL(f));
+    setPreviews(urls);
+    return () => urls.forEach((u) => URL.revokeObjectURL(u));
+  }, [files]);
+
+  function addFiles(incoming: File[]) {
+    setFiles((prev) => [...prev, ...incoming].slice(0, 20));
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -126,28 +179,36 @@ export function TryFreeClient() {
 
   if (success) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-10 text-center shadow-lg">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
-          <h2 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900">
-            You&apos;re all set!
-          </h2>
-          <p className="mt-3 leading-relaxed text-gray-500">
-            Your AI model is training now. We&apos;ll email you at{" "}
-            <span className="font-medium text-gray-700">{email}</span>{" "}
-            with all 6 styles (18 headshots) in ~15 minutes.
-          </p>
-          <div className="mt-6 space-y-1.5 rounded-2xl bg-gray-50 p-4 text-left text-sm text-gray-500">
-            <p>✓ 6 styles × 3 photos each (18 total)</p>
-            <p>✓ Check your email in ~15 minutes</p>
-            <p>✓ Check spam if nothing arrives</p>
+      <div className="relative mx-auto flex min-h-[50vh] max-w-lg items-center justify-center px-5 pb-20">
+        <div className="w-full rounded-2xl border border-gray-200/80 bg-white p-8 text-center shadow-lg sm:p-10">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
+            <CheckCircle2 className="h-7 w-7 text-emerald-600" />
           </div>
+          <h2 className="mt-6 font-display text-2xl font-normal tracking-tight text-[#111827] sm:text-3xl">
+            You&apos;re all set
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-gray-600">
+            Your model is training now. We&apos;ll email{" "}
+            <span className="font-medium text-gray-900">{email}</span> with 18 headshots across 6 styles in ~20
+            minutes.
+          </p>
+          <ul className="mt-6 space-y-2 rounded-xl border border-gray-100 bg-[#faf8f5] p-4 text-left text-sm text-gray-600">
+            <li className="flex gap-2">
+              <span className="text-[#c9a96e]">✓</span> 6 styles × 3 photos each (18 total)
+            </li>
+            <li className="flex gap-2">
+              <span className="text-[#c9a96e]">✓</span> Check your inbox in ~20 minutes
+            </li>
+            <li className="flex gap-2">
+              <span className="text-[#c9a96e]">✓</span> Check spam if nothing arrives
+            </li>
+          </ul>
           {generationId && (
             <a
               href={`/try/result/${generationId}`}
-              className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-full bg-[#0a0a0a] px-6 text-sm font-semibold text-white transition hover:bg-[#222]"
+              className="mt-8 inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[#111827] px-6 text-sm font-semibold text-white transition hover:bg-black"
             >
-              View status &amp; download page
+              View status &amp; download
             </a>
           )}
           <p className="mt-4 text-xs text-gray-400">You can safely close this tab.</p>
@@ -157,10 +218,13 @@ export function TryFreeClient() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 pb-16 text-center sm:px-5">
-      <form onSubmit={onSubmit} className="rounded-3xl border border-[color:var(--border)] bg-white p-5 text-left shadow-sm sm:p-7">
+    <div className="relative mx-auto w-full max-w-2xl px-5 pb-20 sm:px-6">
+      <form
+        onSubmit={onSubmit}
+        className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-lg sm:p-8"
+      >
         <div>
-          <label htmlFor="try-email" className="block text-sm font-semibold text-foreground">
+          <label htmlFor="try-email" className="text-sm font-semibold text-[#111827]">
             Email address
           </label>
           <input
@@ -169,138 +233,137 @@ export function TryFreeClient() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="Enter your email"
-            className="mt-3 min-h-[52px] w-full rounded-xl border border-[#e8e8e8] bg-white px-4 text-[16px] text-[#111] outline-none transition placeholder:text-[#999] focus:border-[#111] focus:ring-2 focus:ring-[#111]/10"
+            placeholder="you@company.com"
+            className="mt-2 min-h-[52px] w-full rounded-xl border border-gray-200 bg-white px-4 text-base text-[#111827] outline-none transition placeholder:text-gray-400 focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
           />
-          <p className="mt-2 text-xs text-muted-foreground">
-            We&apos;ll use this email to send your results when they&apos;re ready.
-          </p>
+          <p className="mt-2 text-xs text-gray-500">We&apos;ll email your results when they&apos;re ready.</p>
         </div>
 
-        <p className="mt-7 rounded-2xl border border-gray-100 bg-[#f9fafb] px-4 py-3 text-sm leading-relaxed text-gray-600">
-          We&apos;ll generate all 6 professional styles automatically.
-        </p>
+        <div className="mt-8 rounded-xl border border-[#c9a96e]/20 bg-[#faf8f5] p-4">
+          <p className="text-sm font-medium text-[#111827]">You&apos;ll receive all 6 professional styles</p>
+          <p className="mt-1 text-xs text-gray-500">LinkedIn · Corporate · Executive · Tech · Creative · Startup</p>
+          <div className="mt-4">
+            <StylePreviewStrip />
+          </div>
+        </div>
 
-        <div className="mt-7">
-          <p className="text-sm font-semibold text-foreground">
-            Tips for best results
-          </p>
+        <div className="mt-8">
+          <p className="text-sm font-semibold text-[#111827]">Tips for best results</p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-            {[
-              { icon: "✓", text: "Good lighting — face clearly visible, not backlit" },
-              { icon: "✓", text: "Different angles: front, slight left, slight right" },
-              { icon: "✓", text: "Different expressions: smile, neutral, serious" },
-              { icon: "✓", text: "2-3 different outfits across your photos" },
-              { icon: "✓", text: "Photos from the last 6 months — recent look only" },
-              { icon: "✗", text: "No sunglasses, hats, or face coverings" },
-              { icon: "✗", text: "No group photos — only you in the frame" },
-              { icon: "✗", text: "No heavy filters or beauty mode" },
-              { icon: "✗", text: "No photos when you look visibly tired, sick, or swollen" },
-            ].map(({ icon, text }) => (
-              <li key={text} className="flex items-start gap-2 text-xs text-muted-foreground">
-                <span
-                  className={
-                    icon === "✓"
-                      ? "mt-0.5 font-bold text-green-500"
-                      : "mt-0.5 font-bold text-red-500"
-                  }
-                >
-                  {icon}
-                </span>
+            {TIPS_GOOD.map((text) => (
+              <li key={text} className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="mt-0.5 font-bold text-[#c9a96e]">✓</span>
+                {text}
+              </li>
+            ))}
+            {TIPS_BAD.map((text) => (
+              <li key={text} className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="mt-0.5 font-bold text-red-500">✗</span>
                 {text}
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Better photos = more realistic AI headshots. The model learns from what you upload.
-          </p>
         </div>
 
-        <label className="mt-7 block text-sm font-semibold text-foreground">
-          Selfies
-          <span className="ml-2 font-normal text-muted-foreground">
-            Upload 8-20 selfies
-          </span>
-        </label>
-        <label className="mt-3 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[color:var(--border)] bg-[color:var(--bg-3)] px-4 py-8 text-center transition hover:border-primary">
-          <Upload className="h-7 w-7 text-muted-foreground" />
-          <span className="mt-3 text-sm font-medium text-foreground">
-            Click to choose images
-          </span>
-          <span className="mt-1 text-xs text-muted-foreground">
-            Upload 8-20 selfies. JPG, PNG, WebP, HEIC, or HEIF.
-          </span>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-            multiple
-            className="sr-only text-[16px]"
-            onChange={(event) => {
-              const newFiles = Array.from(event.target.files ?? []);
-              setFiles((prev) => [...prev, ...newFiles]);
-              event.target.value = "";
+        <div className="mt-8">
+          <label className="text-sm font-semibold text-[#111827]">
+            Selfies
+            <span className="ml-2 font-normal text-gray-500">8–20 photos</span>
+          </label>
+          <label
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+              if (e.dataTransfer.files?.length) addFiles(Array.from(e.dataTransfer.files));
             }}
-          />
-        </label>
-        <p className="mt-2 text-xs text-muted-foreground">
-          HEIC (iPhone) photos are supported.
-        </p>
-        {files.length > 0 && (
-          <div className="mt-4">
-            <div className="grid gap-2">
-              {files.map((file, idx) => (
-                <div
-                  key={`${file.name}-${file.size}-${idx}`}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-[color:var(--border)] bg-[color:var(--bg-3)] px-3 py-2 text-xs text-muted-foreground"
-                >
-                  <span className="truncate">{file.name}</span>
-                  <button
-                    type="button"
-                    onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                    className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full px-2 py-1 text-base leading-none text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
-                    aria-label={`Remove ${file.name}`}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="mt-4 flex min-h-[44px] items-center gap-2 rounded-full border border-[color:var(--border)] bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-gray-50"
-            >
-              <span className="text-lg leading-none">+</span> Add more photos
-            </button>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {files.length}/20 photos selected
-              {files.length < 8 && ` — add ${8 - files.length} more to continue`}
-            </p>
-          </div>
-        )}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            className={cn(
+              "mt-3 flex min-h-[160px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-8 text-center transition",
+              isDragging
+                ? "border-[#c9a96e]/60 bg-[#faf8f5]"
+                : "border-gray-200 bg-[#faf8f5] hover:border-[#c9a96e]/40 hover:bg-white"
+            )}
+          >
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-gray-700 shadow-sm ring-1 ring-gray-100">
+              <Upload className="h-5 w-5" aria-hidden />
+            </span>
+            <span className="mt-4 text-sm font-medium text-gray-900">Drag & drop or click to browse</span>
+            <span className="mt-1 text-xs text-gray-500">JPG, PNG, WebP, HEIC · max 20 files</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+              multiple
+              className="sr-only"
+              onChange={(event) => {
+                if (event.target.files?.length) addFiles(Array.from(event.target.files));
+                event.target.value = "";
+              }}
+            />
+          </label>
 
-        <PhotoProcessingConsentFields
-          value={consent}
-          onChange={setConsent}
-          className="mt-7"
-        />
+          {files.length > 0 && (
+            <div className="mt-4">
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+                {previews.map((url, idx) => (
+                  <div
+                    key={url}
+                    className="group relative aspect-square overflow-hidden rounded-lg ring-1 ring-gray-200/80"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs text-white opacity-0 transition group-hover:opacity-100"
+                      aria-label="Remove photo"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex min-h-[40px] items-center rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
+                >
+                  + Add more
+                </button>
+                <p className="text-xs text-gray-500">
+                  {files.length}/20 selected
+                  {files.length < 8 && (
+                    <span className="text-[#9a7b4f]"> · need {8 - files.length} more</span>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <PhotoProcessingConsentFields value={consent} onChange={setConsent} className="mt-8" />
 
         <button
           type="submit"
           disabled={loading || !isPhotoConsentValid(consent)}
-          className="mt-6 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-[#0a0a0a] px-6 text-base font-semibold text-white transition hover:scale-[1.01] hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-8 inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#111827] text-base font-semibold text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {uploadProgress ?? "Creating your headshots..."}
+              {uploadProgress ?? "Creating your headshots…"}
             </>
           ) : (
             "Generate my headshots"
           )}
         </button>
-        {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
+
+        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       </form>
     </div>
   );

@@ -1,7 +1,10 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { type ReactNode, useEffect, useState } from "react";
+
+import { DISPLAY_STYLES } from "@/lib/display-styles";
 
 type StatusResponse = {
   id?: string;
@@ -11,18 +14,19 @@ type StatusResponse = {
   error?: string;
 };
 
-const STYLE_LABELS = [
-  "Corporate",
-  "Tech Casual",
-  "Executive",
-  "Creative",
-  "Startup",
-  "LinkedIn Classic",
-];
-
 function downloadHref(url: string, filename: string): string {
   const params = new URLSearchParams({ url, filename });
   return `/api/download-image?${params.toString()}`;
+}
+
+function StatusCard({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <div
+      className={`mx-auto max-w-lg rounded-2xl border border-gray-200/80 bg-white px-8 py-12 text-center shadow-lg ${className ?? ""}`}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function TryResultClient({ requestId }: { requestId: string }) {
@@ -78,103 +82,107 @@ export function TryResultClient({ requestId }: { requestId: string }) {
 
   if (timedOut && (!status || status.status === "pending" || status.status === "processing")) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-24 text-center">
-        <h1 className="font-display text-3xl text-gradient-display">
-          Processing took longer than expected
-        </h1>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          Check your email — we&apos;ll send results when ready.
-        </p>
+      <div className="px-5 py-20 sm:py-28">
+        <StatusCard>
+          <h1 className="font-display text-2xl font-normal tracking-tight text-[#111827] sm:text-3xl">
+            Taking longer than expected
+          </h1>
+          <p className="mt-4 text-sm leading-relaxed text-gray-600">
+            Check your email — we&apos;ll send results when ready.
+          </p>
+        </StatusCard>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-24 text-center">
-        <h1 className="font-display text-3xl text-gradient-display">Something went wrong</h1>
-        <p className="mt-4 text-sm text-muted-foreground">{error}</p>
+      <div className="px-5 py-20 sm:py-28">
+        <StatusCard>
+          <h1 className="font-display text-2xl font-normal tracking-tight text-[#111827]">Something went wrong</h1>
+          <p className="mt-4 text-sm text-gray-600">{error}</p>
+        </StatusCard>
       </div>
     );
   }
 
   if (!status || status.status === "pending" || status.status === "processing") {
     return (
-      <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-24 text-center">
-        <div className="w-full rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] px-8 py-12 shadow-[0_32px_100px_-56px_rgba(0,0,0,0.95)]">
-          <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
-          <h1 className="font-display mt-8 text-3xl font-normal text-gradient-display">
+      <div className="px-5 py-20 sm:py-28">
+        <StatusCard>
+          <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#c9a96e]" />
+          <h1 className="mt-8 font-display text-2xl font-normal tracking-tight text-[#111827] sm:text-3xl">
             Creating your headshots
           </h1>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Status: {status?.status ?? "starting"}. Training usually takes ~15 minutes.
+          <p className="mt-4 text-sm leading-relaxed text-gray-600">
+            Status: {status?.status ?? "starting"}. Training usually takes ~20 minutes.
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            You can close this tab. We&apos;ll email you as soon as your headshots are ready.
-          </p>
-        </div>
+          <p className="mt-2 text-sm text-gray-500">You can close this tab — we&apos;ll email you when ready.</p>
+          <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-gray-100">
+            <div className="h-full w-2/3 animate-pulse rounded-full bg-[#c9a96e]/70" />
+          </div>
+        </StatusCard>
       </div>
     );
   }
 
   if (status.status === "failed") {
     return (
-      <div className="mx-auto max-w-lg px-4 py-24 text-center">
-        <h1 className="font-display text-3xl text-gradient-display">Generation failed</h1>
-        <p className="mt-4 text-sm text-muted-foreground">
-          {status.error ?? "Please try again later."}
-        </p>
+      <div className="px-5 py-20 sm:py-28">
+        <StatusCard>
+          <h1 className="font-display text-2xl font-normal tracking-tight text-[#111827]">Generation failed</h1>
+          <p className="mt-4 text-sm text-gray-600">{status.error ?? "Please try again later."}</p>
+          <Link
+            href="/try/generate"
+            className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-[#111827] px-6 text-sm font-semibold text-white transition hover:bg-black"
+          >
+            Try again
+          </Link>
+        </StatusCard>
       </div>
     );
   }
 
+  const imagesPerStyle = 3;
+  const styleCount = Math.min(DISPLAY_STYLES.length, Math.ceil(outputUrls.length / imagesPerStyle));
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-16 text-center sm:py-24">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-        Your free headshots
-      </p>
-      <h1 className="font-display mt-5 text-4xl font-normal tracking-[-0.03em] text-gradient-display sm:text-5xl">
-        Your headshots are ready
-      </h1>
+    <div className="mx-auto max-w-5xl px-5 py-12 sm:py-20">
+      <div className="text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a7b4f]">Ready</p>
+        <h1 className="mt-4 font-display text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
+          Your headshots are ready
+        </h1>
+        <p className="mx-auto mt-4 max-w-md text-sm text-gray-600">
+          {outputUrls.length} photos across {styleCount} styles · high resolution · yours to keep
+        </p>
+      </div>
+
       {outputUrls.length > 0 && (
-        <div className="mt-10 space-y-10">
-          <div className="mb-8 flex justify-center gap-6 text-center">
-            <div>
-              <p className="text-2xl font-bold text-gray-900">3</p>
-              <p className="text-xs uppercase tracking-wider text-gray-400">Photos ready</p>
-            </div>
-            <div className="w-px bg-gray-100" />
-            <div>
-              <p className="text-2xl font-bold text-gray-900">HD</p>
-              <p className="text-xs uppercase tracking-wider text-gray-400">Resolution</p>
-            </div>
-            <div className="w-px bg-gray-100" />
-            <div>
-              <p className="text-2xl font-bold text-gray-900">∞</p>
-              <p className="text-xs uppercase tracking-wider text-gray-400">Usage rights</p>
-            </div>
-          </div>
-          {STYLE_LABELS.map((label, styleIdx) => {
-            const styleUrls = outputUrls.slice(styleIdx * 3, styleIdx * 3 + 3);
+        <div className="mt-12 space-y-12">
+          {DISPLAY_STYLES.map((style, styleIdx) => {
+            const styleUrls = outputUrls.slice(styleIdx * imagesPerStyle, styleIdx * imagesPerStyle + imagesPerStyle);
             if (styleUrls.length === 0) return null;
-            const displayLabel = outputUrls.length <= 3 ? "Selected Style" : label;
             return (
-              <div key={label}>
-                <p className="mb-4 text-sm font-semibold text-foreground">{displayLabel}</p>
+              <section key={style.key}>
+                <h2 className="mb-4 text-center text-sm font-semibold text-[#111827] sm:text-left">{style.name}</h2>
                 <div className="grid gap-4 sm:grid-cols-3">
                   {styleUrls.map((imageUrl, i) => {
-                    const filename = `headshot-${displayLabel.toLowerCase().replace(/ /g, "-")}-${i + 1}.jpg`;
+                    const filename = `headshot-${style.key}-${i + 1}.jpg`;
                     return (
-                      <div key={imageUrl} className="overflow-hidden rounded-3xl border border-[color:var(--border)] bg-[color:var(--bg-2)] p-2">
+                      <div
+                        key={imageUrl}
+                        className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-2 shadow-sm"
+                      >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={imageUrl}
-                          alt={`${displayLabel} headshot ${i + 1}`}
-                          className="aspect-[3/4] w-full rounded-[1.25rem] object-cover"
+                          alt={`${style.name} headshot ${i + 1}`}
+                          className="aspect-[3/4] w-full rounded-xl object-cover object-top"
                         />
                         <a
                           href={downloadHref(imageUrl, filename)}
-                          className="mt-2 flex w-full items-center justify-center gap-1 rounded-xl py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+                          className="mt-2 flex w-full items-center justify-center rounded-lg py-2.5 text-xs font-semibold text-gray-600 transition hover:bg-[#faf8f5] hover:text-[#111827]"
                         >
                           ↓ Download
                         </a>
@@ -182,14 +190,21 @@ export function TryResultClient({ requestId }: { requestId: string }) {
                     );
                   })}
                 </div>
-              </div>
+              </section>
             );
           })}
         </div>
       )}
-      <p className="mx-auto mt-10 max-w-md text-sm leading-relaxed text-muted-foreground">
-        Want more styles and variations? We&apos;re launching paid plans soon.
-      </p>
+
+      <div className="mx-auto mt-14 max-w-md rounded-2xl border border-gray-200/80 bg-white p-6 text-center shadow-sm">
+        <p className="text-sm text-gray-600">Want more styles and variations?</p>
+        <Link
+          href="/#waitlist"
+          className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-[#111827] text-sm font-semibold text-white transition hover:bg-black"
+        >
+          Join early access
+        </Link>
+      </div>
     </div>
   );
 }
