@@ -47,3 +47,9 @@ export const DISPLAY_STYLES = [
       "White background, relaxed confidence. Because great ideas deserve great photos.",
   },
 ] as const;
+
+export const STYLE_NAMES_LINE = DISPLAY_STYLES.map((s) => s.name).join(", ");
+
+export const PRODUCT_STYLE_KEYS = DISPLAY_STYLES.map((s) => s.key);
+
+export type ProductStyleKey = (typeof DISPLAY_STYLES)[number]["key"];

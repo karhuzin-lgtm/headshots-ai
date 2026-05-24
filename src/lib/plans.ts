@@ -1,14 +1,10 @@
+import { PRODUCT_STYLE_KEYS, type ProductStyleKey } from "@/lib/display-styles";
+
 export type PlanId = "basic" | "pro" | "executive";
 
-export const ALL_STYLE_KEYS = [
-  "linkedin",
-  "corporate",
-  "casual",
-  "professional",
-  "creative",
-] as const;
+export const ALL_STYLE_KEYS = PRODUCT_STYLE_KEYS;
 
-export type StyleKey = (typeof ALL_STYLE_KEYS)[number];
+export type StyleKey = ProductStyleKey;
 
 export const PLAN_ORDER: PlanId[] = ["basic", "pro", "executive"];
 
@@ -16,9 +12,9 @@ export const PLANS: Record<
   PlanId,
   { priceEur: number; totalOutputs: number; styleCount: number; label: string }
 > = {
-  basic: { priceEur: 29, totalOutputs: 40, styleCount: 2, label: "Basic" },
-  pro: { priceEur: 59, totalOutputs: 80, styleCount: 5, label: "Pro" },
-  executive: { priceEur: 99, totalOutputs: 120, styleCount: 5, label: "Executive" },
+  basic: { priceEur: 29, totalOutputs: 20, styleCount: 2, label: "Basic" },
+  pro: { priceEur: 59, totalOutputs: 40, styleCount: 4, label: "Pro" },
+  executive: { priceEur: 99, totalOutputs: 60, styleCount: 6, label: "Executive" },
 };
 
 export function isPlanId(v: string | null | undefined): v is PlanId {
@@ -53,22 +49,17 @@ export function validateStyleSelection(plan: PlanId, selected: string[]): string
   for (const s of selected) {
     if (!ALL_STYLE_KEYS.includes(s as StyleKey)) return `Unknown style: ${s}`;
   }
-  if (plan === "basic") {
-    if (selected.length !== 2) return "Basic requires exactly 2 styles.";
-    return null;
-  }
-  if (plan === "pro" || plan === "executive") {
-    if (selected.length !== ALL_STYLE_KEYS.length) {
-      return "Pro and Executive use all five styles.";
-    }
-    for (const k of ALL_STYLE_KEYS) {
-      if (!set.has(k)) return "Pro and Executive require every style: linkedin, corporate, casual, professional, creative.";
-    }
-    return null;
+  const required = PLANS[plan].styleCount;
+  if (selected.length !== required) {
+    return `${PLANS[plan].label} requires exactly ${required} style${required === 1 ? "" : "s"}.`;
   }
   return null;
 }
 
 export function stripeAmountCents(plan: PlanId): number {
   return PLANS[plan].priceEur * 100;
+}
+
+export function stylesForPlan(plan: PlanId): string[] {
+  return ALL_STYLE_KEYS.slice(0, PLANS[plan].styleCount);
 }

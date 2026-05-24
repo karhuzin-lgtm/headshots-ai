@@ -2,10 +2,9 @@ import Link from "next/link";
 
 import { SectionIntro } from "@/components/marketing/section-intro";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { STYLE_NAMES_LINE } from "@/lib/display-styles";
 import { PRIMARY_CTA } from "@/lib/landing-config";
 import { PLANS, type PlanId } from "@/lib/plans";
-
-const STYLE_NAMES = "LinkedIn, Corporate, Executive, Tech & Creative";
 
 const FOUNDING_PRICE_EUR: Record<PlanId, number> = {
   basic: 19,
@@ -14,12 +13,17 @@ const FOUNDING_PRICE_EUR: Record<PlanId, number> = {
 };
 
 const PLAN_FEATURES: Record<PlanId, string[]> = {
-  basic: ["40 headshots", "2 styles of your choice", "High resolution downloads"],
-  pro: ["80 headshots", STYLE_NAMES, "High resolution downloads"],
+  basic: ["20 headshots", "2 styles of your choice", "Ready in ~20 minutes", "High resolution downloads"],
+  pro: [
+    "40 headshots",
+    "4 styles of your choice",
+    `Choose from: ${STYLE_NAMES_LINE}`,
+    "High resolution downloads",
+  ],
   executive: [
-    "120 headshots",
-    `All 5 styles + priority queue`,
-    "Ready in 4 hours",
+    "60 headshots in 6 styles",
+    `All 6 styles: ${STYLE_NAMES_LINE}`,
+    "Ready in ~20 minutes",
     "1 manual retouch included",
   ],
 };

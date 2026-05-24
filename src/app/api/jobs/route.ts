@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
-import { ALL_STYLE_KEYS, buildGenerationManifest, isPlanId, PLANS } from "@/lib/plans";
+import { buildGenerationManifest, isPlanId, PLANS, stylesForPlan } from "@/lib/plans";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
     const plan = planRaw;
 
-    const styles = [...ALL_STYLE_KEYS];
+    const styles = stylesForPlan(plan);
 
     const files = form.getAll("photos").filter((v): v is File => v instanceof File);
     if (files.length < 3 || files.length > 20) {

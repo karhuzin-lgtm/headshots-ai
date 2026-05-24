@@ -13,7 +13,7 @@ import {
   type LegalConsentState,
 } from "@/components/legal/legal-consent-fields";
 import { Button } from "@/components/ui/button";
-import { isPlanId, type PlanId } from "@/lib/plans";
+import { isPlanId, PLANS, type PlanId } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
 const MIN_PHOTOS = 3;
@@ -178,12 +178,7 @@ export function UploadFlow({ initialPlan }: UploadFlowProps) {
   return (
     <div className="mx-auto w-full max-w-[900px] px-4 pb-24 pt-12 sm:pt-14 md:px-6 lg:px-8">
       <p className="mb-6 text-center text-xs font-medium uppercase tracking-[0.18em] text-primary">
-        {planLabel} plan ·{" "}
-        {plan === "basic"
-          ? "40 headshots"
-          : plan === "pro"
-            ? "80 headshots"
-            : "120 headshots"}
+        {planLabel} plan · {PLANS[plan].totalOutputs} headshots · {PLANS[plan].styleCount} styles
       </p>
 
       <header className="text-center">
