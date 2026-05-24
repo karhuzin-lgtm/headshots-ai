@@ -16,13 +16,13 @@ const steps = [
   {
     icon: Sparkles,
     title: "AI trains on you",
-    body: "A private model learns your face — not a generic filter. About 15 minutes. We email when it's ready.",
+    body: "A private model learns your face — not a generic filter. This takes about 20 minutes. We email when it's ready.",
     visual: "train" as const,
   },
   {
     icon: Download,
     title: "Download your headshots",
-    body: "Six professional styles, high resolution, no watermarks. Yours to use anywhere.",
+    body: "Receive 18 professional headshots across all 6 styles. Ready to use on LinkedIn, your website, or email signature. High resolution, no watermarks.",
     visual: "download" as const,
   },
 ];
@@ -45,7 +45,7 @@ function StepVisual({ type }: { type: "upload" | "train" | "download" }) {
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-200">
           <div className="h-full w-[72%] rounded-full bg-[#c9a96e]" />
         </div>
-        <p className="mt-2 text-[11px] text-gray-400">~12 min remaining</p>
+        <p className="mt-2 text-[11px] text-gray-400">~20 min total</p>
       </div>
     );
   }
@@ -72,7 +72,7 @@ export function HowItWorksSection() {
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
           label="How it works"
-          title="Three steps. Fifteen minutes."
+          title="Three steps. Twenty minutes."
           subtitle="From phone selfies to LinkedIn-ready portraits — without leaving home."
         />
         <div className="mt-16 grid gap-8 md:grid-cols-3">

@@ -15,7 +15,7 @@ const faqItems = [
   },
   {
     q: "How long does it take?",
-    a: "About 15 minutes from upload to ready. We'll email you — no need to keep the tab open.",
+    a: "Approximately 20 minutes from upload to ready. We'll email you — no need to keep the tab open.",
   },
   {
     q: "Are my photos stored?",
@@ -31,7 +31,7 @@ const faqItems = [
   },
   {
     q: "Why join the waitlist now?",
-    a: "We're opening in batches. Early access gets priority when generation opens, plus a locked-in 40% founding discount at launch.",
+    a: "We're opening in batches. Early access gets priority when generation opens, plus a locked-in €29 founding price at launch.",
   },
 ];
 

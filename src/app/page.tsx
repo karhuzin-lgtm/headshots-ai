@@ -2,13 +2,17 @@ import { WaitlistForm } from "@/components/WaitlistForm";
 import { BeforeAfterSection } from "@/components/marketing/before-after-section";
 import { ComparisonSection } from "@/components/marketing/comparison-section";
 import { FaqSection } from "@/components/marketing/faq-section";
+import { GalleryMasonry } from "@/components/marketing/gallery-masonry";
 import { HowItWorksSection } from "@/components/marketing/how-it-works-section";
 import { LandingFooter } from "@/components/marketing/landing-footer";
 import { LandingHeader } from "@/components/marketing/landing-header";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { StatsSection } from "@/components/marketing/stats-section";
 import { StylesSection } from "@/components/marketing/styles-section";
+import { TeamSection } from "@/components/marketing/team-section";
+import { TestimonialsSection } from "@/components/marketing/testimonials-section";
 
 export default function HomePage() {
   return (
@@ -20,8 +24,12 @@ export default function HomePage() {
         <BeforeAfterSection />
         <HowItWorksSection />
         <StylesSection />
+        <GalleryMasonry />
+        <TestimonialsSection />
+        <StatsSection />
         <ComparisonSection />
         <PricingSection />
+        <TeamSection />
 
         <section
           id="waitlist"
@@ -33,7 +41,7 @@ export default function HomePage() {
               Be ready before the next opportunity.
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-lg font-light leading-relaxed text-gray-400">
-              Join the waitlist for priority access and a locked-in 40% founding discount when we open.
+              Join the waitlist for priority access. Founding members lock in €29 at launch.
             </p>
             <WaitlistForm
               variant="dark"

@@ -147,7 +147,7 @@ export function WaitlistForm({
 
       {!hideFooter && (
         <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/70" : "text-[#666]")}>
-          Founding members get 40% off at launch. First batch opens soon.{" "}
+          Founding members lock in €29 at launch. Join 1,200+ already on the list.{" "}
           <Link
             href="/privacy"
             className={cn("underline underline-offset-4", variant === "dark" ? "text-white/90" : "text-gray-700")}

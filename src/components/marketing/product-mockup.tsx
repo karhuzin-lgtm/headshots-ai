@@ -41,7 +41,7 @@ export function ProductMockup() {
               ))}
             </ul>
             <div className="mt-6 rounded-lg border border-[#c9a96e]/30 bg-[#c9a96e]/10 px-2.5 py-2">
-              <p className="text-[10px] font-medium text-[#e8d4b0]">~15 min total</p>
+              <p className="text-[10px] font-medium text-[#e8d4b0]">~20 min total</p>
             </div>
           </aside>
 

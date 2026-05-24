@@ -7,6 +7,7 @@ const nav = [
   { href: "#how-it-works", label: "How it works" },
   { href: "#styles", label: "Styles" },
   { href: "#pricing", label: "Pricing" },
+  { href: "#teams", label: "Teams" },
   { href: "#faq", label: "FAQ" },
 ];
 
