@@ -20,8 +20,8 @@ export default function TryGeneratePage() {
             Create your headshots
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-lg font-light leading-relaxed text-gray-600">
-            Upload 8–20 selfies from your phone. Get 18 studio-quality headshots across 6 professional styles in
-            ~20 minutes.
+            Upload 8–20 clear selfies from your phone. Your AI model trains on your face — get 18 headshots across 6
+            styles in ~20 minutes.
           </p>
         </div>
 

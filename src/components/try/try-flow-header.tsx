@@ -7,14 +7,9 @@ export function TryFlowHeader() {
         <Link href="/" className="font-display text-xl font-semibold tracking-[-0.03em] text-[#111827]">
           Headshots
         </Link>
-        <div className="flex items-center gap-4 sm:gap-6">
-          <span className="hidden rounded-full border border-[#c9a96e]/30 bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#9a7b4f] sm:inline">
-            Test flow
-          </span>
-          <Link href="/" className="text-sm font-medium text-gray-600 transition hover:text-gray-900">
-            ← Home
-          </Link>
-        </div>
+        <Link href="/" className="text-sm font-medium text-gray-600 transition hover:text-gray-900">
+          ← Home
+        </Link>
       </div>
     </header>
   );

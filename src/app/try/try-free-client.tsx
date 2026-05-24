@@ -236,12 +236,15 @@ export function TryFreeClient() {
             placeholder="you@company.com"
             className="mt-2 min-h-[52px] w-full rounded-xl border border-gray-200 bg-white px-4 text-base text-[#111827] outline-none transition placeholder:text-gray-400 focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
           />
-          <p className="mt-2 text-xs text-gray-500">We&apos;ll email your results when they&apos;re ready.</p>
+          <p className="mt-2 text-xs text-gray-500">
+            Results arrive by email in ~20 minutes. No account needed.
+          </p>
         </div>
 
         <div className="mt-8 rounded-xl border border-[#c9a96e]/20 bg-[#faf8f5] p-4">
-          <p className="text-sm font-medium text-[#111827]">You&apos;ll receive all 6 professional styles</p>
-          <p className="mt-1 text-xs text-gray-500">LinkedIn · Corporate · Executive · Tech · Creative · Startup</p>
+          <p className="text-sm font-medium text-[#111827]">
+            You&apos;ll receive 18 headshots — 6 professional styles × 3 photos each.
+          </p>
           <div className="mt-4">
             <StylePreviewStrip />
           </div>
@@ -312,14 +315,14 @@ export function TryFreeClient() {
                 {previews.map((url, idx) => (
                   <div
                     key={url}
-                    className="group relative aspect-square overflow-hidden rounded-lg ring-1 ring-gray-200/80"
+                    className="relative aspect-square overflow-hidden rounded-xl ring-1 ring-gray-200/80"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={url} alt="" className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs text-white opacity-0 transition group-hover:opacity-100"
+                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs leading-none text-white"
                       aria-label="Remove photo"
                     >
                       ×
@@ -327,21 +330,10 @@ export function TryFreeClient() {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex min-h-[40px] items-center rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
-                >
-                  + Add more
-                </button>
-                <p className="text-xs text-gray-500">
-                  {files.length}/20 selected
-                  {files.length < 8 && (
-                    <span className="text-[#9a7b4f]"> · need {8 - files.length} more</span>
-                  )}
-                </p>
-              </div>
+              <p className="mt-3 text-xs text-gray-500">
+                {files.length}/20 photos selected
+                {files.length < 8 && ` — add ${8 - files.length} more to continue`}
+              </p>
             </div>
           )}
         </div>
@@ -359,7 +351,7 @@ export function TryFreeClient() {
               {uploadProgress ?? "Creating your headshots…"}
             </>
           ) : (
-            "Generate my headshots"
+            "Generate my headshots →"
           )}
         </button>
 

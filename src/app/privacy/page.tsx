@@ -103,7 +103,7 @@ export default function PrivacyPage() {
               <li>Neon — database</li>
               <li>Resend — transactional email</li>
               <li>Astria — AI model training and image generation</li>
-              <li>Stripe — payment processing (when paid plans are active)</li>
+              <li>Payment processor (e.g. Lemon Squeezy or Paddle) — when paid plans are active</li>
               <li>Supabase / Google — authentication (where sign-in is used)</li>
             </ul>
             <p className="mt-3">

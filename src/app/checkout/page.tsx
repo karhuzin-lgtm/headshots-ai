@@ -15,8 +15,8 @@ export default function CheckoutPage() {
             Checkout opens with early access
           </h1>
           <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed tracking-tight text-muted-foreground sm:text-base">
-            Paid checkout (LemonSqueezy) is not connected yet. Join the waitlist to lock in the €29 founding
-            price — we&apos;ll email you when billing goes live.
+            Paid checkout isn&apos;t connected yet. Join the waitlist to lock in the €29 founding price — we&apos;ll
+            email you when billing goes live.
           </p>
           <Button
             asChild
