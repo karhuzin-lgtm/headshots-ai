@@ -5,17 +5,26 @@ import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { PRIMARY_CTA } from "@/lib/landing-config";
 import { PLANS, type PlanId } from "@/lib/plans";
 
+const STYLE_NAMES = "LinkedIn, Corporate, Executive, Tech & Creative";
+
+const FOUNDING_PRICE_EUR: Record<PlanId, number> = {
+  basic: 19,
+  pro: 39,
+  executive: 59,
+};
+
 const PLAN_FEATURES: Record<PlanId, string[]> = {
   basic: ["40 headshots", "2 styles of your choice", "High resolution downloads"],
-  pro: ["80 headshots", "All 5 style packs", "Priority processing"],
-  executive: ["120 headshots", "All styles + extras", "Fastest turnaround"],
+  pro: ["80 headshots", STYLE_NAMES, "High resolution downloads"],
+  executive: [
+    "120 headshots",
+    `All 5 styles + priority queue`,
+    "Ready in 4 hours",
+    "1 manual retouch included",
+  ],
 };
 
 const planOrder: PlanId[] = ["basic", "pro", "executive"];
-
-function foundingPrice(eur: number) {
-  return Math.round(eur * 0.6);
-}
 
 export function PricingSection() {
   return (
@@ -29,7 +38,7 @@ export function PricingSection() {
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {planOrder.map((id, index) => {
             const plan = PLANS[id];
-            const founding = foundingPrice(plan.priceEur);
+            const founding = FOUNDING_PRICE_EUR[id];
             const isPopular = id === "pro";
             return (
               <ScrollReveal key={id} delay={index * 0.05}>
@@ -59,16 +68,19 @@ export function PricingSection() {
                       </li>
                     ))}
                   </ul>
-                  <Link
-                    href={PRIMARY_CTA.href}
-                    className={`mt-8 inline-flex min-h-[44px] w-full items-center justify-center rounded-full text-sm font-semibold transition ${
-                      isPopular
-                        ? "bg-[#111827] text-white hover:bg-black"
-                        : "border border-gray-200 bg-white text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    {PRIMARY_CTA.label}
-                  </Link>
+                  <div className="mt-8">
+                    <Link
+                      href={PRIMARY_CTA.href}
+                      className={`inline-flex min-h-[44px] w-full items-center justify-center rounded-full text-sm font-semibold transition ${
+                        isPopular
+                          ? "bg-[#111827] text-white hover:bg-black"
+                          : "border border-gray-200 bg-white text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      {PRIMARY_CTA.label}
+                    </Link>
+                    <p className="mt-2 text-center text-xs text-gray-500">No card required</p>
+                  </div>
                 </div>
               </ScrollReveal>
             );
