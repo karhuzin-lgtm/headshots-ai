@@ -81,7 +81,11 @@
   }
 
   .text-gradient-brass {
-    @apply bg-gradient-to-r from-[#0a0a0a] to-[#4b5563] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#9a7b4f] via-[#c9a96e] to-[#6b5a3e] bg-clip-text text-transparent;
+  }
+
+  .bg-landing-warm {
+    background-color: #faf8f5;
   }
 
   .glass-panel {

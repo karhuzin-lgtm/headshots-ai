@@ -1,58 +1,51 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { SectionIntro } from "@/components/marketing/section-intro";
+import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { DISPLAY_STYLES } from "@/lib/display-styles";
+import { PRIMARY_CTA } from "@/lib/landing-config";
 
 export function StylesSection() {
   return (
-    <section id="styles" className="relative overflow-hidden bg-[#f9fafb] py-16 text-[#111827] sm:py-20 md:py-28">
-      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
-            6 Styles
-          </p>
-          <h2 className="mt-4 text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
-            6 styles. Pick yours.
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-gray-500">
-            Pick the look that matches the opportunity — hiring, sales, speaking, fundraising, or press.
-          </p>
-        </div>
-
-        <div className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-5 lg:grid-cols-3">
-          {DISPLAY_STYLES.map((style) => (
-            <Link
-              key={style.key}
-              href="/#waitlist"
-              className="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
-              aria-label={`Start with ${style.name} style`}
-            >
-              <Image
-                src={style.photo}
-                alt={`${style.name} style AI headshot example`}
-                width={720}
-                height={960}
-                className="aspect-[3/4] w-full object-cover object-top"
-                loading="lazy"
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 300px"
-              />
-              <div className="p-4">
-                <h3 className="text-sm font-semibold text-gray-900">{style.name}</h3>
-                <p className="mt-1 text-xs text-gray-500">{style.tagline}</p>
-                <p className="mt-2 text-xs leading-relaxed text-gray-500">{style.description}</p>
-              </div>
-            </Link>
+    <section id="styles" className="scroll-mt-24 bg-[#faf8f5] py-20 sm:py-28">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <SectionIntro
+          label="6 styles"
+          title="One upload. Six professional looks."
+          subtitle="Each style is tuned for a different context — hiring, sales, speaking, press, or social."
+        />
+        <div className="mt-14 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+          {DISPLAY_STYLES.map((style, index) => (
+            <ScrollReveal key={style.key} delay={index * 0.04}>
+              <article className="group overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+                <div className="relative overflow-hidden">
+                  <Image
+                    src={style.photo}
+                    alt={`${style.name} AI headshot style`}
+                    width={480}
+                    height={640}
+                    className="aspect-[3/4] w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]"
+                    sizes="(max-width: 640px) 45vw, 320px"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4 sm:p-5">
+                  <h3 className="text-base font-semibold text-gray-900">{style.name}</h3>
+                  <p className="mt-1 text-sm text-[#9a7b4f]">{style.tagline}</p>
+                </div>
+              </article>
+            </ScrollReveal>
           ))}
         </div>
-
-        <div className="mt-12 text-center">
+        <ScrollReveal className="mt-12 text-center">
           <Link
-            href="/#waitlist"
-            className="inline-flex min-h-[44px] items-center rounded-full bg-[#111827] px-7 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black"
+            href={PRIMARY_CTA.href}
+            className="inline-flex min-h-[48px] items-center rounded-full bg-[#111827] px-8 py-3 text-sm font-semibold text-white transition hover:bg-black"
           >
-            Choose your look — join early access →
+            {PRIMARY_CTA.label} →
           </Link>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

@@ -1,48 +1,19 @@
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Clock, Lock, Sparkles } from "lucide-react";
 
+import { ProductMockup } from "@/components/marketing/product-mockup";
 import { WaitlistForm } from "@/components/WaitlistForm";
-import { DISPLAY_STYLES } from "@/lib/display-styles";
-import { MY_STYLE_PHOTOS } from "@/lib/my-photos";
+import { HERO_CTA } from "@/lib/landing-config";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const trustPoints = [
-  { icon: Clock, label: "~15 min to results" },
+  { icon: Clock, label: "~15 minutes" },
   { icon: Sparkles, label: "6 pro styles" },
-  { icon: Lock, label: "Private & deleted in 30 days" },
-];
-
-const heroShowcase = [
-  {
-    src: MY_STYLE_PHOTOS[0],
-    name: "LinkedIn",
-    offset: "right-0 top-[8%]",
-    width: "w-[68%]",
-    z: "z-10",
-    delay: "0.6s",
-  },
-  {
-    src: MY_STYLE_PHOTOS[1],
-    name: "Corporate",
-    offset: "left-[4%] bottom-[12%]",
-    width: "w-[46%]",
-    z: "z-30",
-    delay: "1s",
-    rotate: "rotate-3",
-  },
-  {
-    src: MY_STYLE_PHOTOS[2],
-    name: "Executive",
-    offset: "left-0 top-[4%]",
-    width: "w-[42%]",
-    z: "z-20",
-    delay: "0.2s",
-    rotate: "-rotate-6",
-  },
+  { icon: Lock, label: "Deleted in 30 days" },
 ];
 
 export function LandingHero() {
@@ -52,55 +23,46 @@ export function LandingHero() {
     reduceMotion
       ? {}
       : {
-          initial: { opacity: 0, y: 20 },
+          initial: { opacity: 0, y: 16 },
           animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.7, delay, ease },
+          transition: { duration: 0.55, delay, ease },
         };
 
   return (
-    <section className="relative overflow-hidden bg-white text-[#111827]">
-      <div className="pointer-events-none absolute inset-0 -z-0">
-        <div className="absolute -left-32 top-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(249,250,251,1),transparent_70%)]" />
-        <div className="absolute -right-24 top-12 h-[640px] w-[640px] rounded-full bg-[radial-gradient(circle,rgba(243,244,246,0.9),transparent_68%)] blur-2xl" />
-        <div className="absolute bottom-0 left-1/2 h-px w-full max-w-5xl -translate-x-1/2 bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+    <section className="relative overflow-hidden bg-[#faf8f5]">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-40 top-0 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,rgba(201,169,110,0.12),transparent_70%)]" />
+        <div className="absolute -right-32 top-20 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(17,24,39,0.04),transparent_70%)]" />
       </div>
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1fr_0.92fr] lg:gap-16 lg:px-8 lg:py-24">
-        <div className="max-w-xl lg:max-w-none">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
+        <div>
           <motion.div
             {...fade(0)}
-            className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-gray-200/80 bg-white/90 px-4 py-2 shadow-sm backdrop-blur-sm"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c9a96e]/30 bg-white/80 px-3.5 py-1.5 shadow-sm"
           >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            <span className="text-xs font-medium tracking-wide text-gray-600">
-              Early access · <span className="text-gray-900">40% off</span> for founding members
+            <span className="h-1.5 w-1.5 rounded-full bg-[#c9a96e]" />
+            <span className="text-xs font-medium text-gray-700">
+              Early access · <span className="text-[#111827]">40% off</span> at launch
             </span>
           </motion.div>
 
           <motion.h1
             {...fade(0.05)}
-            className="max-w-[14ch] text-[2.75rem] font-normal leading-[0.95] tracking-tight text-[#111827] sm:text-6xl lg:text-[4.25rem]"
+            className="max-w-[13ch] text-[2.65rem] font-normal leading-[1.02] tracking-tight text-[#111827] sm:text-6xl lg:text-[3.75rem]"
           >
-            Looks like you.
-            <br />
-            <span className="text-gradient-display">Not like AI.</span>
+            Studio headshots from your phone selfies.
           </motion.h1>
 
-          <motion.p
-            {...fade(0.12)}
-            className="mt-6 max-w-lg text-pretty text-lg font-light leading-relaxed text-gray-600 sm:text-[1.125rem] sm:leading-8"
-          >
-            Upload your selfies. We train a private model on your face — then deliver studio-quality headshots in six
-            professional styles. No photographer. No scheduling.
+          <motion.p {...fade(0.1)} className="mt-6 max-w-lg text-lg font-light leading-relaxed text-gray-600">
+            Upload casual photos. We train a private model on your face — then deliver six professional looks in about
+            fifteen minutes. No photographer. No studio.
           </motion.p>
 
-          <motion.ul {...fade(0.18)} className="mt-8 flex flex-wrap gap-x-5 gap-y-3">
+          <motion.ul {...fade(0.14)} className="mt-8 flex flex-wrap gap-4">
             {trustPoints.map(({ icon: Icon, label }) => (
               <li key={label} className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f9fafb] text-gray-700 ring-1 ring-gray-100">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-800 ring-1 ring-gray-200/80">
                   <Icon className="h-3.5 w-3.5" aria-hidden />
                 </span>
                 {label}
@@ -108,86 +70,20 @@ export function LandingHero() {
             ))}
           </motion.ul>
 
-          <motion.div
-            {...fade(0.24)}
-            className="mt-10 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_20px_50px_-24px_rgba(0,0,0,0.18)] sm:p-6"
-          >
-            <p className="mb-4 text-sm font-medium text-gray-900">Reserve your spot in the first batch</p>
-            <WaitlistForm showLabel={false} hideFooter submitLabel="Claim my spot" />
-            <p className="mt-4 text-xs leading-relaxed text-gray-500">
-              No payment now. We&apos;ll email you when your spot opens — founding discount locked in.
+          <motion.div {...fade(0.18)} className="mt-10">
+            <WaitlistForm showLabel={false} hideFooter submitLabel="Claim founding discount" />
+            <p className="mt-3 text-xs text-gray-500">
+              No payment now.{" "}
+              <Link href={HERO_CTA.href} className="font-medium text-gray-700 underline-offset-2 hover:underline">
+                Join the waitlist
+              </Link>{" "}
+              — we&apos;ll email when your batch opens.
             </p>
           </motion.div>
         </div>
 
-        <motion.div {...fade(0.15)} className="relative mx-auto w-full max-w-[420px] lg:max-w-none lg:justify-self-end">
-          <div className="relative mx-auto aspect-[4/5] w-full max-w-[380px] sm:max-w-[420px]">
-            <div className="absolute inset-[8%] rounded-[2rem] bg-gradient-to-br from-gray-100 to-gray-50 blur-2xl" />
-
-            {heroShowcase.map((photo, index) => (
-              <motion.div
-                key={photo.src}
-                {...fade(0.2 + index * 0.08)}
-                className={`absolute ${photo.offset} ${photo.width} ${photo.z} motion-safe:animate-float`}
-                style={{ animationDelay: photo.delay }}
-              >
-                <div className={`relative ${photo.rotate ?? ""}`}>
-                  <div
-                    className={`overflow-hidden bg-white shadow-xl shadow-black/10 ${
-                      index === 0
-                        ? "rounded-[1.75rem] border border-gray-100 ring-brass-pulse shadow-2xl"
-                        : "rounded-2xl border-4 border-white"
-                    }`}
-                  >
-                    <Image
-                      src={photo.src}
-                      alt={`AI headshot — ${photo.name} style`}
-                      width={520}
-                      height={693}
-                      className="aspect-[3/4] w-full object-cover object-top"
-                      priority={index === 0}
-                      sizes={index === 0 ? "(max-width: 1024px) 68vw, 320px" : "180px"}
-                    />
-                  </div>
-                  <span
-                    className={`absolute whitespace-nowrap rounded-full px-3 py-1 font-semibold shadow-md ${
-                      index === 0
-                        ? "left-4 top-4 bg-white/95 text-xs text-gray-900 shadow-sm backdrop-blur-sm"
-                        : "-bottom-2 left-1/2 -translate-x-1/2 bg-white text-[10px] uppercase tracking-wider text-gray-700 ring-1 ring-gray-100"
-                    }`}
-                  >
-                    {photo.name}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-
-            <div className="absolute bottom-2 right-2 z-40 rounded-full border border-gray-100 bg-white/95 px-3.5 py-2 text-xs font-medium text-gray-700 shadow-lg backdrop-blur-sm">
-              6 styles
-            </div>
-          </div>
-
-          <motion.div {...fade(0.36)} className="mt-8 flex justify-center gap-2 sm:gap-2.5">
-            {DISPLAY_STYLES.map((style, index) => (
-              <div
-                key={style.key}
-                className={`overflow-hidden rounded-xl ring-2 ring-offset-2 ring-offset-white ${
-                  index === 0 ? "ring-gray-900" : "ring-transparent opacity-75"
-                }`}
-                title={style.name}
-              >
-                <Image
-                  src={style.photo}
-                  alt={`${style.name} style preview`}
-                  width={72}
-                  height={96}
-                  className="aspect-[3/4] h-16 w-12 object-cover object-top sm:h-[4.5rem] sm:w-[3.25rem]"
-                  sizes="52px"
-                />
-              </div>
-            ))}
-          </motion.div>
-          <p className="mt-3 text-center text-xs font-medium tracking-wide text-gray-400">All from the same upload</p>
+        <motion.div {...fade(0.12)} className="lg:justify-self-end">
+          <ProductMockup />
         </motion.div>
       </div>
     </section>
