@@ -18,6 +18,9 @@
 .DS_Store
 *.pem
 
+# local test fixtures
+/tmp-test-upload*/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
