@@ -10,6 +10,7 @@ import {
   WaitlistConsentFields,
   type LegalConsentState,
 } from "@/components/legal/legal-consent-fields";
+import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 type WaitlistFormProps = {
@@ -65,6 +66,7 @@ export function WaitlistForm({
         throw new Error(json.message ?? "Could not join the waitlist");
       }
 
+      track("waitlist_submit");
       setSuccess(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not join the waitlist");
@@ -147,7 +149,7 @@ export function WaitlistForm({
 
       {!hideFooter && (
         <p className={cn("mt-3 text-sm", variant === "dark" ? "text-white/70" : "text-[#666]")}>
-          Founding members lock in €29 at launch. Join 1,200+ already on the list.{" "}
+          We&apos;ll only email you about your headshots. No spam.{" "}
           <Link
             href="/privacy"
             className={cn("underline underline-offset-4", variant === "dark" ? "text-white/90" : "text-gray-700")}

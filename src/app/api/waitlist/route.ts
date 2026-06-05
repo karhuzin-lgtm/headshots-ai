@@ -98,20 +98,20 @@ export async function POST(request: Request) {
         await resend.emails.send({
           from: "Headshots AI <hello@alekseimedia.com>",
           to: email,
-          subject: "You're on the list — founding member access secured",
+          subject: "You're on the list",
           html: `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
 <div style="max-width:560px;margin:40px auto;padding:0 20px;">
   <p style="font-size:22px;font-weight:600;color:#111827;margin:0 0 32px;">Headshots</p>
-  <h1 style="font-size:28px;font-weight:600;color:#111827;line-height:1.3;margin:0 0 16px;">You're in. Founding member access secured.</h1>
-  <p style="font-size:16px;color:#6b7280;line-height:1.7;margin:0 0 24px;">We're opening generation in waves. As a founding member, you'll be among the first to get access — and you've locked in <strong style="color:#111827;">40% off</strong> when paid plans go live.</p>
+  <h1 style="font-size:28px;font-weight:600;color:#111827;line-height:1.3;margin:0 0 16px;">You're on the list.</h1>
+  <p style="font-size:16px;color:#6b7280;line-height:1.7;margin:0 0 24px;">Thanks for your interest — we'll let you know about updates and early offers. You can start creating your headshots any time.</p>
   <div style="background:#f9fafb;border-radius:16px;padding:24px;margin:0 0 24px;">
     <p style="font-size:14px;font-weight:600;color:#111827;margin:0 0 12px;">What to expect:</p>
     <p style="font-size:14px;color:#6b7280;margin:0 0 8px;">✓ Upload 8–20 casual selfies from your phone</p>
     <p style="font-size:14px;color:#6b7280;margin:0 0 8px;">✓ AI trains a model specifically on your face</p>
-    <p style="font-size:14px;color:#6b7280;margin:0 0 8px;">✓ Get studio-quality headshots in ~15 minutes</p>
+    <p style="font-size:14px;color:#6b7280;margin:0 0 8px;">✓ Get studio-quality headshots in ~20 minutes</p>
     <p style="font-size:14px;color:#6b7280;margin:0;">✓ 6 styles: LinkedIn, Corporate, Executive, Tech, Creative, Startup</p>
   </div>
   <p style="font-size:14px;color:#6b7280;line-height:1.7;margin:0 0 32px;">We'll email you the moment your spot opens.</p>

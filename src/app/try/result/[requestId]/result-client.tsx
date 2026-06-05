@@ -5,6 +5,7 @@ import Link from "next/link";
 import { type ReactNode, useEffect, useState } from "react";
 
 import { DISPLAY_STYLES } from "@/lib/display-styles";
+import { PRIMARY_CTA } from "@/lib/landing-config";
 
 type StatusResponse = {
   id?: string;
@@ -197,12 +198,12 @@ export function TryResultClient({ requestId }: { requestId: string }) {
       )}
 
       <div className="mx-auto mt-14 max-w-md rounded-2xl border border-gray-200/80 bg-white p-6 text-center shadow-sm">
-        <p className="text-sm text-gray-600">Want more styles and variations?</p>
+        <p className="text-sm text-gray-600">Want the full set — 60 headshots across all 6 styles?</p>
         <Link
-          href="/#waitlist"
+          href={PRIMARY_CTA.href}
           className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-[#111827] text-sm font-semibold text-white transition hover:bg-black"
         >
-          Join early access
+          {PRIMARY_CTA.label}
         </Link>
       </div>
     </div>

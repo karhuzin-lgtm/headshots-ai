@@ -24,10 +24,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://headshots.alekseimedia.com"),
   title: "AI Headshots — Professional portraits from your selfies | Headshots",
   description:
-    "Upload 8-20 phone selfies and get studio-quality professional headshots in 15 minutes. LinkedIn, Corporate, Executive, Tech, Creative, and Startup styles. No photographer needed.",
+    "Upload a few phone selfies and get studio-quality professional headshots in about 20 minutes. LinkedIn, Corporate, Executive, Tech, Creative, and Startup styles. No photographer, no studio, no scheduling.",
   openGraph: {
     title: "AI Headshots — Professional portraits from your selfies",
-    description: "Studio-quality headshots from phone selfies. 15 minutes. 6 styles.",
+    description: "Studio-quality headshots from phone selfies. ~20 minutes. 6 professional styles.",
     url: "https://headshots.alekseimedia.com",
     siteName: "Headshots AI",
     images: [{ url: "/my/linkedin.jpg", width: 1024, height: 1024 }],
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "AI Headshots — Professional portraits from your selfies",
-    description: "Studio-quality headshots from phone selfies in 15 minutes.",
+    description: "Studio-quality headshots from phone selfies in about 20 minutes.",
     images: ["/my/linkedin.jpg"],
   },
 };

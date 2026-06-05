@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 
+import { PRIMARY_CTA } from "@/lib/landing-config";
 import { cn } from "@/lib/utils";
 
 const MOBILE_LINKS = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#styles", label: "Styles" },
-  { href: "/#waitlist", label: "Waitlist" },
+  { href: "/#pricing", label: "Pricing" },
   { href: "/#faq", label: "FAQ" },
 ];
 
@@ -71,10 +72,10 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "min
           ) : (
             <>
               <Link
-                href="/#waitlist"
+                href={PRIMARY_CTA.href}
                 className="hidden min-h-[44px] items-center rounded-full bg-[#0a0a0a] px-4 py-2 text-sm font-medium tracking-tight text-white transition hover:bg-[#222] md:inline-flex"
               >
-                Join waitlist
+                {PRIMARY_CTA.label}
               </Link>
               <button
                 type="button"
@@ -138,9 +139,13 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "min
                 </Link>
               ))}
             </nav>
-            <p className="mt-8 border-t border-[color:var(--border)] pt-6 text-sm font-medium tracking-tight text-muted-foreground">
-              Launching soon
-            </p>
+            <Link
+              href={PRIMARY_CTA.href}
+              onClick={() => setMenuOpen(false)}
+              className="mt-8 inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#0a0a0a] px-5 text-sm font-semibold text-white transition hover:bg-[#222]"
+            >
+              {PRIMARY_CTA.label}
+            </Link>
           </div>
         </div>
       )}

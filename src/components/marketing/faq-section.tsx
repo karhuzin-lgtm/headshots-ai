@@ -27,11 +27,11 @@ const faqItems = [
   },
   {
     q: "What if I don't like the results?",
-    a: "If you don't find 5 photos you'd use, we retrain for free or refund every cent.",
+    a: "If you don't get headshots you'd actually use, we'll retrain your model for free or refund you in full.",
   },
   {
-    q: "Why join the waitlist now?",
-    a: "We're opening in batches. Early access gets priority when generation opens, plus a locked-in €29 founding price at launch.",
+    q: "What exactly do I get and how much is it?",
+    a: "One simple price of €59 — a full set of 60 high-resolution headshots across all 6 styles, delivered by email. No subscription, no hidden credits. Teams get volume pricing.",
   },
 ];
 
@@ -39,7 +39,7 @@ export function FaqSection() {
   return (
     <section id="faq" className="scroll-mt-24 bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
-        <SectionIntro title="Questions" subtitle="Quick answers before you join." />
+        <SectionIntro title="Questions" subtitle="Quick answers before you start." />
         <Accordion type="single" collapsible className="mt-12">
           {faqItems.map((item, i) => (
             <AccordionItem key={item.q} value={`item-${i}`}>

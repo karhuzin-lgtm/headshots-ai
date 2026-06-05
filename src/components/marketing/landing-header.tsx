@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CtaButton } from "@/components/marketing/cta-button";
 import { PRIMARY_CTA } from "@/lib/landing-config";
 
 const nav = [
@@ -25,12 +26,14 @@ export function LandingHeader() {
             </Link>
           ))}
         </nav>
-        <Link
+        <CtaButton
           href={PRIMARY_CTA.href}
-          className="inline-flex min-h-[40px] items-center rounded-full bg-[#111827] px-5 py-2 text-sm font-semibold text-white transition hover:bg-black"
+          event="hero_cta_click"
+          eventProps={{ location: "header" }}
+          className="min-h-[40px] px-5"
         >
           {PRIMARY_CTA.label}
-        </Link>
+        </CtaButton>
       </div>
     </header>
   );

@@ -4,7 +4,7 @@ import { SectionIntro } from "@/components/marketing/section-intro";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 
 const rows = [
-  ["Cost", "$200–$500", "€29 — less than a single studio shot"],
+  ["Cost", "$200–$500+", "€59 flat — for the full set"],
   ["Time", "1–2 weeks", "~20 minutes"],
   ["Scheduling", "Required", "None"],
   ["Styles", "Usually one look", "6 professional styles"],

@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 
+import { CtaButton } from "@/components/marketing/cta-button";
 import { SectionIntro } from "@/components/marketing/section-intro";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { DISPLAY_STYLES } from "@/lib/display-styles";
@@ -39,12 +39,14 @@ export function StylesSection() {
           ))}
         </div>
         <ScrollReveal className="mt-12 text-center">
-          <Link
+          <CtaButton
             href={PRIMARY_CTA.href}
-            className="inline-flex min-h-[48px] items-center rounded-full bg-[#111827] px-8 py-3 text-sm font-semibold text-white transition hover:bg-black"
+            event="purchase_cta_click"
+            eventProps={{ location: "styles" }}
+            className="px-8"
           >
             {PRIMARY_CTA.label} →
-          </Link>
+          </CtaButton>
         </ScrollReveal>
       </div>
     </section>

@@ -22,7 +22,7 @@ const steps = [
   {
     icon: Download,
     title: "Download your headshots",
-    body: "Receive 18 professional headshots across all 6 styles. Ready to use on LinkedIn, your website, or email signature. High resolution, no watermarks.",
+    body: "Get your professional headshots across all 6 styles, delivered by email. Ready for LinkedIn, your website, or email signature. High resolution, no watermarks.",
     visual: "download" as const,
   },
 ];

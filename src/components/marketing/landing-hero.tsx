@@ -3,15 +3,16 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Clock, Lock, Sparkles } from "lucide-react";
 
+import { CtaButton } from "@/components/marketing/cta-button";
 import { ProductMockup } from "@/components/marketing/product-mockup";
-import { WaitlistForm } from "@/components/WaitlistForm";
+import { HERO_CTA } from "@/lib/landing-config";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const trustPoints = [
-  { icon: Clock, label: "~20 minutes" },
-  { icon: Sparkles, label: "18 headshots · 6 styles" },
-  { icon: Lock, label: "Deleted in 30 days" },
+  { icon: Clock, label: "Ready in ~20 minutes" },
+  { icon: Sparkles, label: "6 professional styles" },
+  { icon: Lock, label: "Deleted within 30 days" },
 ];
 
 export function LandingHero() {
@@ -41,22 +42,20 @@ export function LandingHero() {
           >
             <span className="h-1.5 w-1.5 rounded-full bg-[#c9a96e]" />
             <span className="text-xs font-medium text-gray-700">
-              Early access · <span className="text-[#111827]">€29</span> founding price at launch
+              Studio-quality headshots — from your phone
             </span>
           </motion.div>
 
           <motion.h1
             {...fade(0.05)}
-            className="max-w-[14ch] text-[2.65rem] font-normal leading-[1.02] tracking-tight text-[#111827] sm:text-6xl lg:text-[3.75rem]"
+            className="max-w-[15ch] text-[2.65rem] font-normal leading-[1.02] tracking-tight text-[#111827] sm:text-6xl lg:text-[3.75rem]"
           >
-            Professional headshots.
-            <br />
-            In 20 minutes.
+            Professional headshots without the photographer.
           </motion.h1>
 
           <motion.p {...fade(0.1)} className="mt-6 max-w-lg text-lg font-light leading-relaxed text-gray-600">
-            Upload 8–20 selfies from your phone. Get 18 studio-quality headshots across 6 professional styles. No
-            photographer, no scheduling, no studio.
+            Upload a few selfies from your phone and get a polished set of professional headshots in 6 styles —
+            ready in about 20 minutes. No studio, no scheduling, no awkward photoshoot.
           </motion.p>
 
           <motion.ul {...fade(0.14)} className="mt-8 flex flex-wrap gap-4">
@@ -70,12 +69,29 @@ export function LandingHero() {
             ))}
           </motion.ul>
 
-          <motion.div {...fade(0.18)} className="mt-10">
-            <WaitlistForm showLabel={false} hideFooter submitLabel="Claim founding discount" />
-            <p className="mt-3 text-xs text-gray-500">
-              Join waitlist → upload 8–20 photos → receive 18 headshots in 6 styles
-            </p>
+          <motion.div {...fade(0.18)} className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <CtaButton
+              href={HERO_CTA.href}
+              event="hero_cta_click"
+              eventProps={{ location: "hero" }}
+              className="px-8 text-base"
+            >
+              {HERO_CTA.label}
+            </CtaButton>
+            <CtaButton
+              href="#pricing"
+              event="hero_cta_click"
+              eventProps={{ location: "hero_pricing" }}
+              variant="secondary"
+              className="px-8 text-base"
+            >
+              See pricing
+            </CtaButton>
           </motion.div>
+
+          <motion.p {...fade(0.22)} className="mt-4 text-xs text-gray-500">
+            For LinkedIn, your website, founder & team profiles, press and speaking.
+          </motion.p>
         </div>
 
         <motion.div {...fade(0.12)} className="lg:justify-self-end">

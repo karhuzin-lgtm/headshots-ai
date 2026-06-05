@@ -14,7 +14,7 @@ export function SiteFooter() {
           </p>
         </div>
         <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm font-medium tracking-tight text-muted-foreground">
-          <Link href="/#before-after" className="transition hover:text-foreground">
+          <Link href="/#results" className="transition hover:text-foreground">
             Before / After
           </Link>
           <Link href="/#styles" className="transition hover:text-foreground">
@@ -23,8 +23,8 @@ export function SiteFooter() {
           <Link href="/#faq" className="transition hover:text-foreground">
             FAQ
           </Link>
-          <Link href="/#waitlist" className="transition hover:text-foreground">
-            Waitlist
+          <Link href="/#pricing" className="transition hover:text-foreground">
+            Pricing
           </Link>
           <Link href="/privacy" className="transition hover:text-foreground">
             Privacy
