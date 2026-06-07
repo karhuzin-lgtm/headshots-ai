@@ -8,7 +8,7 @@ export function TryFlowHeader() {
           Headshots
         </Link>
         <Link href="/" className="text-sm font-medium text-gray-600 transition hover:text-gray-900">
-          ← Home
+          ← На главную
         </Link>
       </div>
     </header>

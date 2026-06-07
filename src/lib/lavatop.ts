@@ -1,0 +1,172 @@
+import {
+  Currency,
+  FeedItemType,
+  FeedVisibility,
+  LavaClient,
+  Language,
+  LogLevel,
+} from "lava-top-sdk";
+
+/**
+ * LavaTop payment integration.
+ *
+ * - createInvoice() hits POST https://gate.lava.top/api/v2/invoice and returns a
+ *   hosted `paymentUrl` we redirect the buyer to.
+ * - The v2 invoice API expects an OFFER id (not the product id shown in the
+ *   dashboard URL). We accept either a raw UUID or a product URL in
+ *   LAVATOP_OFFER_ID and resolve it to a real offer id via the products API,
+ *   falling back to the raw UUID if resolution is unavailable.
+ */
+
+const UUID_RE =
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
+/** Cookie holding the pending generation id across the LavaTop checkout redirect. */
+export const PENDING_GENERATION_COOKIE = "pending_generation_id";
+
+export function getLavaApiKey(): string {
+  const key = process.env.LAVATOP_API_KEY;
+  if (!key) {
+    throw new Error("Missing LAVATOP_API_KEY env var");
+  }
+  return key;
+}
+
+export function getLavaWebhookSecret(): string {
+  const secret = process.env.LAVATOP_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error("Missing LAVATOP_WEBHOOK_SECRET env var");
+  }
+  return secret;
+}
+
+function getConfiguredOfferValue(): string {
+  const raw = process.env.LAVATOP_OFFER_ID;
+  if (!raw) {
+    throw new Error("Missing LAVATOP_OFFER_ID env var");
+  }
+  return raw.trim();
+}
+
+/** Pull a bare UUID out of a product URL or return the trimmed value as-is. */
+function extractUuid(value: string): string {
+  const match = value.match(UUID_RE);
+  return match ? match[0] : value.trim();
+}
+
+let cachedClient: LavaClient | null = null;
+
+export function getLavaClient(): LavaClient {
+  if (cachedClient) return cachedClient;
+  cachedClient = new LavaClient({
+    apiKey: getLavaApiKey(),
+    webhookSecretKey: process.env.LAVATOP_WEBHOOK_SECRET ?? "",
+    logging: { level: LogLevel.WARN, format: "json" },
+  });
+  return cachedClient;
+}
+
+let cachedOfferId: string | null = null;
+
+/**
+ * Resolve the configured product/offer reference to a usable offer id.
+ * Result is cached for the lifetime of the lambda instance.
+ */
+export async function resolveOfferId(): Promise<string> {
+  if (cachedOfferId) return cachedOfferId;
+
+  const id = extractUuid(getConfiguredOfferValue());
+
+  try {
+    const client = getLavaClient();
+    const products = await client.getProducts(
+      undefined,
+      FeedItemType.PRODUCT,
+      undefined,
+      FeedVisibility.ALL,
+      false
+    );
+
+    for (const rawItem of products.items ?? []) {
+      // The live API returns product fields directly on the item
+      // (item.id / item.offers), although the SDK's types nest them under
+      // item.data. Support both shapes.
+      const data = ((rawItem as { data?: unknown }).data ?? rawItem) as {
+        id?: string;
+        offers?: Array<{
+          id: string;
+          prices?: Array<{ currency?: string }>;
+        }>;
+      };
+      const offers = data.offers ?? [];
+
+      // The configured id is already an offer id.
+      const directOffer = offers.find((offer) => offer.id === id);
+      if (directOffer) {
+        cachedOfferId = directOffer.id;
+        return cachedOfferId;
+      }
+
+      // The configured id is the product id — pick its USD offer (or first).
+      if (data.id === id && offers.length > 0) {
+        const usdOffer = offers.find((offer) =>
+          (offer.prices ?? []).some((price) => price.currency === Currency.USD)
+        );
+        cachedOfferId = (usdOffer ?? offers[0]).id;
+        return cachedOfferId;
+      }
+    }
+  } catch (error) {
+    console.error(
+      "LavaTop: offer resolution via products API failed, using configured id directly.",
+      error
+    );
+  }
+
+  cachedOfferId = id;
+  return cachedOfferId;
+}
+
+export type CreatedInvoice = {
+  invoiceId: string;
+  paymentUrl: string;
+};
+
+/**
+ * Payment currency. RUB routes through card acquiring (smart_glocal), so buyers
+ * can pay by card. USD/EUR on this account only expose PayPal. Override with
+ * LAVATOP_CURRENCY if a card provider is later connected for other currencies.
+ */
+function getPaymentCurrency(): Currency {
+  const raw = (process.env.LAVATOP_CURRENCY ?? "RUB").toUpperCase();
+  if (raw === "USD") return Currency.USD;
+  if (raw === "EUR") return Currency.EUR;
+  return Currency.RUB;
+}
+
+/**
+ * Create a one-time payment invoice for the headshots product.
+ * Returns the hosted payment URL to redirect the buyer to.
+ */
+export async function createPaymentInvoice(input: {
+  email: string;
+  currency?: Currency;
+}): Promise<CreatedInvoice> {
+  const client = getLavaClient();
+  const offerId = await resolveOfferId();
+  const currency = input.currency ?? getPaymentCurrency();
+
+  const invoice = await client.createOneTimePayment(
+    input.email,
+    offerId,
+    currency,
+    undefined,
+    Language.RU
+  );
+
+  if (!invoice?.paymentUrl) {
+    throw new Error("LavaTop did not return a payment URL");
+  }
+
+  return { invoiceId: invoice.id, paymentUrl: invoice.paymentUrl };
+}

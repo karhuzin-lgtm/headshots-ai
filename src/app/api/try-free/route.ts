@@ -1,103 +1,25 @@
 import { NextResponse } from "next/server";
 
-import {
-  createGeneration,
-  findRateLimitedGeneration,
-  updateGenerationStatus,
-} from "@/lib/generations-db";
-import { createAstrinaTune } from "@/lib/astria";
-import { buildAstriaCallbackUrl } from "@/lib/generation-complete";
-import { sendHeadshotsStarted } from "@/lib/email";
-
 export const runtime = "nodejs";
-export const maxDuration = 300;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function isValidPhotoUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== "https:") return false;
-    return (
-      parsed.hostname.endsWith(".public.blob.vercel-storage.com") ||
-      parsed.hostname.endsWith(".blob.vercel-storage.com")
-    );
-  } catch {
-    return false;
-  }
-}
+// Generation is now gated behind a LavaTop payment. The upload still happens
+// here (see ./upload), but kicking off Astria training goes through
+// POST /api/payment/create -> LavaTop checkout -> POST /api/webhooks/lavatop.
+// This endpoint is kept only to return a clear error if anything still calls it.
 
 export async function GET() {
   return NextResponse.json(
-    { error: "Use POST with email and photoUrls to start a free generation." },
-    { status: 405 }
+    { error: "Use POST /api/payment/create to start a paid generation." },
+    { status: 410 }
   );
 }
 
-export async function POST(request: Request) {
-  try {
-    const body = (await request.json()) as { email?: unknown; photoUrls?: unknown };
-    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-    const photoUrls = Array.isArray(body.photoUrls)
-      ? body.photoUrls.filter((url): url is string => typeof url === "string")
-      : [];
-
-    if (!EMAIL_RE.test(email)) {
-      return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
-    }
-
-    if (photoUrls.length < 8 || photoUrls.length > 20) {
-      return NextResponse.json(
-        { error: "Upload at least 8 selfies." },
-        { status: 400 }
-      );
-    }
-
-    if (!photoUrls.every(isValidPhotoUrl)) {
-      return NextResponse.json({ error: "Invalid photo URLs." }, { status: 400 });
-    }
-
-    const existingGeneration = await findRateLimitedGeneration(email);
-    if (existingGeneration) {
-      return NextResponse.json(
-        { error: "You already have a free generation. Check your email for results." },
-        { status: 429 }
-      );
-    }
-
-    const inputUrls = photoUrls;
-
-    const generation = await createGeneration({ email, inputUrls });
-    try {
-      await sendHeadshotsStarted(email, `/try/result/${generation.id}`);
-    } catch (error) {
-      console.error("headshots-started email failed:", error);
-    }
-
-    try {
-      await updateGenerationStatus({ id: generation.id, status: "processing" });
-      const callbackUrl = buildAstriaCallbackUrl(generation.id);
-      const tuneId = await createAstrinaTune(inputUrls, callbackUrl);
-      await updateGenerationStatus({
-        id: generation.id,
-        status: "processing",
-        tuneId,
-      });
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Unknown Astria generation error";
-      await updateGenerationStatus({
-        id: generation.id,
-        status: "failed",
-        errorMessage: message,
-      });
-      return NextResponse.json({ error: `Astria generation failed: ${message}` }, { status: 500 });
-    }
-
-    return NextResponse.json({ id: generation.id });
-  } catch (err) {
-    console.error("try-free error:", err);
-    return NextResponse.json(
-      { error: "Something went wrong. Please try again." },
-      { status: 500 }
-    );
-  }
+export async function POST() {
+  return NextResponse.json(
+    {
+      error:
+        "Direct generation is disabled. Start checkout via /api/payment/create.",
+    },
+    { status: 410 }
+  );
 }

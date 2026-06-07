@@ -3,48 +3,48 @@ export const DISPLAY_STYLES = [
     key: "linkedin",
     photo: "/my/linkedin.jpg",
     name: "LinkedIn",
-    tagline: "Gets you 3× more replies",
+    tagline: "Больше откликов от рекрутеров",
     description:
-      "Light blue oxford, clean gray studio. The shot that makes recruiters stop scrolling.",
+      "Голубая рубашка, чистый серый фон. Кадр, на котором рекрутер остановится.",
   },
   {
     key: "corporate",
     photo: "/my/corporate.jpg",
-    name: "Corporate",
-    tagline: "Closes deals before you speak",
-    description: "Dark navy suit, polished backdrop. Instant trust for enterprise clients.",
+    name: "Корпоративный",
+    tagline: "Доверие с первого взгляда",
+    description: "Тёмно-синий костюм, выверенный фон. Мгновенное доверие для клиентов.",
   },
   {
     key: "executive",
     photo: "/my/executive.jpg",
-    name: "Executive",
-    tagline: "The face of a decision-maker",
+    name: "Руководитель",
+    tagline: "Лицо, принимающее решения",
     description:
-      "Charcoal suit, deep studio tones. For when you need to walk in and own the room.",
+      "Угольный костюм, глубокие тона студии. Когда нужно войти и владеть ситуацией.",
   },
   {
     key: "tech",
     photo: "/my/tech.jpg",
-    name: "Tech",
-    tagline: "Smart. Not stiff.",
+    name: "Технологичный",
+    tagline: "Серьёзно, но по-человечески",
     description:
-      "Dark button-up, modern office blur. Serious enough for investors, human enough for users.",
+      "Тёмная рубашка, размытый современный офис. Серьёзно для инвесторов, по-человечески для пользователей.",
   },
   {
     key: "creative",
     photo: "/my/creative.jpg",
-    name: "Creative",
-    tagline: "Looks like a €4,000 agency shoot",
+    name: "Креативный",
+    tagline: "Как со студийной съёмки",
     description:
-      "Warm bokeh, editorial light. Stands out on every platform — especially Instagram.",
+      "Тёплое боке, редакторский свет. Выделяется на любой платформе — особенно в соцсетях.",
   },
   {
     key: "startup",
     photo: "/my/startup.jpg",
-    name: "Startup",
-    tagline: "Founder energy, zero budget",
+    name: "Стартап",
+    tagline: "Энергия фаундера",
     description:
-      "White background, relaxed confidence. Because great ideas deserve great photos.",
+      "Белый фон, спокойная уверенность. Потому что хорошие идеи заслуживают хороших фото.",
   },
 ] as const;
 

@@ -6,24 +6,24 @@ export function LandingFooter() {
       <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-display text-xl font-semibold tracking-tight text-[#111827]">Headshots</p>
-          <p className="mt-2 text-sm text-gray-500">Professional AI headshots from your selfies.</p>
+          <p className="mt-2 text-sm text-gray-500">Профессиональные AI-хедшоты из ваших селфи.</p>
         </div>
         <div className="flex flex-wrap gap-6 text-sm text-gray-600">
           <Link href="/privacy" className="transition hover:text-gray-900">
-            Privacy
+            Конфиденциальность
           </Link>
           <Link href="/terms" className="transition hover:text-gray-900">
-            Terms
+            Условия
           </Link>
           <Link href="/legal" className="transition hover:text-gray-900">
-            Legal
+            Реквизиты
           </Link>
           <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-gray-900">
-            Contact
+            Контакт
           </a>
         </div>
       </div>
-      <p className="mx-auto mt-10 max-w-7xl text-xs text-gray-400">© 2026 Aleksei Media. All rights reserved.</p>
+      <p className="mx-auto mt-10 max-w-7xl text-xs text-gray-400">© 2026 Aleksei Media. Все права защищены.</p>
     </footer>
   );
 }

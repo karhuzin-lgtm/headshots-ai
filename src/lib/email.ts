@@ -22,21 +22,21 @@ export async function sendHeadshotsReady(
   await resend.emails.send({
     from: "Headshots <noreply@alekseimedia.com>",
     to: email,
-    subject: "🎉 Your headshots are ready!",
+    subject: "🎉 Ваши хедшоты готовы!",
     html: `
       <div style="font-family: Arial, sans-serif; color: #111; line-height: 1.5;">
-        <h1>Your AI headshots are ready to download.</h1>
+        <h1>Ваши AI-хедшоты готовы к скачиванию.</h1>
         <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px;">
           ${previewImages
             .map(
               (url) =>
-                `<img src="${url}" alt="Generated headshot" style="width: 180px; max-width: 100%; border-radius: 16px;" />`
+                `<img src="${url}" alt="Сгенерированный хедшот" style="width: 180px; max-width: 100%; border-radius: 16px;" />`
             )
             .join("")}
         </div>
         <p style="margin-top: 28px;">
           <a href="${absoluteResultUrl}" style="display: inline-block; background: #111; color: #fff; padding: 14px 22px; border-radius: 12px; text-decoration: none; font-weight: 700;">
-            View & Download Your Headshots
+            Посмотреть и скачать хедшоты
           </a>
         </p>
         <p><a href="${absoluteResultUrl}">${absoluteResultUrl}</a></p>
@@ -58,16 +58,16 @@ export async function sendHeadshotsStarted(email: string, resultUrl: string) {
   await resend.emails.send({
     from: "Headshots <noreply@alekseimedia.com>",
     to: email,
-    subject: "✨ Your AI headshots are being created",
+    subject: "✨ Создаём ваши AI-хедшоты",
     html: `
       <div style="font-family: Arial, sans-serif; color: #111; line-height: 1.5;">
-        <h1>Your AI headshots are being created</h1>
-        <p>We've received your photos and started training your personal AI model.</p>
-        <p>Your headshots will be ready in approximately ~20 minutes.</p>
-        <p>We'll email you as soon as they're ready — you can close this tab.</p>
+        <h1>Создаём ваши AI-хедшоты</h1>
+        <p>Мы получили ваши фотографии и начали обучение персональной AI-модели.</p>
+        <p>Хедшоты будут готовы примерно через 20 минут.</p>
+        <p>Мы пришлём письмо, как только всё будет готово — можно закрыть эту вкладку.</p>
         <p style="margin-top: 28px;">
           <a href="${absoluteResultUrl}" style="display: inline-block; background: #111; color: #fff; padding: 14px 22px; border-radius: 12px; text-decoration: none; font-weight: 700;">
-            View Generation Status
+            Посмотреть статус генерации
           </a>
         </p>
         <p><a href="${absoluteResultUrl}">${absoluteResultUrl}</a></p>

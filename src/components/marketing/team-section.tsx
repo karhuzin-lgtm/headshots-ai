@@ -6,11 +6,11 @@ import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { TEAM_CTA } from "@/lib/landing-config";
 
 const benefits = [
-  "One consistent, professional look across every profile",
-  "Each person uploads their own selfies — fully remote",
-  "Choose from all 6 professional styles",
-  "Volume pricing — the more seats, the lower the per-person rate",
-  "Single invoice to your company, pay by card or bank transfer",
+  "Единый профессиональный образ во всех профилях",
+  "Каждый загружает свои селфи — полностью удалённо",
+  "Выбор из всех 6 профессиональных стилей",
+  "Цена за объём — чем больше человек, тем ниже цена за каждого",
+  "Один счёт на компанию, оплата картой или по реквизитам",
 ];
 
 export function TeamSection() {
@@ -18,9 +18,9 @@ export function TeamSection() {
     <section id="teams" className="scroll-mt-24 bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          label="For teams"
-          title="One consistent look for your whole team"
-          subtitle="Remote or in-office, everyone uploads their own photos and gets matching, professional headshots. Tell us your headcount and we'll send a quote."
+          label="Для команд"
+          title="Единый образ для всей команды"
+          subtitle="Удалённо или в офисе — каждый загружает свои фото и получает согласованные профессиональные хедшоты. Напишите количество человек, и мы пришлём расчёт."
         />
 
         <ScrollReveal className="mt-12">
@@ -36,8 +36,8 @@ export function TeamSection() {
 
             <div className="flex flex-col items-start gap-4 border-t border-gray-200 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
               <p className="text-sm font-light text-gray-600">
-                Tell us your team size and preferred styles. We&apos;ll reply with pricing and timing — usually
-                within one business day.
+                Напишите размер команды и предпочтительные стили. Ответим с ценой и сроками — обычно в течение
+                одного рабочего дня.
               </p>
               <CtaButton
                 href={TEAM_CTA.href}

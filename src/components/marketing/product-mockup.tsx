@@ -4,9 +4,9 @@ import { Check, Download } from "lucide-react";
 import { DISPLAY_STYLES } from "@/lib/display-styles";
 
 const steps = [
-  { label: "Upload selfies", done: true },
-  { label: "Train your model", done: true },
-  { label: "Generate headshots", done: true },
+  { label: "Загрузка селфи", done: true },
+  { label: "Обучение модели", done: true },
+  { label: "Генерация хедшотов", done: true },
 ];
 
 export function ProductMockup() {
@@ -22,14 +22,14 @@ export function ProductMockup() {
             <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
           </div>
           <div className="flex min-w-0 flex-1 items-center justify-center rounded-lg bg-[#0c0e12] px-3 py-1.5">
-            <span className="truncate text-[11px] text-gray-500">headshots.alekseimedia.com/results</span>
+            <span className="truncate text-[11px] text-gray-500">headshots.alekseimedia.com</span>
           </div>
         </div>
 
         <div className="flex min-h-[340px] sm:min-h-[380px]">
           {/* Sidebar */}
           <aside className="hidden w-[140px] shrink-0 border-r border-white/10 bg-[#12161f] p-4 sm:block">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Your session</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Ваша сессия</p>
             <ul className="mt-4 space-y-3">
               {steps.map((step) => (
                 <li key={step.label} className="flex items-start gap-2">
@@ -41,7 +41,7 @@ export function ProductMockup() {
               ))}
             </ul>
             <div className="mt-6 rounded-lg border border-[#c9a96e]/30 bg-[#c9a96e]/10 px-2.5 py-2">
-              <p className="text-[10px] font-medium text-[#e8d4b0]">~20 min total</p>
+              <p className="text-[10px] font-medium text-[#e8d4b0]">~20 минут</p>
             </div>
           </aside>
 
@@ -49,9 +49,9 @@ export function ProductMockup() {
           <div className="min-w-0 flex-1 p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400">Ready</p>
-                <h3 className="mt-1 text-sm font-medium text-white sm:text-base">Your headshots are ready</h3>
-                <p className="mt-0.5 text-[11px] text-gray-500">6 styles · high resolution</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400">Готово</p>
+                <h3 className="mt-1 text-sm font-medium text-white sm:text-base">Ваши хедшоты готовы</h3>
+                <p className="mt-0.5 text-[11px] text-gray-500">6 стилей · высокое разрешение</p>
               </div>
               <button
                 type="button"
@@ -60,7 +60,7 @@ export function ProductMockup() {
                 aria-hidden
               >
                 <Download className="h-3 w-3" />
-                Download
+                Скачать
               </button>
             </div>
 

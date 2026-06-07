@@ -1,7 +1,7 @@
 "use client";
 
 import { upload } from "@vercel/blob/client";
-import { CheckCircle2, Loader2, Upload } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
@@ -12,23 +12,24 @@ import {
   type LegalConsentState,
 } from "@/components/legal/legal-consent-fields";
 import { DISPLAY_STYLES } from "@/lib/display-styles";
+import { HEADSHOT_COUNT, PRICE_LABEL, STYLE_COUNT } from "@/lib/landing-config";
 import { cn } from "@/lib/utils";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TIPS_GOOD = [
-  "Good lighting — face clearly visible, not backlit",
-  "Different angles: front, slight left, slight right",
-  "Different expressions: smile, neutral, serious",
-  "2–3 different outfits across your photos",
-  "Photos from the last 6 months — recent look only",
+  "Хорошее освещение — лицо чётко видно, без контрового света",
+  "Разные ракурсы: анфас, чуть влево, чуть вправо",
+  "Разные эмоции: улыбка, нейтральное, серьёзное",
+  "2–3 разных образа на фотографиях",
+  "Снимки за последние 6 месяцев — только актуальный вид",
 ];
 
 const TIPS_BAD = [
-  "No sunglasses, hats, or face coverings",
-  "No group photos — only you in the frame",
-  "No heavy filters or beauty mode",
-  "No photos when you look visibly tired, sick, or swollen",
+  "Без очков, головных уборов и масок на лице",
+  "Без групповых фото — в кадре только вы",
+  "Без сильных фильтров и режима «бьюти»",
+  "Без фото, где вы выглядите уставшим, больным или отёкшим",
 ];
 
 async function compressImage(file: File): Promise<File> {
@@ -95,8 +96,6 @@ export function TryFreeClient() {
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [generationId, setGenerationId] = useState<string | null>(null);
   const [consent, setConsent] = useState<LegalConsentState>(emptyWaitlistConsent);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -117,28 +116,29 @@ export function TryFreeClient() {
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!EMAIL_RE.test(normalizedEmail)) {
-      setError("Enter a valid email address.");
+      setError("Введите корректный email.");
       return;
     }
 
     if (!isPhotoConsentValid(consent)) {
-      setError("Please confirm age, accept the policies, and consent to photo processing.");
+      setError("Подтвердите возраст, примите условия и согласие на обработку фото.");
       return;
     }
 
     if (files.length < 8 || files.length > 20) {
-      setError("Upload at least 8 selfies for best results.");
+      setError("Загрузите хотя бы 8 селфи для лучшего результата.");
       return;
     }
 
     setLoading(true);
     setUploadProgress(null);
+
     try {
       const compressed = await Promise.all(files.map(compressImage));
       const photoUrls: string[] = [];
 
       for (let i = 0; i < compressed.length; i++) {
-        setUploadProgress(`Uploading photo ${i + 1} of ${compressed.length}…`);
+        setUploadProgress(`Загружаем фото ${i + 1} из ${compressed.length}…`);
         const file = compressed[i];
         const pathname = `try-free/${crypto.randomUUID()}.jpg`;
         const blob = await upload(pathname, file, {
@@ -149,72 +149,37 @@ export function TryFreeClient() {
         photoUrls.push(blob.url);
       }
 
-      setUploadProgress("Starting generation…");
+      setUploadProgress("Переходим к оплате…");
 
-      const res = await fetch("/api/try-free", {
+      const res = await fetch("/api/payment/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: normalizedEmail, photoUrls }),
       });
       const text = await res.text();
-      let json: { id?: string; error?: string } = {};
+      let json: { url?: string; id?: string; error?: string } = {};
       try {
-        json = text ? (JSON.parse(text) as { id?: string; error?: string }) : {};
+        json = text
+          ? (JSON.parse(text) as { url?: string; id?: string; error?: string })
+          : {};
       } catch {
         json = { error: text };
       }
-      if (!res.ok || !json.id) {
-        throw new Error(json.error || text || "Could not start generation.");
+      if (!res.ok || !json.url) {
+        throw new Error(json.error || text || "Не удалось перейти к оплате.");
       }
-      setEmail(normalizedEmail);
-      setGenerationId(json.id);
-      setSuccess(true);
+
+      // Redirect straight to the LavaTop checkout. The pending generation id is
+      // stored in an httpOnly cookie by /api/payment/create, so after a
+      // successful payment LavaTop returns the buyer to /try/payment-return,
+      // which forwards them to /try/result/{id} (the waiting screen).
+      window.location.href = json.url;
+      return;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not start generation.");
-    } finally {
+      setError(e instanceof Error ? e.message : "Не удалось перейти к оплате.");
       setLoading(false);
       setUploadProgress(null);
     }
-  }
-
-  if (success) {
-    return (
-      <div className="relative mx-auto flex min-h-[50vh] max-w-lg items-center justify-center px-5 pb-20">
-        <div className="w-full rounded-2xl border border-gray-200/80 bg-white p-8 text-center shadow-lg sm:p-10">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
-            <CheckCircle2 className="h-7 w-7 text-emerald-600" />
-          </div>
-          <h2 className="mt-6 font-display text-2xl font-normal tracking-tight text-[#111827] sm:text-3xl">
-            You&apos;re all set
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-gray-600">
-            Your model is training now. We&apos;ll email{" "}
-            <span className="font-medium text-gray-900">{email}</span> with 18 headshots across 6 styles in ~20
-            minutes.
-          </p>
-          <ul className="mt-6 space-y-2 rounded-xl border border-gray-100 bg-[#faf8f5] p-4 text-left text-sm text-gray-600">
-            <li className="flex gap-2">
-              <span className="text-[#c9a96e]">✓</span> 6 styles × 3 photos each (18 total)
-            </li>
-            <li className="flex gap-2">
-              <span className="text-[#c9a96e]">✓</span> Check your inbox in ~20 minutes
-            </li>
-            <li className="flex gap-2">
-              <span className="text-[#c9a96e]">✓</span> Check spam if nothing arrives
-            </li>
-          </ul>
-          {generationId && (
-            <a
-              href={`/try/result/${generationId}`}
-              className="mt-8 inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[#111827] px-6 text-sm font-semibold text-white transition hover:bg-black"
-            >
-              View status &amp; download
-            </a>
-          )}
-          <p className="mt-4 text-xs text-gray-400">You can safely close this tab.</p>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -225,7 +190,7 @@ export function TryFreeClient() {
       >
         <div>
           <label htmlFor="try-email" className="text-sm font-semibold text-[#111827]">
-            Email address
+            Email
           </label>
           <input
             id="try-email"
@@ -233,17 +198,17 @@ export function TryFreeClient() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@company.com"
+            placeholder="вы@почта.рф"
             className="mt-2 min-h-[52px] w-full rounded-xl border border-gray-200 bg-white px-4 text-base text-[#111827] outline-none transition placeholder:text-gray-400 focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
           />
           <p className="mt-2 text-xs text-gray-500">
-            Results arrive by email in ~20 minutes. No account needed.
+            Результат придёт на почту примерно через 20 минут. Аккаунт не нужен.
           </p>
         </div>
 
         <div className="mt-8 rounded-xl border border-[#c9a96e]/20 bg-[#faf8f5] p-4">
           <p className="text-sm font-medium text-[#111827]">
-            You&apos;ll receive 18 headshots — 6 professional styles × 3 photos each.
+            Вы получите {HEADSHOT_COUNT} фотографий — {STYLE_COUNT} профессиональных стилей × {HEADSHOT_COUNT / STYLE_COUNT} фото в каждом.
           </p>
           <div className="mt-4">
             <StylePreviewStrip />
@@ -251,7 +216,7 @@ export function TryFreeClient() {
         </div>
 
         <div className="mt-8">
-          <p className="text-sm font-semibold text-[#111827]">Tips for best results</p>
+          <p className="text-sm font-semibold text-[#111827]">Советы для лучшего результата</p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {TIPS_GOOD.map((text) => (
               <li key={text} className="flex items-start gap-2 text-xs text-gray-600">
@@ -270,8 +235,8 @@ export function TryFreeClient() {
 
         <div className="mt-8">
           <label className="text-sm font-semibold text-[#111827]">
-            Selfies
-            <span className="ml-2 font-normal text-gray-500">8–20 photos</span>
+            Селфи
+            <span className="ml-2 font-normal text-gray-500">8–20 фото</span>
           </label>
           <label
             onDrop={(e) => {
@@ -294,8 +259,8 @@ export function TryFreeClient() {
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-gray-700 shadow-sm ring-1 ring-gray-100">
               <Upload className="h-5 w-5" aria-hidden />
             </span>
-            <span className="mt-4 text-sm font-medium text-gray-900">Drag & drop or click to browse</span>
-            <span className="mt-1 text-xs text-gray-500">JPG, PNG, WebP, HEIC · max 20 files</span>
+            <span className="mt-4 text-sm font-medium text-gray-900">Перетащите файлы или нажмите для выбора</span>
+            <span className="mt-1 text-xs text-gray-500">JPG, PNG, WebP, HEIC · максимум 20 файлов</span>
             <input
               ref={fileInputRef}
               type="file"
@@ -323,7 +288,7 @@ export function TryFreeClient() {
                       type="button"
                       onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
                       className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs leading-none text-white"
-                      aria-label="Remove photo"
+                      aria-label="Удалить фото"
                     >
                       ×
                     </button>
@@ -331,8 +296,8 @@ export function TryFreeClient() {
                 ))}
               </div>
               <p className="mt-3 text-xs text-gray-500">
-                {files.length}/20 photos selected
-                {files.length < 8 && ` — add ${8 - files.length} more to continue`}
+                Выбрано {files.length}/20 фото
+                {files.length < 8 && ` — добавьте ещё ${8 - files.length}, чтобы продолжить`}
               </p>
             </div>
           )}
@@ -348,12 +313,16 @@ export function TryFreeClient() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {uploadProgress ?? "Creating your headshots…"}
+              {uploadProgress ?? "Готовим оплату…"}
             </>
           ) : (
-            "Generate my headshots →"
+            `Сгенерировать хедшоты — ${PRICE_LABEL} →`
           )}
         </button>
+
+        <p className="mt-3 text-center text-xs text-gray-500">
+          Разовый платёж {PRICE_LABEL} · {HEADSHOT_COUNT} фото в {STYLE_COUNT} стилях · оплата картой
+        </p>
 
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       </form>

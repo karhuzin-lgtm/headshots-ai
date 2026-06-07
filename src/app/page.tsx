@@ -33,13 +33,13 @@ export default function HomePage() {
           className="scroll-mt-24 bg-[#111827] px-5 py-20 text-center sm:px-6 sm:py-28"
         >
           <ScrollReveal className="mx-auto max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c9a96e]">Get started</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c9a96e]">Начать</p>
             <h2 className="mt-4 font-display text-4xl font-normal tracking-tight text-white sm:text-5xl">
-              Your next headshot is ~20 minutes away.
+              Ваш следующий хедшот — в 20 минутах.
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-lg font-light leading-relaxed text-gray-400">
-              Upload a few selfies and get {LAUNCH_OFFER.headshots} professional headshots across{" "}
-              {LAUNCH_OFFER.styleCount} styles — for a one-time {LAUNCH_OFFER.price}.
+              Загрузите несколько селфи и получите {LAUNCH_OFFER.headshots} профессиональных хедшотов в{" "}
+              {LAUNCH_OFFER.styleCount} стилях — за разовый платёж {LAUNCH_OFFER.price}.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <CtaButton
@@ -58,7 +58,7 @@ export default function HomePage() {
                 variant="onDarkGhost"
                 className="px-8 text-base"
               >
-                Headshots for a team
+                Хедшоты для команды
               </CtaButton>
             </div>
           </ScrollReveal>

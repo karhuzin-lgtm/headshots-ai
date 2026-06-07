@@ -13,16 +13,16 @@ export function PricingSection() {
       <ScrollTracker event="scroll_to_pricing" />
       <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          label="Pricing"
-          title="One simple price. Everything included."
-          subtitle="No subscription, no credits, no upsells. Pay once and get your full set of professional headshots."
+          label="Цены"
+          title="Одна простая цена. Всё включено."
+          subtitle="Без подписки, кредитов и доплат. Платите один раз и получаете полный набор профессиональных хедшотов."
         />
 
         <ScrollReveal className="mt-14">
           <div className="mx-auto max-w-md">
             <div className="relative flex flex-col rounded-3xl border border-[#c9a96e]/40 bg-white p-8 shadow-xl shadow-black/[0.06] sm:p-10">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#111827] px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
-                Most popular
+                Популярный выбор
               </span>
 
               <h3 className="text-lg font-semibold text-gray-900">{LAUNCH_OFFER.name}</h3>
@@ -52,9 +52,9 @@ export function PricingSection() {
             </div>
 
             <p className="mt-6 text-center text-sm text-gray-500">
-              Need headshots for a whole team?{" "}
+              Нужны хедшоты для всей команды?{" "}
               <Link href="#teams" className="font-medium text-[#9a7b4f] underline-offset-2 hover:underline">
-                See team packages →
+                Тарифы для команд →
               </Link>
             </p>
           </div>

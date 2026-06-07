@@ -66,7 +66,7 @@ function LegalLink({ href, variant }: { href: string; variant: "light" | "dark" 
       target="_blank"
       rel="noopener noreferrer"
     >
-      {href === "/privacy" ? "Privacy Policy" : href === "/terms" ? "Terms of Service" : "Legal Notice"}
+      {href === "/privacy" ? "Политику конфиденциальности" : href === "/terms" ? "Условия использования" : "Правовую информацию"}
     </Link>
   );
 }
@@ -83,7 +83,7 @@ export function WaitlistConsentFields({ value, onChange, variant = "light", clas
         required
         variant={variant}
       >
-        I have read and accept the <LegalLink href="/privacy" variant={variant} /> and{" "}
+        Я прочитал(а) и принимаю <LegalLink href="/privacy" variant={variant} /> и{" "}
         <LegalLink href="/terms" variant={variant} />.
       </CheckboxRow>
       <CheckboxRow
@@ -92,7 +92,7 @@ export function WaitlistConsentFields({ value, onChange, variant = "light", clas
         onChange={(marketingConsent) => set({ marketingConsent })}
         variant={variant}
       >
-        I agree to receive product updates and early-access emails (optional). You can unsubscribe anytime.
+        Согласен(на) получать новости о продукте и письма с ранним доступом (необязательно). Можно отписаться в любой момент.
       </CheckboxRow>
     </div>
   );
@@ -110,8 +110,8 @@ export function PhotoProcessingConsentFields({ value, onChange, variant = "light
         required
         variant={variant}
       >
-        I confirm I am at least 18 years old and uploading photos of myself (or someone I am authorized to
-        represent).
+        Подтверждаю, что мне есть 18 лет и я загружаю фотографии себя (или того, кого имею право
+        представлять).
       </CheckboxRow>
       <CheckboxRow
         id="photo-privacy"
@@ -120,7 +120,7 @@ export function PhotoProcessingConsentFields({ value, onChange, variant = "light
         required
         variant={variant}
       >
-        I have read and accept the <LegalLink href="/privacy" variant={variant} /> and{" "}
+        Я прочитал(а) и принимаю <LegalLink href="/privacy" variant={variant} /> и{" "}
         <LegalLink href="/terms" variant={variant} />.
       </CheckboxRow>
       <CheckboxRow
@@ -130,8 +130,8 @@ export function PhotoProcessingConsentFields({ value, onChange, variant = "light
         required
         variant={variant}
       >
-        I explicitly consent to processing my facial photos to train a private AI model and generate my
-        headshots. I understand I can withdraw consent and request deletion at any time.
+        Я даю явное согласие на обработку фотографий моего лица для обучения приватной AI-модели и генерации
+        хедшотов. Я понимаю, что могу отозвать согласие и запросить удаление в любой момент.
       </CheckboxRow>
     </div>
   );

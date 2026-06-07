@@ -24,6 +24,11 @@ export async function GET(_request: Request, { params }: { params: { requestId: 
     }
   }
 
+  // Generation is gated behind a LavaTop payment: a `pending` + unpaid row is
+  // waiting for the buyer to complete checkout.
+  const awaitingPayment =
+    !generation.paid && generation.status === "pending" && !generation.tune_id;
+
   return Response.json(
     {
       id: generation.id,
@@ -33,6 +38,9 @@ export async function GET(_request: Request, { params }: { params: { requestId: 
       outputUrls: generation.output_urls,
       imageUrl: generation.output_urls[0],
       error: generation.error_message,
+      paid: generation.paid,
+      awaitingPayment,
+      paymentUrl: awaitingPayment ? generation.payment_url : null,
     },
     { headers: { "Cache-Control": "no-store" } }
   );

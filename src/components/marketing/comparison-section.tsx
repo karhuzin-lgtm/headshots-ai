@@ -2,13 +2,14 @@ import { Check } from "lucide-react";
 
 import { SectionIntro } from "@/components/marketing/section-intro";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { PRICE_LABEL } from "@/lib/landing-config";
 
 const rows = [
-  ["Cost", "$200–$500+", "€59 flat — for the full set"],
-  ["Time", "1–2 weeks", "~20 minutes"],
-  ["Scheduling", "Required", "None"],
-  ["Styles", "Usually one look", "6 professional styles"],
-  ["Location", "Studio visit", "Anywhere"],
+  ["Стоимость", "от 5 000 ₽", `${PRICE_LABEL} за весь набор`],
+  ["Время", "1–2 недели", "~20 минут"],
+  ["Запись", "Нужна", "Не нужна"],
+  ["Стили", "Обычно один образ", "6 профессиональных стилей"],
+  ["Место", "Поездка в студию", "Откуда угодно"],
 ] as const;
 
 export function ComparisonSection() {
@@ -16,8 +17,8 @@ export function ComparisonSection() {
     <section className="bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          title="Why not a photographer?"
-          subtitle="Traditional shoots are great — when you have time, budget, and a studio nearby."
+          title="Зачем фотограф?"
+          subtitle="Студийная съёмка — это здорово, когда есть время, бюджет и студия рядом."
         />
         <ScrollReveal className="mt-12 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <div className="hidden md:block">
@@ -25,7 +26,7 @@ export function ComparisonSection() {
               <thead>
                 <tr className="border-b border-gray-100 bg-[#faf8f5]">
                   <th className="px-6 py-4 font-medium text-gray-500"> </th>
-                  <th className="px-6 py-4 font-medium text-gray-500">Photographer</th>
+                  <th className="px-6 py-4 font-medium text-gray-500">Фотограф</th>
                   <th className="px-6 py-4 font-semibold text-[#111827]">Headshots AI</th>
                 </tr>
               </thead>
@@ -51,7 +52,7 @@ export function ComparisonSection() {
                 <p className="font-semibold text-gray-900">{feature}</p>
                 <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-400">Photographer</p>
+                    <p className="text-gray-400">Фотограф</p>
                     <p className="mt-1 text-gray-600">{traditional}</p>
                   </div>
                   <div>

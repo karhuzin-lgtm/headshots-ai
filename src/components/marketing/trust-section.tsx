@@ -6,23 +6,23 @@ import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 const items = [
   {
     icon: Lock,
-    title: "Private by design",
-    body: "Your uploads and your personal AI model are automatically deleted within 30 days. We never use your photos to train other models.",
+    title: "Приватность по умолчанию",
+    body: "Ваши загрузки и персональная AI-модель автоматически удаляются в течение 30 дней. Мы никогда не используем ваши фото для обучения других моделей.",
   },
   {
     icon: BadgeCheck,
-    title: "You own the results",
-    body: "Full commercial usage rights. Use your headshots on LinkedIn, your website, press, business cards — anywhere.",
+    title: "Результаты принадлежат вам",
+    body: "Полные коммерческие права. Используйте хедшоты в LinkedIn, на сайте, в прессе, на визитках — где угодно.",
   },
   {
     icon: RefreshCcw,
-    title: "Happy or refunded",
-    body: "If you don't get headshots you'd actually use, we'll retrain your model for free or refund you in full.",
+    title: "Понравится или вернём деньги",
+    body: "Если вы не получите хедшоты, которыми реально хочется пользоваться, мы бесплатно переобучим модель или вернём деньги полностью.",
   },
   {
     icon: Clock,
-    title: "No studio, no waiting",
-    body: "Upload from your phone. Results arrive by email in about 20 minutes. No appointments, no travel.",
+    title: "Без студии и ожидания",
+    body: "Загрузка с телефона. Результат на почте примерно через 20 минут. Без записи и поездок.",
   },
 ];
 
@@ -31,9 +31,9 @@ export function TrustSection() {
     <section className="bg-[#faf8f5] py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          label="Why trust us"
-          title="Your photos and money, handled with care"
-          subtitle="A real product with clear policies — not a black box."
+          label="Почему нам доверяют"
+          title="Ваши фото и деньги — в надёжных руках"
+          subtitle="Реальный продукт с понятными правилами, а не чёрный ящик."
         />
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {items.map(({ icon: Icon, title, body }, index) => (

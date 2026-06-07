@@ -3,8 +3,8 @@ import Link from "next/link";
 import { LegalPageFooter } from "@/components/legal/legal-page-footer";
 
 export const metadata = {
-  title: "Privacy Policy — Headshots",
-  description: "How Headshots collects, uses, and protects your data under GDPR.",
+  title: "Политика конфиденциальности — Headshots",
+  description: "Как Headshots собирает, использует и защищает ваши данные по 152-ФЗ.",
 };
 
 export default function PrivacyPage() {
@@ -16,24 +16,25 @@ export default function PrivacyPage() {
             Headshots
           </Link>
           <Link href="/" className="text-sm text-gray-500 transition hover:text-gray-900">
-            ← Home
+            ← На главную
           </Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
-        <h1 className="font-display text-4xl font-normal tracking-tight">Privacy Policy</h1>
-        <p className="mt-3 text-sm text-gray-500">Last updated: May 2026</p>
+        <h1 className="font-display text-4xl font-normal tracking-tight">Политика конфиденциальности</h1>
+        <p className="mt-3 text-sm text-gray-500">Обновлено: июнь 2026</p>
 
         <div className="mt-10 space-y-10 text-base leading-relaxed text-gray-600">
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Who we are</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Кто мы</h2>
             <p className="mt-3">
-              Headshots is operated by <strong className="text-gray-900">Aleksei Media</strong>, Valencia,
-              Spain. We are the data controller for personal data collected through this website.
+              Сервис Headshots управляется <strong className="text-gray-900">Aleksei Media</strong>. Мы являемся
+              оператором персональных данных, собираемых через этот сайт, и обрабатываем их в соответствии с
+              Федеральным законом № 152-ФЗ «О персональных данных».
             </p>
             <p className="mt-3">
-              Privacy requests:{" "}
+              Запросы по данным:{" "}
               <a
                 href="mailto:aleksei@alekseimedia.com"
                 className="font-medium text-[#111827] underline underline-offset-4"
@@ -44,167 +45,141 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Data we collect</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Какие данные мы собираем</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5">
-              <li>Email address when you join the waitlist or use generation</li>
-              <li>Uploaded photos (typically 8–20 selfies) when you use headshot generation</li>
-              <li>Technical data required to operate the service (e.g. session cookies if you sign in)</li>
-              <li>Optional marketing consent preference for waitlist emails</li>
+              <li>Адрес электронной почты — для отправки результата и уведомлений о заказе</li>
+              <li>Загруженные фотографии (обычно 8–20 селфи) — для генерации хедшотов</li>
+              <li>Технические данные, необходимые для работы сервиса (например, cookie сессии)</li>
             </ul>
             <p className="mt-3">
-              Facial photos may constitute special category data under GDPR. We process them only with your
-              explicit consent when you upload photos for generation.
+              Фотографии лица относятся к биометрическим персональным данным. Мы обрабатываем их только при
+              наличии вашего явного согласия, которое вы даёте при загрузке фотографий.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Legal basis for processing</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Правовые основания обработки</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5">
               <li>
-                <strong className="text-gray-900">Waitlist email:</strong> your consent when you tick the
-                checkbox and submit the form
+                <strong className="text-gray-900">Обработка фотографий и генерация:</strong> ваше явное согласие
+                до загрузки
               </li>
               <li>
-                <strong className="text-gray-900">Product / early-access emails:</strong> your consent where
-                you opt in to marketing updates (optional checkbox)
+                <strong className="text-gray-900">Письма о статусе заказа</strong> (например, «результат готов»):
+                необходимы для оказания заказанной услуги
               </li>
               <li>
-                <strong className="text-gray-900">Photo processing &amp; AI generation:</strong> your explicit
-                consent before upload
-              </li>
-              <li>
-                <strong className="text-gray-900">Service delivery emails</strong> (e.g. results ready):
-                necessary to perform the service you requested
-              </li>
-              <li>
-                <strong className="text-gray-900">Essential cookies:</strong> legitimate interest in secure
-                site operation
+                <strong className="text-gray-900">Необходимые cookie:</strong> для безопасной работы сайта
               </li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">How we use your data</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Как мы используем данные</h2>
             <p className="mt-3">
-              Your photos are used to train a private AI model on your face and generate your professional
-              headshots. We do not use your photos to train models for other users. We do not sell your
-              personal data.
+              Ваши фотографии используются для обучения приватной AI-модели на вашем лице и генерации
+              профессиональных хедшотов. Мы не используем ваши фотографии для обучения моделей других
+              пользователей. Мы не продаём ваши персональные данные.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Service providers (processors)</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Привлекаемые сервисы</h2>
             <p className="mt-3">
-              We use trusted infrastructure providers to run the service. They process data only on our
-              instructions:
+              Для работы сервиса мы используем надёжных подрядчиков, которые обрабатывают данные только по
+              нашему поручению:
             </p>
             <ul className="mt-3 list-disc space-y-2 pl-5">
-              <li>Vercel — hosting and file storage</li>
-              <li>Neon — database</li>
-              <li>Resend — transactional email</li>
-              <li>Astria — AI model training and image generation</li>
-              <li>Payment processor (e.g. Lemon Squeezy or Paddle) — when paid plans are active</li>
-              <li>Supabase / Google — authentication (where sign-in is used)</li>
+              <li>Vercel — хостинг и хранение файлов</li>
+              <li>Neon — база данных</li>
+              <li>Resend — отправка писем</li>
+              <li>Astria — обучение AI-модели и генерация изображений</li>
+              <li>LavaTop — приём платежей</li>
             </ul>
             <p className="mt-3">
-              Some providers may process data in the United States or other countries outside the EEA. Where
-              required, we rely on appropriate safeguards such as Standard Contractual Clauses.
+              Часть подрядчиков может обрабатывать данные за пределами РФ. Мы стремимся ограничивать передаваемые
+              данные тем, что необходимо для оказания услуги.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Retention</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Сроки хранения</h2>
             <p className="mt-3">
-              Uploaded photos and the AI model trained on your face are kept for up to <strong>30 days</strong>{" "}
-              after generation, then deleted. You may request earlier deletion at any time.
-            </p>
-            <p className="mt-3">
-              Waitlist email addresses are kept until you unsubscribe or request deletion. Consent records
-              are kept as long as needed to demonstrate compliance.
+              Загруженные фотографии и обученная на вашем лице AI-модель хранятся не более{" "}
+              <strong>30 дней</strong> после генерации, затем удаляются. Вы можете запросить досрочное удаление
+              в любой момент.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Your rights under GDPR</h2>
-            <p className="mt-3">
-              If you are in the EU, UK, or another jurisdiction with similar rights, you may:
-            </p>
+            <h2 className="text-lg font-semibold text-[#111827]">Ваши права</h2>
+            <p className="mt-3">В соответствии с 152-ФЗ вы вправе:</p>
             <ul className="mt-3 list-disc space-y-2 pl-5">
-              <li>Access, rectify, or delete your personal data</li>
-              <li>Export your data (portability)</li>
-              <li>Object to or restrict certain processing</li>
-              <li>Withdraw consent at any time (without affecting prior lawful processing)</li>
-              <li>Lodge a complaint with a supervisory authority</li>
+              <li>Получать сведения об обработке ваших данных</li>
+              <li>Требовать уточнения, блокирования или удаления данных</li>
+              <li>Отозвать согласие на обработку в любой момент</li>
+              <li>Обжаловать действия оператора в уполномоченном органе</li>
             </ul>
             <p className="mt-3">
-              In Spain, the supervisory authority is the{" "}
-              <strong className="text-gray-900">Agencia Española de Protección de Datos (AEPD)</strong> —{" "}
+              Уполномоченный орган по защите прав субъектов персональных данных в РФ —{" "}
+              <strong className="text-gray-900">Роскомнадзор</strong> (
               <a
-                href="https://www.aepd.es"
+                href="https://rkn.gov.ru"
                 className="font-medium text-[#111827] underline underline-offset-4"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                aepd.es
+                rkn.gov.ru
               </a>
-              .
+              ).
             </p>
             <p className="mt-3">
-              To exercise your rights, email{" "}
+              Чтобы воспользоваться правами, напишите на{" "}
               <a
                 href="mailto:aleksei@alekseimedia.com"
                 className="font-medium text-[#111827] underline underline-offset-4"
               >
                 aleksei@alekseimedia.com
               </a>
-              . We respond within the timeframes required by applicable law.
-            </p>
-            <p className="mt-3">
-              Waitlist unsubscribe: email us or use{" "}
-              <Link href="/api/waitlist/unsubscribe" className="font-medium text-[#111827] underline underline-offset-4">
-                our unsubscribe endpoint
-              </Link>{" "}
-              with your email address.
+              . Мы отвечаем в сроки, установленные законом.
             </p>
           </section>
 
           <section id="cookies">
-            <h2 className="text-lg font-semibold text-[#111827]">Cookies</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Cookie</h2>
             <p className="mt-3">
-              We use <strong>essential cookies only</strong> — those required for the site to function (session
-              and security, including authentication where enabled). We do not use advertising or analytics
-              tracking cookies.
+              Мы используем <strong>только необходимые cookie</strong> — те, что требуются для работы сайта
+              (сессия и безопасность). Мы не используем рекламные и аналитические трекинговые cookie.
             </p>
             <p className="mt-3">
-              You can control cookies through your browser settings. Blocking essential cookies may prevent
-              some features from working.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Children</h2>
-            <p className="mt-3">
-              Headshots is not intended for anyone under 18. We do not knowingly collect data from minors.
+              Вы можете управлять cookie в настройках браузера. Блокировка необходимых cookie может нарушить
+              работу части функций.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Changes</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Дети</h2>
             <p className="mt-3">
-              We may update this policy from time to time. The &quot;Last updated&quot; date at the top reflects
-              the latest version. Material changes will be communicated where appropriate.
+              Сервис не предназначен для лиц младше 18 лет. Мы сознательно не собираем данные несовершеннолетних.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-[#111827]">Related documents</h2>
+            <h2 className="text-lg font-semibold text-[#111827]">Изменения</h2>
+            <p className="mt-3">
+              Мы можем периодически обновлять эту политику. Дата «Обновлено» вверху отражает актуальную версию.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#111827]">Связанные документы</h2>
             <p className="mt-3">
               <Link href="/terms" className="font-medium text-[#111827] underline underline-offset-4">
-                Terms of Service
+                Условия использования
               </Link>
               {" · "}
               <Link href="/legal" className="font-medium text-[#111827] underline underline-offset-4">
-                Legal Notice
+                Реквизиты
               </Link>
             </p>
           </section>

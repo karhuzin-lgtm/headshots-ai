@@ -9,20 +9,20 @@ import { MY_BEFORE_PHOTO } from "@/lib/my-photos";
 const steps = [
   {
     icon: Upload,
-    title: "Upload your selfies",
-    body: "8–20 casual photos from your phone. Different angles, good light, no heavy filters.",
+    title: "Загрузите селфи",
+    body: "8–20 обычных фото с телефона. Разные ракурсы, хороший свет, без сильных фильтров.",
     visual: "upload" as const,
   },
   {
     icon: Sparkles,
-    title: "AI trains on you",
-    body: "A private model learns your face — not a generic filter. This takes about 20 minutes. We email when it's ready.",
+    title: "ИИ учится на вас",
+    body: "Персональная модель изучает именно ваше лицо — не универсальный фильтр. Это занимает около 20 минут. Пришлём письмо, когда будет готово.",
     visual: "train" as const,
   },
   {
     icon: Download,
-    title: "Download your headshots",
-    body: "Get your professional headshots across all 6 styles, delivered by email. Ready for LinkedIn, your website, or email signature. High resolution, no watermarks.",
+    title: "Скачайте хедшоты",
+    body: "Получите профессиональные портреты во всех 6 стилях на почту. Готово для LinkedIn, сайта или подписи в письме. Высокое разрешение, без водяных знаков.",
     visual: "download" as const,
   },
 ];
@@ -34,18 +34,18 @@ function StepVisual({ type }: { type: "upload" | "train" | "download" }) {
         <div className="relative h-24 w-20 overflow-hidden rounded-lg shadow-md ring-2 ring-white">
           <Image src={MY_BEFORE_PHOTO} alt="" width={80} height={107} className="h-full w-full object-cover" />
         </div>
-        <span className="ml-3 text-xs text-gray-400">+ 11 more</span>
+        <span className="ml-3 text-xs text-gray-400">+ ещё 11</span>
       </div>
     );
   }
   if (type === "train") {
     return (
       <div className="flex aspect-[4/3] flex-col justify-center rounded-xl border border-gray-100 bg-[#faf8f5] p-5">
-        <p className="text-xs font-medium text-gray-500">Training your model</p>
+        <p className="text-xs font-medium text-gray-500">Обучаем модель</p>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-200">
           <div className="h-full w-[72%] rounded-full bg-[#c9a96e]" />
         </div>
-        <p className="mt-2 text-[11px] text-gray-400">~20 min total</p>
+        <p className="mt-2 text-[11px] text-gray-400">~20 минут</p>
       </div>
     );
   }
@@ -71,9 +71,9 @@ export function HowItWorksSection() {
     <section id="how-it-works" className="scroll-mt-24 bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          label="How it works"
-          title="Three steps. Twenty minutes."
-          subtitle="From phone selfies to LinkedIn-ready portraits — without leaving home."
+          label="Как это работает"
+          title="Три шага. Двадцать минут."
+          subtitle="От селфи с телефона до портрета для LinkedIn — не выходя из дома."
         />
         <div className="mt-16 grid gap-8 md:grid-cols-3">
           {steps.map((step, index) => {

@@ -4,12 +4,12 @@ import { CtaButton } from "@/components/marketing/cta-button";
 import { PRIMARY_CTA } from "@/lib/landing-config";
 
 const nav = [
-  { href: "#results", label: "Results" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#styles", label: "Styles" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#teams", label: "Teams" },
-  { href: "#faq", label: "FAQ" },
+  { href: "#results", label: "Примеры" },
+  { href: "#how-it-works", label: "Как это работает" },
+  { href: "#styles", label: "Стили" },
+  { href: "#pricing", label: "Цены" },
+  { href: "#teams", label: "Команды" },
+  { href: "#faq", label: "Вопросы" },
 ];
 
 export function LandingHeader() {

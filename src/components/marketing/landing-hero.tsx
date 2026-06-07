@@ -10,9 +10,9 @@ import { HERO_CTA } from "@/lib/landing-config";
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const trustPoints = [
-  { icon: Clock, label: "Ready in ~20 minutes" },
-  { icon: Sparkles, label: "6 professional styles" },
-  { icon: Lock, label: "Deleted within 30 days" },
+  { icon: Clock, label: "Готово за ~20 минут" },
+  { icon: Sparkles, label: "6 профессиональных стилей" },
+  { icon: Lock, label: "Удаляем в течение 30 дней" },
 ];
 
 export function LandingHero() {
@@ -42,7 +42,7 @@ export function LandingHero() {
           >
             <span className="h-1.5 w-1.5 rounded-full bg-[#c9a96e]" />
             <span className="text-xs font-medium text-gray-700">
-              Studio-quality headshots — from your phone
+              Студийное качество — прямо с телефона
             </span>
           </motion.div>
 
@@ -50,12 +50,12 @@ export function LandingHero() {
             {...fade(0.05)}
             className="max-w-[15ch] text-[2.65rem] font-normal leading-[1.02] tracking-tight text-[#111827] sm:text-6xl lg:text-[3.75rem]"
           >
-            Professional headshots without the photographer.
+            Профессиональные хедшоты без фотографа.
           </motion.h1>
 
           <motion.p {...fade(0.1)} className="mt-6 max-w-lg text-lg font-light leading-relaxed text-gray-600">
-            Upload a few selfies from your phone and get a polished set of professional headshots in 6 styles —
-            ready in about 20 minutes. No studio, no scheduling, no awkward photoshoot.
+            Загрузите несколько селфи с телефона — и получите готовый набор профессиональных портретов в 6 стилях
+            примерно за 20 минут. Без студии, без записи, без неловкой фотосессии.
           </motion.p>
 
           <motion.ul {...fade(0.14)} className="mt-8 flex flex-wrap gap-4">
@@ -85,12 +85,12 @@ export function LandingHero() {
               variant="secondary"
               className="px-8 text-base"
             >
-              See pricing
+              Смотреть цены
             </CtaButton>
           </motion.div>
 
           <motion.p {...fade(0.22)} className="mt-4 text-xs text-gray-500">
-            For LinkedIn, your website, founder & team profiles, press and speaking.
+            Для LinkedIn, сайта, профилей основателя и команды, прессы и выступлений.
           </motion.p>
         </div>
 

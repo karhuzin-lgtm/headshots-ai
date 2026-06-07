@@ -10,6 +10,9 @@ export type GenerationRow = {
   output_urls: string[];
   tune_id: string | null;
   error_message: string | null;
+  paid: boolean;
+  payment_id: string | null;
+  payment_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -38,6 +41,9 @@ function textArray(values: string[]): string {
 async function ensureTuneIdColumn() {
   const sql = getSql();
   await sql`alter table generations add column if not exists tune_id text`;
+  await sql`alter table generations add column if not exists paid boolean not null default false`;
+  await sql`alter table generations add column if not exists payment_id text`;
+  await sql`alter table generations add column if not exists payment_url text`;
 }
 
 function mapGeneration(row: Record<string, unknown>): GenerationRow {
@@ -49,6 +55,9 @@ function mapGeneration(row: Record<string, unknown>): GenerationRow {
     output_urls: Array.isArray(row.output_urls) ? (row.output_urls as string[]) : [],
     tune_id: typeof row.tune_id === "string" ? row.tune_id : null,
     error_message: typeof row.error_message === "string" ? row.error_message : null,
+    paid: row.paid === true,
+    payment_id: typeof row.payment_id === "string" ? row.payment_id : null,
+    payment_url: typeof row.payment_url === "string" ? row.payment_url : null,
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
   };
@@ -57,15 +66,84 @@ function mapGeneration(row: Record<string, unknown>): GenerationRow {
 export async function createGeneration(input: {
   email: string;
   inputUrls: string[];
+  paymentId?: string | null;
 }): Promise<GenerationRow> {
   await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
-    insert into generations (email, status, input_urls, output_urls)
-    values (${input.email}, 'pending', ${textArray(input.inputUrls)}::text[], '{}'::text[])
+    insert into generations (email, status, input_urls, output_urls, payment_id)
+    values (
+      ${input.email},
+      'pending',
+      ${textArray(input.inputUrls)}::text[],
+      '{}'::text[],
+      ${input.paymentId ?? null}
+    )
     returning *
   `;
   return mapGeneration(rows[0]);
+}
+
+export async function attachPaymentInfo(input: {
+  id: string;
+  paymentId: string;
+  paymentUrl: string;
+}): Promise<void> {
+  await ensureTuneIdColumn();
+  const sql = getSql();
+  await sql`
+    update generations
+    set payment_id = ${input.paymentId},
+        payment_url = ${input.paymentUrl},
+        updated_at = now()
+    where id = ${input.id}
+  `;
+}
+
+/** Mark a generation as paid. Returns the row, or null if not found. */
+export async function markGenerationPaid(id: string): Promise<GenerationRow | null> {
+  await ensureTuneIdColumn();
+  const sql = getSql();
+  const rows = await sql`
+    update generations
+    set paid = true, updated_at = now()
+    where id = ${id}
+    returning *
+  `;
+  return rows[0] ? mapGeneration(rows[0]) : null;
+}
+
+export async function getGenerationByPaymentId(
+  paymentId: string
+): Promise<GenerationRow | null> {
+  await ensureTuneIdColumn();
+  const sql = getSql();
+  const rows = await sql`
+    select *
+    from generations
+    where payment_id = ${paymentId}
+    order by created_at desc
+    limit 1
+  `;
+  return rows[0] ? mapGeneration(rows[0]) : null;
+}
+
+/** Most recent unpaid, not-yet-started generation for an email (webhook fallback match). */
+export async function findPendingUnpaidGeneration(
+  email: string
+): Promise<GenerationRow | null> {
+  await ensureTuneIdColumn();
+  const sql = getSql();
+  const rows = await sql`
+    select *
+    from generations
+    where email = ${email}
+      and paid = false
+      and status = 'pending'
+    order by created_at desc
+    limit 1
+  `;
+  return rows[0] ? mapGeneration(rows[0]) : null;
 }
 
 export async function updateGenerationStatus(input: {
@@ -110,6 +188,7 @@ export async function findRateLimitedGeneration(email: string): Promise<Generati
     select *
     from generations
     where email = ${email}
+      and paid = true
       and (
         status in ('pending', 'processing')
         or (status = 'done' and created_at > now() - interval '24 hours')

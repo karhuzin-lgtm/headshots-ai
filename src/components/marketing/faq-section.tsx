@@ -7,31 +7,32 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { SectionIntro } from "@/components/marketing/section-intro";
+import { HEADSHOT_COUNT, PRICE_LABEL, STYLE_COUNT } from "@/lib/landing-config";
 
 const faqItems = [
   {
-    q: "How many photos do I need?",
-    a: "8–20 casual selfies work best. Face visible, good lighting, variety in angles. Phone photos are perfect.",
+    q: "Сколько нужно фотографий?",
+    a: "Лучше всего 8–20 обычных селфи. Лицо хорошо видно, хороший свет, разные ракурсы. Фото с телефона — идеально.",
   },
   {
-    q: "How long does it take?",
-    a: "Approximately 20 minutes from upload to ready. We'll email you — no need to keep the tab open.",
+    q: "Сколько это занимает?",
+    a: "Примерно 20 минут от загрузки до готового результата. Мы пришлём письмо — держать вкладку открытой не нужно.",
   },
   {
-    q: "Are my photos stored?",
-    a: "No. Uploads and your personal model are automatically deleted after 30 days. We never train other models on your data.",
+    q: "Мои фото где-то хранятся?",
+    a: "Нет. Загрузки и ваша персональная модель автоматически удаляются через 30 дней. Мы никогда не обучаем на ваших данных другие модели.",
   },
   {
-    q: "Can I use the headshots commercially?",
-    a: "Yes. You own the results — LinkedIn, website, press, business cards, anywhere.",
+    q: "Можно использовать хедшоты в коммерческих целях?",
+    a: "Да. Результаты принадлежат вам — LinkedIn, сайт, пресса, визитки, где угодно.",
   },
   {
-    q: "What if I don't like the results?",
-    a: "If you don't get headshots you'd actually use, we'll retrain your model for free or refund you in full.",
+    q: "А если мне не понравится результат?",
+    a: "Если вы не получите хедшоты, которыми реально хочется пользоваться, мы бесплатно переобучим модель или вернём деньги полностью.",
   },
   {
-    q: "What exactly do I get and how much is it?",
-    a: "One simple price of €59 — a full set of 60 high-resolution headshots across all 6 styles, delivered by email. No subscription, no hidden credits. Teams get volume pricing.",
+    q: "Что именно я получаю и сколько это стоит?",
+    a: `Единая цена ${PRICE_LABEL} — набор из ${HEADSHOT_COUNT} фотографий в высоком разрешении во всех ${STYLE_COUNT} стилях, на почту. Без подписки и скрытых списаний. Для команд — цена за объём.`,
   },
 ];
 
@@ -39,7 +40,7 @@ export function FaqSection() {
   return (
     <section id="faq" className="scroll-mt-24 bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
-        <SectionIntro title="Questions" subtitle="Quick answers before you start." />
+        <SectionIntro title="Вопросы" subtitle="Короткие ответы перед стартом." />
         <Accordion type="single" collapsible className="mt-12">
           {faqItems.map((item, i) => (
             <AccordionItem key={item.q} value={`item-${i}`}>

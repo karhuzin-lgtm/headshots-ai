@@ -11,9 +11,9 @@ export function StylesSection() {
     <section id="styles" className="scroll-mt-24 bg-[#faf8f5] py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          label="6 styles"
-          title="One upload. Six professional looks."
-          subtitle="Each style is tuned for a different context — hiring, sales, speaking, press, or social."
+          label="6 стилей"
+          title="Одна загрузка. Шесть профессиональных образов."
+          subtitle="Каждый стиль настроен под свой контекст — найм, продажи, выступления, пресса или соцсети."
         />
         <div className="mt-14 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3 lg:gap-6">
           {DISPLAY_STYLES.map((style, index) => (
@@ -22,7 +22,7 @@ export function StylesSection() {
                 <div className="relative overflow-hidden">
                   <Image
                     src={style.photo}
-                    alt={`${style.name} AI headshot style`}
+                    alt={`${style.name} — стиль AI-хедшота`}
                     width={480}
                     height={640}
                     className="aspect-[3/4] w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]"

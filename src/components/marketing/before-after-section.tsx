@@ -10,9 +10,9 @@ export function BeforeAfterSection() {
     <section id="results" className="scroll-mt-24 bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
-          label="Real results"
-          title="Same selfie. Six professional looks."
-          subtitle="No stock photos — these are actual outputs from one casual upload."
+          label="Реальные результаты"
+          title="Одно селфи. Шесть профессиональных образов."
+          subtitle="Никаких стоковых фото — это реальные результаты одной обычной загрузки."
         />
 
         <ScrollReveal className="mt-14" delay={0.05}>
@@ -20,12 +20,12 @@ export function BeforeAfterSection() {
             <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-12">
               <div className="mx-auto w-full max-w-[280px] shrink-0 lg:mx-0 lg:max-w-[300px]">
                 <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-gray-400 lg:text-left">
-                  Before
+                  До
                 </p>
                 <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-[#faf8f5] p-2 shadow-md">
                   <Image
                     src={MY_BEFORE_PHOTO}
-                    alt="Casual selfie before AI headshot"
+                    alt="Обычное селфи до AI-хедшота"
                     width={600}
                     height={800}
                     className="h-auto w-full rounded-xl"
@@ -33,24 +33,24 @@ export function BeforeAfterSection() {
                     priority
                   />
                 </div>
-                <p className="mt-3 text-center text-sm text-gray-500 lg:text-left">Your casual selfie</p>
+                <p className="mt-3 text-center text-sm text-gray-500 lg:text-left">Ваше обычное селфи</p>
               </div>
 
               <div className="flex flex-col items-center gap-2 lg:hidden">
                 <div className="h-6 w-px bg-gray-300" />
-                <span className="text-xs font-medium uppercase tracking-widest text-[#9a7b4f]">becomes</span>
+                <span className="text-xs font-medium uppercase tracking-widest text-[#9a7b4f]">превращается в</span>
                 <div className="h-6 w-px bg-gray-300" />
               </div>
 
               <div className="hidden shrink-0 flex-col items-center justify-center pt-20 lg:flex">
                 <div className="h-px w-10 bg-gray-200" />
-                <span className="my-3 text-xs font-medium uppercase tracking-widest text-[#9a7b4f]">becomes</span>
+                <span className="my-3 text-xs font-medium uppercase tracking-widest text-[#9a7b4f]">превращается в</span>
                 <div className="h-px w-10 bg-gray-200" />
               </div>
 
               <div className="min-w-0 flex-1">
                 <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-gray-900 lg:text-left">
-                  After
+                  После
                 </p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
                   {DISPLAY_STYLES.map((style) => (
@@ -58,7 +58,7 @@ export function BeforeAfterSection() {
                       <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
                         <Image
                           src={style.photo}
-                          alt={`AI headshot — ${style.name}`}
+                          alt={`AI-хедшот — ${style.name}`}
                           width={400}
                           height={533}
                           className="aspect-[3/4] w-full object-cover object-top"

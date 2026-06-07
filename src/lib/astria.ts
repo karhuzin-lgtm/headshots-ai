@@ -91,7 +91,7 @@ export async function createAstrinaTune(
       token: "OHWX",
       preset: "flux-lora-portrait",
       face_detection: true,
-      steps: 1000,
+      steps: 500,
       image_urls: imageUrls,
       callback: callbackUrl,
       prompts_attributes: Object.values(HEADSHOT_STYLES).map((style) => ({
@@ -100,7 +100,7 @@ export async function createAstrinaTune(
         num_images: 3,
         w: 640,
         h: 768,
-        super_resolution: true,
+        super_resolution: false,
         face_correct: true,
         steps: 30,
       })),

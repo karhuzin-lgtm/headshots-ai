@@ -15,19 +15,19 @@ export default function TryGeneratePage() {
         </div>
 
         <div className="relative mx-auto max-w-3xl px-5 pb-6 pt-12 text-center sm:px-6 sm:pt-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a7b4f]">Upload & generate</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a7b4f]">Загрузка и генерация</p>
           <h1 className="mt-4 font-display text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
-            Create your headshots
+            Создайте свои хедшоты
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-lg font-light leading-relaxed text-gray-600">
-            Upload 8–20 clear selfies from your phone. Your AI model trains on your face — get 18 headshots across 6
-            styles in ~20 minutes.
+            Загрузите 8–20 чётких селфи с телефона. Нейросеть обучится на вашем лице — и через ~20 минут вы получите
+            18 фотографий в 6 стилях.
           </p>
         </div>
 
         <Suspense
           fallback={
-            <div className="relative py-24 text-center text-sm text-gray-500">Loading…</div>
+            <div className="relative py-24 text-center text-sm text-gray-500">Загрузка…</div>
           }
         >
           <TryFreeClient />
