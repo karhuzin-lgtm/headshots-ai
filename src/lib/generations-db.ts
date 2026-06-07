@@ -55,6 +55,31 @@ function getSql() {
   return neon(databaseUrl);
 }
 
+// Ensure the schema once per lambda instance (not per query). Idempotent and
+// additive — lets a fresh deploy work even before migration 004 is applied,
+// without the old per-query DDL cost. Mirrors supabase/migrations/004.
+let schemaReady: Promise<void> | null = null;
+function ensureSchema(): Promise<void> {
+  if (schemaReady) return schemaReady;
+  const sql = getSql();
+  schemaReady = (async () => {
+    await sql`alter table generations add column if not exists tune_id text`;
+    await sql`alter table generations add column if not exists paid boolean not null default false`;
+    await sql`alter table generations add column if not exists payment_id text`;
+    await sql`alter table generations add column if not exists payment_url text`;
+    await sql`alter table generations add column if not exists tier text not null default 'pro'`;
+    await sql`alter table generations add column if not exists expected_count int not null default 18`;
+    await sql`alter table generations add column if not exists style_keys text[] not null default '{}'`;
+    await sql`alter table generations add column if not exists super_resolution boolean not null default false`;
+    await sql`alter table generations add column if not exists inference_steps int not null default 30`;
+    await sql`alter table generations add column if not exists training_steps int not null default 500`;
+  })().catch((error) => {
+    schemaReady = null; // allow retry on next call
+    throw error;
+  });
+  return schemaReady;
+}
+
 function textArray(values: string[]): string {
   // Postgres array literal for use ONLY inside parameterized neon`` queries.
   return `{${values.map((value) => `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`).join(",")}}`;
@@ -102,6 +127,7 @@ export async function createGeneration(input: {
   inferenceSteps?: number;
   trainingSteps?: number;
 }): Promise<GenerationRow> {
+  await ensureSchema();
   const sql = getSql();
   const tier = input.tier ?? "pro";
   const styleKeys = input.styleKeys?.length ? input.styleKeys : DEFAULT_STYLE_KEYS;
