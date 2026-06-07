@@ -2,9 +2,11 @@ import { Suspense } from "react";
 
 import { LandingFooter } from "@/components/marketing/landing-footer";
 import { TryFlowHeader } from "@/components/try/try-flow-header";
+import { purchasableTiers } from "@/lib/tiers";
 import { TryFreeClient } from "../try-free-client";
 
 export default function TryGeneratePage() {
+  const tiers = purchasableTiers();
   return (
     <div className="flex min-h-dvh flex-col bg-[#faf8f5] text-[#111827]">
       <TryFlowHeader />
@@ -17,7 +19,7 @@ export default function TryGeneratePage() {
         <div className="relative mx-auto max-w-3xl px-5 pb-6 pt-12 text-center sm:px-6 sm:pt-16">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a7b4f]">Загрузка и генерация</p>
           <h1 className="mt-4 font-display text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
-            Создайте свои хедшоты
+            Создайте свои портреты
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-lg font-light leading-relaxed text-gray-600">
             Загрузите 8–20 чётких селфи с телефона. Нейросеть обучится на вашем лице — и через ~20 минут вы получите
@@ -30,7 +32,7 @@ export default function TryGeneratePage() {
             <div className="relative py-24 text-center text-sm text-gray-500">Загрузка…</div>
           }
         >
-          <TryFreeClient />
+          <TryFreeClient tiers={tiers} />
         </Suspense>
       </main>
       <LandingFooter />

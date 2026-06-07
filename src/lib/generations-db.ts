@@ -13,9 +13,30 @@ export type GenerationRow = {
   paid: boolean;
   payment_id: string | null;
   payment_url: string | null;
+  // Tier snapshot (resolved at creation so an in-flight order is unaffected by
+  // later config changes). See src/lib/tiers.ts.
+  tier: string;
+  expected_count: number;
+  style_keys: string[];
+  super_resolution: boolean;
+  inference_steps: number;
+  training_steps: number;
   created_at: string;
   updated_at: string;
 };
+
+/** Default tier snapshot (mirrors the "pro" tier) used when a caller omits values. */
+const DEFAULT_STYLE_KEYS = [
+  "linkedin",
+  "corporate",
+  "executive",
+  "tech",
+  "creative",
+  "startup",
+];
+const DEFAULT_EXPECTED_COUNT = 18;
+const DEFAULT_INFERENCE_STEPS = 30;
+const DEFAULT_TRAINING_STEPS = 500;
 
 function getSql() {
   const databaseUrl =
@@ -35,15 +56,13 @@ function getSql() {
 }
 
 function textArray(values: string[]): string {
+  // Postgres array literal for use ONLY inside parameterized neon`` queries.
   return `{${values.map((value) => `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`).join(",")}}`;
 }
 
-async function ensureTuneIdColumn() {
-  const sql = getSql();
-  await sql`alter table generations add column if not exists tune_id text`;
-  await sql`alter table generations add column if not exists paid boolean not null default false`;
-  await sql`alter table generations add column if not exists payment_id text`;
-  await sql`alter table generations add column if not exists payment_url text`;
+function intOr(value: unknown, fallback: number): number {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : fallback;
 }
 
 function mapGeneration(row: Record<string, unknown>): GenerationRow {
@@ -58,6 +77,15 @@ function mapGeneration(row: Record<string, unknown>): GenerationRow {
     paid: row.paid === true,
     payment_id: typeof row.payment_id === "string" ? row.payment_id : null,
     payment_url: typeof row.payment_url === "string" ? row.payment_url : null,
+    tier: typeof row.tier === "string" && row.tier ? row.tier : "pro",
+    expected_count: intOr(row.expected_count, DEFAULT_EXPECTED_COUNT),
+    style_keys:
+      Array.isArray(row.style_keys) && row.style_keys.length
+        ? (row.style_keys as string[])
+        : DEFAULT_STYLE_KEYS,
+    super_resolution: row.super_resolution === true,
+    inference_steps: intOr(row.inference_steps, DEFAULT_INFERENCE_STEPS),
+    training_steps: intOr(row.training_steps, DEFAULT_TRAINING_STEPS),
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
   };
@@ -67,17 +95,38 @@ export async function createGeneration(input: {
   email: string;
   inputUrls: string[];
   paymentId?: string | null;
+  tier?: string;
+  expectedCount?: number;
+  styleKeys?: string[];
+  superResolution?: boolean;
+  inferenceSteps?: number;
+  trainingSteps?: number;
 }): Promise<GenerationRow> {
-  await ensureTuneIdColumn();
   const sql = getSql();
+  const tier = input.tier ?? "pro";
+  const styleKeys = input.styleKeys?.length ? input.styleKeys : DEFAULT_STYLE_KEYS;
+  const expectedCount = input.expectedCount ?? DEFAULT_EXPECTED_COUNT;
+  const superResolution = input.superResolution ?? false;
+  const inferenceSteps = input.inferenceSteps ?? DEFAULT_INFERENCE_STEPS;
+  const trainingSteps = input.trainingSteps ?? DEFAULT_TRAINING_STEPS;
+
   const rows = await sql`
-    insert into generations (email, status, input_urls, output_urls, payment_id)
+    insert into generations (
+      email, status, input_urls, output_urls, payment_id,
+      tier, expected_count, style_keys, super_resolution, inference_steps, training_steps
+    )
     values (
       ${input.email},
       'pending',
       ${textArray(input.inputUrls)}::text[],
       '{}'::text[],
-      ${input.paymentId ?? null}
+      ${input.paymentId ?? null},
+      ${tier},
+      ${expectedCount},
+      ${textArray(styleKeys)}::text[],
+      ${superResolution},
+      ${inferenceSteps},
+      ${trainingSteps}
     )
     returning *
   `;
@@ -89,7 +138,6 @@ export async function attachPaymentInfo(input: {
   paymentId: string;
   paymentUrl: string;
 }): Promise<void> {
-  await ensureTuneIdColumn();
   const sql = getSql();
   await sql`
     update generations
@@ -102,7 +150,6 @@ export async function attachPaymentInfo(input: {
 
 /** Mark a generation as paid. Returns the row, or null if not found. */
 export async function markGenerationPaid(id: string): Promise<GenerationRow | null> {
-  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     update generations
@@ -116,7 +163,6 @@ export async function markGenerationPaid(id: string): Promise<GenerationRow | nu
 export async function getGenerationByPaymentId(
   paymentId: string
 ): Promise<GenerationRow | null> {
-  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -128,11 +174,14 @@ export async function getGenerationByPaymentId(
   return rows[0] ? mapGeneration(rows[0]) : null;
 }
 
-/** Most recent unpaid, not-yet-started generation for an email (webhook fallback match). */
+/**
+ * Most recent unpaid, not-yet-started generation for an email (webhook fallback
+ * match when contractId didn't resolve). Returns null when ambiguous (more than
+ * one candidate) to avoid attaching a payment to the wrong upload.
+ */
 export async function findPendingUnpaidGeneration(
   email: string
 ): Promise<GenerationRow | null> {
-  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -141,9 +190,10 @@ export async function findPendingUnpaidGeneration(
       and paid = false
       and status = 'pending'
     order by created_at desc
-    limit 1
+    limit 2
   `;
-  return rows[0] ? mapGeneration(rows[0]) : null;
+  if (rows.length !== 1) return null;
+  return mapGeneration(rows[0]);
 }
 
 export async function updateGenerationStatus(input: {
@@ -153,7 +203,6 @@ export async function updateGenerationStatus(input: {
   tuneId?: string | null;
   errorMessage?: string | null;
 }): Promise<GenerationRow> {
-  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     update generations
@@ -170,7 +219,6 @@ export async function updateGenerationStatus(input: {
 }
 
 export async function getGeneration(id: string): Promise<GenerationRow | null> {
-  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -182,7 +230,6 @@ export async function getGeneration(id: string): Promise<GenerationRow | null> {
 }
 
 export async function findRateLimitedGeneration(email: string): Promise<GenerationRow | null> {
-  await ensureTuneIdColumn();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -197,4 +244,20 @@ export async function findRateLimitedGeneration(email: string): Promise<Generati
     limit 1
   `;
   return rows[0] ? mapGeneration(rows[0]) : null;
+}
+
+/** Count recent unpaid attempts for an email — lightweight create-spam throttle. */
+export async function countRecentUnpaidGenerations(
+  email: string,
+  withinMinutes: number
+): Promise<number> {
+  const sql = getSql();
+  const rows = await sql`
+    select count(*)::int as n
+    from generations
+    where email = ${email}
+      and paid = false
+      and created_at > now() - (${withinMinutes} * interval '1 minute')
+  `;
+  return intOr(rows[0]?.n, 0);
 }

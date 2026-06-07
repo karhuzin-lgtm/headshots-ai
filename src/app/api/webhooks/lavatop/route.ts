@@ -30,14 +30,21 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
     return;
   }
 
-  if (generation.paid && (generation.tune_id || generation.status !== "pending")) {
-    // Already processed (webhook retry) — nothing to do.
+  // Skip only if generation already started/finished. A `failed` row WITHOUT a
+  // tune_id (transient Astria error) is intentionally NOT skipped, so a webhook
+  // retry can recover it. startAstriaGeneration is idempotent.
+  const alreadyStarted =
+    !!generation.tune_id ||
+    generation.status === "processing" ||
+    generation.status === "done";
+  if (alreadyStarted) {
     return;
   }
 
   const paid = await markGenerationPaid(generation.id);
   if (paid) generation = paid;
 
+  // Throws on Astria failure → webhook returns 5xx → LavaTop retries.
   await startAstriaGeneration(generation);
 }
 

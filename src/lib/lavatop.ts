@@ -7,6 +7,8 @@ import {
   LogLevel,
 } from "lava-top-sdk";
 
+import { DEFAULT_TIER, type Tier } from "@/lib/tiers";
+
 /**
  * LavaTop payment integration.
  *
@@ -40,12 +42,24 @@ export function getLavaWebhookSecret(): string {
   return secret;
 }
 
-function getConfiguredOfferValue(): string {
-  const raw = process.env.LAVATOP_OFFER_ID;
-  if (!raw) {
-    throw new Error("Missing LAVATOP_OFFER_ID env var");
+/**
+ * Offer reference for a tier: the tier's own env var, falling back to the single
+ * LAVATOP_OFFER_ID so testing on one offer (e.g. 390 ₽) works before per-tier
+ * offers are created.
+ */
+function getOfferRefForTier(tier: Tier): string {
+  const own = process.env[tier.offerEnvKey]?.trim();
+  if (own) return own;
+  // Only the default tier may fall back to the single shared LAVATOP_OFFER_ID
+  // (testing on one offer). Other tiers must have their own offer, so the price
+  // charged can never diverge from the tier being fulfilled.
+  if (tier.id === DEFAULT_TIER) {
+    const fallback = process.env.LAVATOP_OFFER_ID?.trim();
+    if (fallback) return fallback;
   }
-  return raw.trim();
+  throw new Error(
+    `Missing LavaTop offer for tier "${tier.id}". Set ${tier.offerEnvKey}.`
+  );
 }
 
 /** Pull a bare UUID out of a product URL or return the trimmed value as-is. */
@@ -66,16 +80,19 @@ export function getLavaClient(): LavaClient {
   return cachedClient;
 }
 
-let cachedOfferId: string | null = null;
+// Cache resolved offer ids per raw configured reference (offer URL/UUID).
+const offerIdCache = new Map<string, string>();
 
 /**
- * Resolve the configured product/offer reference to a usable offer id.
- * Result is cached for the lifetime of the lambda instance.
+ * Resolve a tier's configured product/offer reference to a usable offer id.
+ * Cached per reference for the lifetime of the lambda instance.
  */
-export async function resolveOfferId(): Promise<string> {
-  if (cachedOfferId) return cachedOfferId;
+export async function resolveOfferId(tier: Tier): Promise<string> {
+  const ref = getOfferRefForTier(tier);
+  const cached = offerIdCache.get(ref);
+  if (cached) return cached;
 
-  const id = extractUuid(getConfiguredOfferValue());
+  const id = extractUuid(ref);
 
   try {
     const client = getLavaClient();
@@ -103,17 +120,18 @@ export async function resolveOfferId(): Promise<string> {
       // The configured id is already an offer id.
       const directOffer = offers.find((offer) => offer.id === id);
       if (directOffer) {
-        cachedOfferId = directOffer.id;
-        return cachedOfferId;
+        offerIdCache.set(ref, directOffer.id);
+        return directOffer.id;
       }
 
-      // The configured id is the product id — pick its USD offer (or first).
+      // The configured id is the product id — pick its RUB offer (we charge RUB).
       if (data.id === id && offers.length > 0) {
-        const usdOffer = offers.find((offer) =>
-          (offer.prices ?? []).some((price) => price.currency === Currency.USD)
+        const rubOffer = offers.find((offer) =>
+          (offer.prices ?? []).some((price) => price.currency === Currency.RUB)
         );
-        cachedOfferId = (usdOffer ?? offers[0]).id;
-        return cachedOfferId;
+        const resolved = (rubOffer ?? offers[0]).id;
+        offerIdCache.set(ref, resolved);
+        return resolved;
       }
     }
   } catch (error) {
@@ -123,8 +141,8 @@ export async function resolveOfferId(): Promise<string> {
     );
   }
 
-  cachedOfferId = id;
-  return cachedOfferId;
+  offerIdCache.set(ref, id);
+  return id;
 }
 
 export type CreatedInvoice = {
@@ -150,10 +168,11 @@ function getPaymentCurrency(): Currency {
  */
 export async function createPaymentInvoice(input: {
   email: string;
+  tier: Tier;
   currency?: Currency;
 }): Promise<CreatedInvoice> {
   const client = getLavaClient();
-  const offerId = await resolveOfferId();
+  const offerId = await resolveOfferId(input.tier);
   const currency = input.currency ?? getPaymentCurrency();
 
   const invoice = await client.createOneTimePayment(

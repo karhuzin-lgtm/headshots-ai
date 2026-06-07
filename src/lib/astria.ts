@@ -1,11 +1,16 @@
 import { collectAstriaImageUrls } from "@/lib/astria-images";
+import type { GenerationRow } from "@/lib/generations-db";
 
 const ASTRIA_API_KEY = process.env.ASTRIA_API_KEY;
 const BASE = "https://api.astria.ai";
 const HEADSHOT_CROP_SUFFIX =
   ", tight headshot crop, face and shoulders only, no torso, no waist, close-up portrait framing";
 const GLOBAL_NEGATIVE_PROMPT =
-  "wrong outfit, same clothes as input, casual wear if not startup style, distorted face, extra limbs, bad anatomy, blurry, low quality, different hairstyle, added hair, receding hairline, beard, facial hair, mustache, bald, changed hair color, swollen face, puffiness";
+  "wrong outfit, same clothes as input, casual wear if not startup style, distorted face, extra limbs, bad anatomy, blurry, low quality, different hairstyle, added hair, receding hairline, beard, facial hair, mustache, bald, changed hair color, swollen face, puffiness, painting, illustration, drawing, 3d render, cgi, cartoon, anime, plastic skin, waxy skin, airbrushed, over-smoothed skin, beauty filter, instagram filter, oversaturated, overprocessed, deformed, asymmetric eyes, extra fingers, watermark, text, logo";
+
+/** Photorealism anchor — Flux responds better to narrative, photographic phrasing. */
+const PHOTOREALISM_PREFIX =
+  "RAW candid photo, photorealistic, natural realistic skin texture with visible pores and subtle imperfections, shot on 85mm portrait lens, shallow depth of field, professional studio photography";
 
 export const HEADSHOT_STYLES = {
   linkedin: {
@@ -48,6 +53,7 @@ export const EXPECTED_HEADSHOT_COUNT = STYLE_KEYS.length * IMAGES_PER_STYLE;
 
 function buildStylePrompt(style: (typeof HEADSHOT_STYLES)[HeadshotStyle]): string {
   return [
+    `${PHOTOREALISM_PREFIX}.`,
     "Same hairstyle and facial features as in the reference photos. Do not add or remove hair.",
     style.prompt,
     "The outfit must match this style exactly and should not copy the clothing from the input selfies.",
@@ -77,11 +83,34 @@ async function parseAstriaResponse(res: Response): Promise<any> {
   return data;
 }
 
-/** Creates one Astria tune and queues all 6 styles (3 images each = 18 total). */
+/** Style keys requested by a generation, validated against HEADSHOT_STYLES. */
+function resolveStyleKeys(keys: string[]): HeadshotStyle[] {
+  const valid = keys.filter((k): k is HeadshotStyle => k in HEADSHOT_STYLES);
+  return valid.length ? valid : STYLE_KEYS;
+}
+
+/**
+ * Creates one Astria tune and queues the generation's styles. Photo count,
+ * styles, HD upscale and step counts come from the generation's tier snapshot.
+ */
 export async function createAstrinaTune(
-  imageUrls: string[],
+  generation: Pick<
+    GenerationRow,
+    | "input_urls"
+    | "style_keys"
+    | "expected_count"
+    | "super_resolution"
+    | "inference_steps"
+    | "training_steps"
+  >,
   callbackUrl: string
 ): Promise<string> {
+  const styleKeys = resolveStyleKeys(generation.style_keys);
+  const imagesPerStyle = Math.max(
+    1,
+    Math.round(generation.expected_count / styleKeys.length)
+  );
+
   const body = {
     tune: {
       title: "headshot-user",
@@ -91,18 +120,18 @@ export async function createAstrinaTune(
       token: "OHWX",
       preset: "flux-lora-portrait",
       face_detection: true,
-      steps: 500,
-      image_urls: imageUrls,
+      steps: generation.training_steps || 500,
+      image_urls: generation.input_urls,
       callback: callbackUrl,
-      prompts_attributes: Object.values(HEADSHOT_STYLES).map((style) => ({
-        text: buildStylePrompt(style),
+      prompts_attributes: styleKeys.map((key) => ({
+        text: buildStylePrompt(HEADSHOT_STYLES[key]),
         callback: callbackUrl,
-        num_images: 3,
+        num_images: imagesPerStyle,
         w: 640,
         h: 768,
-        super_resolution: false,
+        super_resolution: generation.super_resolution,
         face_correct: true,
-        steps: 30,
+        steps: generation.inference_steps || 30,
       })),
     },
   };
@@ -114,6 +143,8 @@ export async function createAstrinaTune(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
+    // Runs inside the LavaTop webhook — don't let a hung Astria call hold it open.
+    signal: AbortSignal.timeout(60_000),
   });
   const data = await parseAstriaResponse(res);
 
@@ -124,9 +155,6 @@ export async function createAstrinaTune(
   return String(data.id);
 }
 
-/** @deprecated Use createAstrinaTune */
-export const generateHeadshots = createAstrinaTune;
-
 /** Fetch all generated image URLs for a tune (fallback when webhooks fail). */
 export async function fetchTuneOutputUrls(tuneId: string): Promise<string[]> {
   const res = await fetch(`${BASE}/tunes/${tuneId}/prompts`, {
@@ -134,6 +162,7 @@ export async function fetchTuneOutputUrls(tuneId: string): Promise<string[]> {
       Authorization: `Bearer ${getAstriaApiKey()}`,
       Accept: "application/json",
     },
+    signal: AbortSignal.timeout(30_000),
   });
   const data = await parseAstriaResponse(res);
   const prompts = Array.isArray(data) ? data : [];

@@ -33,13 +33,15 @@ export const CHECKOUT_IS_EXTERNAL = /^https?:\/\//.test(GET_STARTED_URL);
 /**
  * Контакт для командных/корпоративных заказов.
  * TODO: задай реальный контакт через NEXT_PUBLIC_TEAM_CONTACT_URL
- * (Telegram, например https://t.me/username, или mailto:).
+ * (Telegram, например https://t.me/username). По умолчанию — рабочий mailto,
+ * чтобы кнопка не вела в никуда.
  */
 export const TEAM_CONTACT_URL =
-  process.env.NEXT_PUBLIC_TEAM_CONTACT_URL?.trim() || "https://t.me/";
+  process.env.NEXT_PUBLIC_TEAM_CONTACT_URL?.trim() ||
+  "mailto:aleksei@alekseimedia.com?subject=Портреты%20для%20команды";
 
-export const PRIMARY_CTA = { href: GET_STARTED_URL, label: "Создать мои хедшоты" } as const;
-export const HERO_CTA = { href: GET_STARTED_URL, label: "Создать мои хедшоты" } as const;
+export const PRIMARY_CTA = { href: GET_STARTED_URL, label: "Создать мои портреты" } as const;
+export const HERO_CTA = { href: GET_STARTED_URL, label: "Создать мои портреты" } as const;
 export const TEAM_CTA = { href: TEAM_CONTACT_URL, label: "Запросить цену для команды" } as const;
 
 /**

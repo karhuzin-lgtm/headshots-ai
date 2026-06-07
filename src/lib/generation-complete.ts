@@ -23,7 +23,14 @@ export function buildAstriaCallbackUrl(generationId: string): string {
 
 export function isAstriaWebhookAuthorized(request: Request): boolean {
   const secret = process.env.ASTRIA_WEBHOOK_SECRET;
-  if (!secret) return true;
+  // Fail closed: without a configured secret the webhook would accept forged
+  // completions (fake images, spam emails). Require the secret to be set.
+  if (!secret) {
+    console.error(
+      "ASTRIA_WEBHOOK_SECRET is not set — rejecting Astria webhook. Configure it in env."
+    );
+    return false;
+  }
 
   const headerSig = request.headers.get("x-astria-signature") ?? "";
   const querySecret = new URL(request.url).searchParams.get("webhook_secret") ?? "";
@@ -41,8 +48,8 @@ export async function mergeGenerationOutputs(
   }
 
   const combined = Array.from(new Set([...generation.output_urls, ...incomingUrls]));
-  const nextStatus =
-    combined.length >= EXPECTED_HEADSHOT_OUTPUTS ? "done" : "processing";
+  const target = generation.expected_count || EXPECTED_HEADSHOT_OUTPUTS;
+  const nextStatus = combined.length >= target ? "done" : "processing";
   const wasDone = generation.status === "done";
 
   const updated = await updateGenerationStatus({

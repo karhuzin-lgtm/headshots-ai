@@ -50,7 +50,7 @@ export function LandingHero() {
             {...fade(0.05)}
             className="max-w-[15ch] text-[2.65rem] font-normal leading-[1.02] tracking-tight text-[#111827] sm:text-6xl lg:text-[3.75rem]"
           >
-            Профессиональные хедшоты без фотографа.
+            Профессиональные портреты без фотографа.
           </motion.h1>
 
           <motion.p {...fade(0.1)} className="mt-6 max-w-lg text-lg font-light leading-relaxed text-gray-600">

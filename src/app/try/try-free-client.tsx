@@ -3,6 +3,7 @@
 import { upload } from "@vercel/blob/client";
 import { Loader2, Upload } from "lucide-react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 import {
@@ -13,6 +14,7 @@ import {
 } from "@/components/legal/legal-consent-fields";
 import { DISPLAY_STYLES } from "@/lib/display-styles";
 import { HEADSHOT_COUNT, PRICE_LABEL, STYLE_COUNT } from "@/lib/landing-config";
+import type { Tier } from "@/lib/tiers";
 import { cn } from "@/lib/utils";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,7 +91,7 @@ function StylePreviewStrip() {
   );
 }
 
-export function TryFreeClient() {
+export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -99,6 +101,21 @@ export function TryFreeClient() {
   const [consent, setConsent] = useState<LegalConsentState>(emptyWaitlistConsent);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Tier selection. When no per-tier LavaTop offers are configured, `tiers` is
+  // empty and we fall back to the single default offer + landing-config price.
+  const searchParams = useSearchParams();
+  const hasTiers = tiers.length > 0;
+  const requestedTier = searchParams.get("tier");
+  const defaultTier =
+    tiers.find((t) => t.id === requestedTier) ?? tiers.find((t) => t.popular) ?? tiers[0];
+  const [tierId, setTierId] = useState<string | undefined>(defaultTier?.id);
+  const selectedTier = hasTiers ? tiers.find((t) => t.id === tierId) ?? defaultTier : undefined;
+  const priceLabel = selectedTier?.priceLabel ?? PRICE_LABEL;
+  const photoCount = selectedTier?.expectedCount ?? HEADSHOT_COUNT;
+  const styleCount = selectedTier?.styleKeys.length ?? STYLE_COUNT;
+  const perStyle = Math.max(1, Math.round(photoCount / styleCount));
+  const postTier = selectedTier?.id ?? "pro";
 
   useEffect(() => {
     const urls = files.map((f) => URL.createObjectURL(f));
@@ -154,7 +171,7 @@ export function TryFreeClient() {
       const res = await fetch("/api/payment/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalizedEmail, photoUrls }),
+        body: JSON.stringify({ email: normalizedEmail, photoUrls, tier: postTier }),
       });
       const text = await res.text();
       let json: { url?: string; id?: string; error?: string } = {};
@@ -206,9 +223,43 @@ export function TryFreeClient() {
           </p>
         </div>
 
+        {hasTiers && tiers.length > 1 && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-[#111827]">Тариф</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {tiers.map((t) => (
+                <button
+                  type="button"
+                  key={t.id}
+                  onClick={() => setTierId(t.id)}
+                  className={cn(
+                    "rounded-xl border p-3 text-left transition",
+                    selectedTier?.id === t.id
+                      ? "border-[#111827] bg-white ring-2 ring-[#111827]/10"
+                      : "border-gray-200 bg-[#faf8f5] hover:border-[#c9a96e]/50"
+                  )}
+                >
+                  <span className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[#111827]">{t.name}</span>
+                    {t.popular && (
+                      <span className="rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-semibold text-white">
+                        Хит
+                      </span>
+                    )}
+                  </span>
+                  <span className="mt-1 block text-sm font-semibold text-[#9a7b4f]">{t.priceLabel}</span>
+                  <span className="mt-0.5 block text-xs text-gray-500">
+                    {t.expectedCount} фото · {t.styleKeys.length} стилей
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-8 rounded-xl border border-[#c9a96e]/20 bg-[#faf8f5] p-4">
           <p className="text-sm font-medium text-[#111827]">
-            Вы получите {HEADSHOT_COUNT} фотографий — {STYLE_COUNT} профессиональных стилей × {HEADSHOT_COUNT / STYLE_COUNT} фото в каждом.
+            Вы получите {photoCount} фотографий — {styleCount} профессиональных стилей × {perStyle} фото в каждом.
           </p>
           <div className="mt-4">
             <StylePreviewStrip />
@@ -316,12 +367,12 @@ export function TryFreeClient() {
               {uploadProgress ?? "Готовим оплату…"}
             </>
           ) : (
-            `Сгенерировать хедшоты — ${PRICE_LABEL} →`
+            `Сгенерировать портреты — ${priceLabel} →`
           )}
         </button>
 
         <p className="mt-3 text-center text-xs text-gray-500">
-          Разовый платёж {PRICE_LABEL} · {HEADSHOT_COUNT} фото в {STYLE_COUNT} стилях · оплата картой
+          Разовый платёж {priceLabel} · {photoCount} фото в {styleCount} стилях · оплата картой
         </p>
 
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}

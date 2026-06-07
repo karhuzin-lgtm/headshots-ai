@@ -16,6 +16,9 @@ type StatusResponse = {
   paid?: boolean;
   awaitingPayment?: boolean;
   paymentUrl?: string | null;
+  tier?: string;
+  expectedCount?: number;
+  styleKeys?: string[];
 };
 
 function downloadHref(url: string, filename: string): string {
@@ -148,7 +151,7 @@ export function TryResultClient({ requestId }: { requestId: string }) {
         <StatusCard>
           <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#c9a96e]" />
           <h1 className="mt-8 font-display text-2xl font-normal tracking-tight text-[#111827] sm:text-3xl">
-            Создаём ваши хедшоты
+            Создаём ваши портреты
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-gray-600">
             Обучение модели обычно занимает ~20 минут.
@@ -176,15 +179,18 @@ export function TryResultClient({ requestId }: { requestId: string }) {
     );
   }
 
-  const imagesPerStyle = 3;
-  const styleCount = Math.min(DISPLAY_STYLES.length, Math.ceil(outputUrls.length / imagesPerStyle));
+  // Astria delivers images via independent per-prompt callbacks that arrive in
+  // arbitrary order and are merged as a flat set, so we can't reliably map a
+  // position back to a style. Show one honest gallery rather than mislabeled
+  // per-style sections.
+  const styleCount = status.styleKeys?.length || DISPLAY_STYLES.length;
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12 sm:py-20">
       <div className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a7b4f]">Готово</p>
         <h1 className="mt-4 font-display text-4xl font-normal tracking-tight text-[#111827] sm:text-5xl">
-          Ваши хедшоты готовы
+          Ваши портреты готовы
         </h1>
         <p className="mx-auto mt-4 max-w-md text-sm text-gray-600">
           {outputUrls.length} фото в {styleCount} стилях · высокое разрешение · ваши навсегда
@@ -192,38 +198,27 @@ export function TryResultClient({ requestId }: { requestId: string }) {
       </div>
 
       {outputUrls.length > 0 && (
-        <div className="mt-12 space-y-12">
-          {DISPLAY_STYLES.map((style, styleIdx) => {
-            const styleUrls = outputUrls.slice(styleIdx * imagesPerStyle, styleIdx * imagesPerStyle + imagesPerStyle);
-            if (styleUrls.length === 0) return null;
+        <div className="mt-12 grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {outputUrls.map((imageUrl, i) => {
+            const filename = `portret-${i + 1}.jpg`;
             return (
-              <section key={style.key}>
-                <h2 className="mb-4 text-center text-sm font-semibold text-[#111827] sm:text-left">{style.name}</h2>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  {styleUrls.map((imageUrl, i) => {
-                    const filename = `headshot-${style.key}-${i + 1}.jpg`;
-                    return (
-                      <div
-                        key={imageUrl}
-                        className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-2 shadow-sm"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={imageUrl}
-                          alt={`${style.name} — хедшот ${i + 1}`}
-                          className="aspect-[3/4] w-full rounded-xl object-cover object-top"
-                        />
-                        <a
-                          href={downloadHref(imageUrl, filename)}
-                          className="mt-2 flex w-full items-center justify-center rounded-lg py-2.5 text-xs font-semibold text-gray-600 transition hover:bg-[#faf8f5] hover:text-[#111827]"
-                        >
-                          ↓ Скачать
-                        </a>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
+              <div
+                key={imageUrl}
+                className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-2 shadow-sm"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={imageUrl}
+                  alt={`AI-портрет ${i + 1}`}
+                  className="aspect-[3/4] w-full rounded-xl object-cover object-top"
+                />
+                <a
+                  href={downloadHref(imageUrl, filename)}
+                  className="mt-2 flex w-full items-center justify-center rounded-lg py-2.5 text-xs font-semibold text-gray-600 transition hover:bg-[#faf8f5] hover:text-[#111827]"
+                >
+                  ↓ Скачать
+                </a>
+              </div>
             );
           })}
         </div>

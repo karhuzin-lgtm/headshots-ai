@@ -41,6 +41,9 @@ export async function GET(_request: Request, { params }: { params: { requestId: 
       paid: generation.paid,
       awaitingPayment,
       paymentUrl: awaitingPayment ? generation.payment_url : null,
+      tier: generation.tier,
+      expectedCount: generation.expected_count,
+      styleKeys: generation.style_keys,
     },
     { headers: { "Cache-Control": "no-store" } }
   );

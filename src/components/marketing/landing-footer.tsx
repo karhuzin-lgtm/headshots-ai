@@ -6,7 +6,7 @@ export function LandingFooter() {
       <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-display text-xl font-semibold tracking-tight text-[#111827]">Headshots</p>
-          <p className="mt-2 text-sm text-gray-500">Профессиональные AI-хедшоты из ваших селфи.</p>
+          <p className="mt-2 text-sm text-gray-500">Профессиональные AI-портреты из ваших селфи.</p>
         </div>
         <div className="flex flex-wrap gap-6 text-sm text-gray-600">
           <Link href="/privacy" className="transition hover:text-gray-900">

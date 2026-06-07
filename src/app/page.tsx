@@ -10,8 +10,9 @@ import { PricingSection } from "@/components/marketing/pricing-section";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { StylesSection } from "@/components/marketing/styles-section";
 import { TeamSection } from "@/components/marketing/team-section";
+import { TestimonialsSection } from "@/components/marketing/testimonials-section";
 import { TrustSection } from "@/components/marketing/trust-section";
-import { LAUNCH_OFFER, PRIMARY_CTA } from "@/lib/landing-config";
+import { PRIMARY_CTA } from "@/lib/landing-config";
 
 export default function HomePage() {
   return (
@@ -24,6 +25,7 @@ export default function HomePage() {
         <HowItWorksSection />
         <StylesSection />
         <TrustSection />
+        <TestimonialsSection />
         <ComparisonSection />
         <PricingSection />
         <TeamSection />
@@ -35,11 +37,11 @@ export default function HomePage() {
           <ScrollReveal className="mx-auto max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c9a96e]">Начать</p>
             <h2 className="mt-4 font-display text-4xl font-normal tracking-tight text-white sm:text-5xl">
-              Ваш следующий хедшот — в 20 минутах.
+              Ваш следующий портрет — в 20 минутах.
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-lg font-light leading-relaxed text-gray-400">
-              Загрузите несколько селфи и получите {LAUNCH_OFFER.headshots} профессиональных хедшотов в{" "}
-              {LAUNCH_OFFER.styleCount} стилях — за разовый платёж {LAUNCH_OFFER.price}.
+              Загрузите несколько селфи — и получите профессиональные портреты в 6 стилях примерно за
+              20 минут. Выберите подходящий тариф.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <CtaButton
@@ -58,7 +60,7 @@ export default function HomePage() {
                 variant="onDarkGhost"
                 className="px-8 text-base"
               >
-                Хедшоты для команды
+                Портреты для команды
               </CtaButton>
             </div>
           </ScrollReveal>

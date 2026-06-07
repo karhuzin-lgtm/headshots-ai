@@ -25,7 +25,7 @@ export function BeforeAfterSection() {
                 <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-[#faf8f5] p-2 shadow-md">
                   <Image
                     src={MY_BEFORE_PHOTO}
-                    alt="Обычное селфи до AI-хедшота"
+                    alt="Обычное селфи до AI-портрета"
                     width={600}
                     height={800}
                     className="h-auto w-full rounded-xl"
@@ -58,7 +58,7 @@ export function BeforeAfterSection() {
                       <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
                         <Image
                           src={style.photo}
-                          alt={`AI-хедшот — ${style.name}`}
+                          alt={`AI-портрет — ${style.name}`}
                           width={400}
                           height={533}
                           className="aspect-[3/4] w-full object-cover object-top"

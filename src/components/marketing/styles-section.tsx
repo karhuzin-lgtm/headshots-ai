@@ -22,7 +22,7 @@ export function StylesSection() {
                 <div className="relative overflow-hidden">
                   <Image
                     src={style.photo}
-                    alt={`${style.name} — стиль AI-хедшота`}
+                    alt={`${style.name} — стиль AI-портрета`}
                     width={480}
                     height={640}
                     className="aspect-[3/4] w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]"
