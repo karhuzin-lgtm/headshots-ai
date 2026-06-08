@@ -49,8 +49,8 @@ export const TIERS: Record<TierId, Tier> = {
     id: "basic",
     name: "Базовый",
     tagline: "Для резюме и LinkedIn",
-    priceRub: 790,
-    priceLabel: "790 ₽",
+    priceRub: 390, // ТЕСТ (целевая 790). Меняй вместе с ценой оффера LavaTop.
+    priceLabel: "390 ₽",
     popular: false,
     styleKeys: ["linkedin", "corporate", "executive", "tech"],
     imagesPerStyle: 3,
@@ -69,8 +69,8 @@ export const TIERS: Record<TierId, Tier> = {
     id: "pro",
     name: "Профи",
     tagline: "Все образы в HD-качестве",
-    priceRub: 1490,
-    priceLabel: "1 490 ₽",
+    priceRub: 390, // ТЕСТ (целевая 1490). Меняй вместе с ценой оффера LavaTop.
+    priceLabel: "390 ₽",
     popular: true,
     styleKeys: ALL_STYLES,
     imagesPerStyle: 3,
@@ -90,8 +90,8 @@ export const TIERS: Record<TierId, Tier> = {
     id: "premium",
     name: "Премиум",
     tagline: "Максимум кадров для выбора",
-    priceRub: 2990,
-    priceLabel: "2 990 ₽",
+    priceRub: 390, // ТЕСТ (целевая 2990). Меняй вместе с ценой оффера LavaTop.
+    priceLabel: "390 ₽",
     popular: false,
     styleKeys: ALL_STYLES,
     imagesPerStyle: 6,
