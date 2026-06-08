@@ -31,18 +31,16 @@ export default function LegalPage() {
             <p className="mt-3">
               Сайт принадлежит и управляется <strong className="text-gray-900">Aleksei Media</strong>.
             </p>
-            {/* TODO: укажите реальные реквизиты — форму (ИП / ООО / самозанятый), ФИО/название, ИНН, ОГРН/ОГРНИП, адрес. */}
+            <p className="mt-3">
+              Приём платежей и формирование кассовых чеков (54-ФЗ) осуществляет платёжный сервис{" "}
+              <strong className="text-gray-900">LavaTop</strong> (lava.top) в качестве платёжного агента —
+              реквизиты продавца указаны в чеке, который вы получаете после оплаты.
+            </p>
+            {/* Продажа идёт через LavaTop как агента, поэтому собственный ИП/ИНН тут не обязателен.
+                Если оформишь самозанятость (НПД) или ИП — можешь добавить статус/ИНН сюда. */}
             <ul className="mt-3 list-none space-y-1">
               <li>
-                <span className="text-gray-500">Форма деятельности:</span>{" "}
-                <span className="text-gray-900">ИП / самозанятый — указать</span>
-              </li>
-              <li>
-                <span className="text-gray-500">ИНН:</span>{" "}
-                <span className="text-gray-900">— указать</span>
-              </li>
-              <li>
-                <span className="text-gray-500">Email:</span>{" "}
+                <span className="text-gray-500">Контакт:</span>{" "}
                 <a
                   href="mailto:aleksei@alekseimedia.com"
                   className="font-medium text-[#111827] underline underline-offset-4"
