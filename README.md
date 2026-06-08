@@ -1,79 +1,202 @@
-# Headshots AI
+# Headshots — AI-портреты (RU)
 
-Professional AI headshots from selfies. Upload a few phone photos, get studio-quality
-headshots across 6 styles, delivered by email in ~20 minutes.
+Русский сервис профессиональных AI-портретов: клиент загружает несколько селфи,
+оплачивает заказ и через ~20 минут получает студийные портреты в нескольких
+стилях. Результат доступен на сайте и приходит на почту.
 
-Built with **Next.js 14 (App Router)**, **Tailwind CSS**, **Supabase**, **Neon Postgres**,
-**fal.ai** + **Astria** (image generation), **Stripe** (billing, in progress), and **Resend** (email).
+Аудитория — РФ. В интерфейсе используем слова «портрет/фото» (не «хедшот»).
+Эстетика: фон cream `#faf8f5`, акцент gold `#c9a96e`, тёмный текст `#111827`,
+шрифты Manrope (заголовки) / Inter.
 
-## Quick start
+## Стек
+
+- **Next.js 14** (App Router) + **TypeScript** + **Tailwind CSS**
+- **Astria** — обучение модели и генерация портретов
+- **LavaTop** ([lava.top](https://lava.top)) — приём оплат (редирект на хостед-чекаут)
+- **Neon / Vercel Postgres** — таблица `generations` (статус заказов, оплата, тариф)
+- **Vercel Blob** — хранение загруженных селфи
+- **Resend** — письма-уведомления о готовности
+- Хостинг — **Vercel**
+
+## Локальный запуск
 
 ```bash
 npm install
-cp .env.example .env.local   # then fill in the values below
+cp .env.example .env.local   # заполни значениями (см. ниже)
 npm run dev                  # http://localhost:3000
 ```
 
-## Scripts
+Скрипты (`package.json`):
 
-| Script          | Purpose                              |
-| --------------- | ------------------------------------ |
-| `npm run dev`   | Local dev server                     |
-| `npm run build` | Production build (also typechecks)   |
-| `npm run start` | Serve the production build           |
-| `npm run lint`  | ESLint (`next lint`)                 |
+| Скрипт          | Назначение                          |
+| --------------- | ----------------------------------- |
+| `npm run dev`   | Дев-сервер                          |
+| `npm run build` | Прод-сборка (заодно проверяет типы) |
+| `npm run start` | Запуск прод-сборки                  |
+| `npm run lint`  | ESLint (`next lint`)                |
 
-## Architecture: two generation flows
+Проверка типов без сборки: `npx tsc --noEmit`.
 
-This repo contains two distinct product flows. See
-[`docs/codebase-review.md`](docs/codebase-review.md) for the full structural breakdown.
+База данных: применить миграции из `supabase/migrations/` к Postgres (Neon).
+Файлы идемпотентны (`add column if not exists`) и безопасны для повторного
+прогона. Схема `generations` дополнительно подстраховывается на старте инстанса
+(`ensureSchema` в `src/lib/generations-db.ts`), так что ручная миграция при
+деплое обычно не требуется.
 
-### 1. Free trial (currently the primary, live flow)
+## Переменные окружения
 
-The landing page CTAs point here (`NEXT_PUBLIC_CHECKOUT_URL`, default `/try/generate`).
+Все переменные — в `.env.example`. Скопируй его в `.env.local` (он в `.gitignore`).
+
+### База данных
+
+| Переменная     | Обязательна | Описание                                                                 |
+| -------------- | ----------- | ------------------------------------------------------------------------ |
+| `DATABASE_URL` | да          | Строка подключения к Postgres (Neon). Без неё платный флоу не работает.   |
+| `POSTGRES_URL` | альтернатива| Vercel-интеграция может отдавать строку под этим именем вместо `DATABASE_URL`. |
+
+### App URL
+
+| Переменная            | Описание                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_APP_URL` | Базовый домен. Используется в callback-ссылках Astria и в письмах. В проде — реальный домен. |
+
+### LavaTop (оплата)
+
+| Переменная                 | Описание                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `LAVATOP_API_KEY`          | API-ключ. Дашборд: Integrations → Public API → Create API Key.                                            |
+| `LAVATOP_OFFER_ID`         | UUID оффера или ссылка на товар (`https://app.lava.top/products/<uuid>`) — резолвится в offer id. Единый оффер: пока задан только он, на сайте показывается один тариф (Профи) по его цене. |
+| `LAVATOP_OFFER_ID_BASIC`   | Оффер тарифа «Базовый». См. раздел «Тарифы и офферы».                                                     |
+| `LAVATOP_OFFER_ID_PRO`     | Оффер тарифа «Профи».                                                                                     |
+| `LAVATOP_OFFER_ID_PREMIUM` | Оффер тарифа «Премиум».                                                                                   |
+| `LAVATOP_WEBHOOK_SECRET`   | Секрет вебхука. Создай вебхук в Integrations с авторизацией «API key» и пропиши то же значение. LavaTop возвращает его в заголовке `x-api-key`. |
+| `LAVATOP_CURRENCY`         | Валюта списания, по умолчанию `RUB`. `USD`/`EUR` на этом аккаунте могут открывать только PayPal.          |
+
+URL для дашборда LavaTop:
+- вебхук — `{NEXT_PUBLIC_APP_URL}/api/webhooks/lavatop`
+- возврат после оплаты — `{NEXT_PUBLIC_APP_URL}/try/payment-return`
+
+### Astria (генерация)
+
+| Переменная               | Описание                                                                                       |
+| ------------------------ | ---------------------------------------------------------------------------------------------- |
+| `ASTRIA_API_KEY`         | Ключ API Astria.                                                                               |
+| `ASTRIA_WEBHOOK_SECRET`  | Добавляется к callback-URL Astria как `?webhook_secret=` (кастомные заголовки Astria не шлёт). Сравнивается в `src/app/api/webhook/astria`. |
+
+### Прочие сервисы
+
+| Переменная             | Описание                                |
+| ---------------------- | --------------------------------------- |
+| `RESEND_API_KEY`       | Resend — письма-уведомления о готовности. |
+| `BLOB_READ_WRITE_TOKEN`| Vercel Blob — загрузка селфи.            |
+
+### Необязательные
+
+| Переменная                     | Описание                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_CHECKOUT_URL`     | Внешняя ссылка чекаута. Если пусто — главный CTA ведёт на `/try/generate`.       |
+| `NEXT_PUBLIC_TEAM_CONTACT_URL` | Контакт для командных заказов (Telegram/почта).                                 |
+
+## Тарифы и офферы LavaTop
+
+Единый источник правды по тарифам — `src/lib/tiers.ts`. Он задаёт сразу всё:
+параметры Astria (набор стилей, число фото на стиль, super-resolution, число
+шагов), что показывается в прайсинге и на странице загрузки, и какой оффер
+LavaTop выбрать (`offerEnvKey`).
+
+Тарифы: **Базовый** (`basic`), **Профи** (`pro`, по умолчанию), **Премиум**
+(`premium`).
+
+Важно про цену: `priceLabel`/`priceRub` в `tiers.ts` — это только отображение.
+Реальное списание — цена оффера LavaTop. Держи их в синхроне: цена оффера
+`LAVATOP_OFFER_ID_<TIER>` должна равняться `priceRub` тарифа. (Сейчас на всех
+тарифах тестовая цена 390 ₽; целевые цены указаны в комментариях `tiers.ts`.)
+
+### Как тарифы показываются на сайте
+
+- `purchasableTiers()` возвращает только те тарифы, для которых **задан
+  собственный оффер** (`process.env[offerEnvKey]`).
+- Пока пер-тарифных офферов нет, прайсинг показывает **один** тестовый тариф по
+  `PRICE_LABEL` из `src/lib/landing-config.ts` — так цена на сайте никогда не
+  расходится с реальным списанием.
+- При оплате оффер выбирается так (`getOfferRefForTier` в `src/lib/lavatop.ts`):
+  берётся собственный оффер тарифа; для тарифа по умолчанию (`pro`) допускается
+  фолбэк на общий `LAVATOP_OFFER_ID`; остальные тарифы без своего оффера платить
+  не дают (ошибка) — чтобы списанная сумма не разошлась с выполняемым тарифом.
+
+### Как добавить пер-тарифные офферы
+
+1. Создай в LavaTop отдельный оффер под каждый тариф с нужной ценой.
+2. Пропиши их в env: `LAVATOP_OFFER_ID_BASIC`, `LAVATOP_OFFER_ID_PRO`,
+   `LAVATOP_OFFER_ID_PREMIUM`.
+3. Убедись, что цена каждого оффера равна `priceRub`/`priceLabel`
+   соответствующего тарифа в `tiers.ts`.
+4. После этого на лендинге появятся 3 карточки, и каждая спишет свою цену.
+
+В `LAVATOP_OFFER_ID*` можно указывать как «голый» UUID оффера, так и ссылку на
+товар — `resolveOfferId()` сам вытащит UUID и при необходимости подберёт RUB-оффер
+товара через products API.
+
+## Флоу оплаты и генерации
+
+1. **Загрузка.** Клиент на `/try/generate` загружает селфи (Vercel Blob) и
+   выбирает тариф.
+2. **Создание заказа + инвойс.** `POST /api/payment/create` создаёт запись
+   `generations` (`paid=false`), кладёт `pending_generation_id` в cookie и через
+   `createPaymentInvoice()` (`src/lib/lavatop.ts`) получает хостед-URL оплаты
+   LavaTop, на который редиректит клиента.
+3. **Возврат после оплаты.** LavaTop возвращает клиента на
+   `/try/payment-return`. Эта страница ничего не генерирует — она по cookie
+   находит `generationId` и редиректит на `/try/result/<id>`.
+4. **Вебхук (запуск генерации).** Реальный запуск Astria делает вебхук
+   `POST /api/webhooks/lavatop` (server-to-server). Он сопоставляет оплаченный
+   контракт с заказом (по `payment_id`, иначе — по последнему неоплаченному
+   заказу того же email), помечает `paid`, и вызывает `startAstriaGeneration()`.
+   Обработчик идемпотентен; при ошибке Astria возвращает 5xx — LavaTop повторит
+   вебхук (восстановление «оплачено, но Astria упала»).
+5. **Страница результата + авто-sync.** `/try/result/<id>` опрашивает
+   `GET /api/status/<id>` каждые 5 секунд. Пока заказ `processing` и есть
+   `tune_id`, статус-эндпоинт сам подтягивает готовые изображения из Astria
+   (`syncGenerationFromAstria`) — это и есть авто-sync, отдельного действия не
+   нужно. Когда готово — показываем портреты и шлём письмо (Resend).
+   Вспомогательный callback Astria — `POST /api/webhook/astria`.
+6. **Ручное восстановление.** Если что-то зависло, есть
+   `POST /api/status/<id>/sync` — принудительно тянет картинки из Astria и
+   закрывает заказ, когда они готовы.
+
+## Деплой
+
+Хостинг — Vercel.
+
+- **Через git:** `git push` в `main` → автодеплой (если проект подключён к
+  репозиторию в Vercel).
+- **Через CLI:** `vercel` (превью) или `vercel --prod` (прод).
+
+После деплоя проверь, что в проекте Vercel заданы все env-переменные из раздела
+выше, а в дашборде LavaTop прописаны актуальные URL вебхука и возврата
+(`{NEXT_PUBLIC_APP_URL}/api/webhooks/lavatop` и `/try/payment-return`).
+
+## Чек-лист перед публичным запуском (owner-action)
+
+- [ ] **`ASTRIA_WEBHOOK_SECRET`** — задан и непустой (иначе callback Astria
+      нельзя проверить); то же значение фактически идёт в callback-URL.
+- [ ] **Офферы LavaTop** — созданы пер-тарифные офферы и прописаны
+      `LAVATOP_OFFER_ID_BASIC/PRO/PREMIUM`; цена каждого оффера равна `priceRub`
+      соответствующего тарифа в `tiers.ts`. Тестовую цену 390 ₽ заменить на
+      целевые.
+- [ ] **Вебхук и возврат LavaTop** — в дашборде указаны рабочие URL, секрет
+      вебхука совпадает с `LAVATOP_WEBHOOK_SECRET`.
+- [ ] **Самозанятость / приём платежей** — оформлен статус и реквизиты для
+      легального приёма оплат (продажа идёт через LavaTop как агента).
+- [ ] **Отзывы** — на лендинге стоят реальные отзывы/кейсы, а не плейсхолдеры.
+- [ ] **Прод-домен** — `NEXT_PUBLIC_APP_URL` указывает на реальный домен.
+- [ ] **Письма** — `RESEND_API_KEY` задан, домен отправителя верифицирован.
+
+## Структура
 
 ```
-/try/generate → /api/try-free(/upload) → Astria training
-              → /api/webhook/astria → /api/status/[requestId] → /try/result/[requestId]
+src/app/            Маршруты (страницы + /api роут-хендлеры)
+src/lib/            Доменная логика — tiers.ts, lavatop.ts, astria*, generations-db.ts, email, landing-config
+supabase/migrations Миграции Postgres (generations)
+public/             Статика
 ```
-
-Backed by Astria (`src/lib/astria*.ts`, `src/lib/generation-complete.ts`) and Neon
-(`src/lib/generations-db.ts`). Results emailed via `src/lib/email.ts`.
-
-### 2. Paid flow (in progress — not linked from the homepage yet)
-
-```
-/upload (Supabase auth) → /api/jobs → /api/jobs/[jobId]/process (fal.ai)
-        → /api/webhook/fal → /results/[jobId] → /api/checkout (Stripe) → /api/webhooks/stripe
-```
-
-Backed by fal.ai (`src/lib/fal*.ts`), Supabase (`src/lib/supabase/*`, `jobs` table), and
-Stripe. Plans/pricing live in `src/lib/plans.ts`. Billing provider notes:
-[`docs/billing.md`](docs/billing.md).
-
-## Configuration
-
-CTA destinations and the launch offer are centralized in `src/lib/landing-config.ts`:
-
-| Env var                       | Effect                                                              |
-| ----------------------------- | ------------------------------------------------------------------- |
-| `NEXT_PUBLIC_CHECKOUT_URL`    | Primary "Create my headshots" CTA target (defaults to `/try/generate`) |
-| `NEXT_PUBLIC_TEAM_CONTACT_URL`| "Get a team quote" CTA target (defaults to WhatsApp)                |
-
-See `.env.example` for the full list (database, Supabase, fal/Astria keys, Stripe, Resend, Blob).
-
-## Project layout
-
-```
-src/app/            Routes (pages + /api route handlers)
-src/components/     UI — marketing/, try/, upload/, legal/, auth/, ui/
-src/lib/            Domain logic — AI providers, db, billing, marketing config, email
-supabase/           SQL migrations + setup notes
-docs/               billing.md, codebase-review.md
-```
-
-## Analytics
-
-`src/lib/analytics.ts` exposes a provider-agnostic `track()` that forwards to GTM dataLayer /
-Plausible / PostHog if present. Wire a provider by injecting its script in `src/app/layout.tsx`;
-no other changes needed.

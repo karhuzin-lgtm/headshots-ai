@@ -6,42 +6,42 @@ const BASE = "https://api.astria.ai";
 const HEADSHOT_CROP_SUFFIX =
   ", tight headshot crop, face and shoulders only, no torso, no waist, close-up portrait framing";
 const GLOBAL_NEGATIVE_PROMPT =
-  "wrong outfit, same clothes as input, casual wear if not startup style, distorted face, extra limbs, bad anatomy, blurry, low quality, different hairstyle, added hair, receding hairline, beard, facial hair, mustache, bald, changed hair color, swollen face, puffiness, painting, illustration, drawing, 3d render, cgi, cartoon, anime, plastic skin, waxy skin, airbrushed, over-smoothed skin, beauty filter, instagram filter, oversaturated, overprocessed, deformed, asymmetric eyes, extra fingers, watermark, text, logo";
+  "wrong outfit, same clothes as input, casual wear if not startup style, distorted face, extra limbs, bad anatomy, blurry, low quality, different hairstyle, added hair, receding hairline, beard, facial hair, mustache, bald, changed hair color, swollen face, puffiness, painting, illustration, drawing, sketch, render, 3d render, 3d model, octane render, unreal engine, cgi, cg, video game character, doll, mannequin, action figure, cartoon, anime, stylized, plastic skin, plastic face, rubber skin, waxy skin, wax figure, glossy skin, shiny skin, porcelain skin, airbrushed, over-smoothed skin, smooth skin, poreless skin, retouched, photoshopped, beauty filter, instagram filter, skin smoothing filter, face tune, HDR, oversaturated, overexposed, overprocessed, oversharpened, plastic look, fake looking, artificial, uncanny valley, deformed, asymmetric eyes, crossed eyes, lazy eye, extra fingers, fused fingers, watermark, text, logo, signature";
 
 /** Photorealism anchor — Flux responds better to narrative, photographic phrasing. */
 const PHOTOREALISM_PREFIX =
-  "RAW candid photo, photorealistic, natural realistic skin texture with visible pores and subtle imperfections, shot on 85mm portrait lens, shallow depth of field, professional studio photography";
+  "RAW unedited photograph, photorealistic, hyper-detailed natural skin with visible pores, fine vellus hair, subtle skin texture, faint blemishes and natural color variation, realistic catchlights in the eyes, sharp focus on the eyes, shot on a full-frame Canon EOS R5 with an 85mm f/1.4 portrait lens, shallow depth of field with creamy bokeh, true-to-life skin tones, soft natural color grading, professional editorial photography, ultra realistic, lifelike";
 
 export const HEADSHOT_STYLES = {
   linkedin: {
     prompt:
-      `OHWX person wearing a crisp light blue oxford shirt, clean neutral gray background, soft professional studio lighting, confident friendly expression, professional LinkedIn headshot${HEADSHOT_CROP_SUFFIX}`,
-    negative: "t-shirt, hoodie, casual wear, dark clothing, busy background",
+      `OHWX person wearing a crisp light blue oxford cotton shirt with a natural collar and visible fabric weave, clean light gray seamless studio backdrop with gentle falloff, soft diffused key light from a large softbox at 45 degrees with a subtle fill, gentle catchlights, confident friendly approachable expression with a slight natural smile, professional LinkedIn headshot${HEADSHOT_CROP_SUFFIX}`,
+    negative: "t-shirt, hoodie, casual wear, dark clothing, busy background, harsh shadows, blown highlights, flat lighting",
   },
   corporate: {
     prompt:
-      `OHWX person wearing a dark navy suit and white dress shirt, clean gray studio background, professional studio lighting, confident business expression, corporate headshot${HEADSHOT_CROP_SUFFIX}`,
-    negative: "t-shirt, hoodie, casual clothing, colorful background",
+      `OHWX person wearing a tailored dark navy wool suit with a crisp white dress shirt, neutral mid-gray studio background, balanced three-point studio lighting with a soft key and clean fill, even flattering exposure, confident composed business expression, corporate headshot${HEADSHOT_CROP_SUFFIX}`,
+    negative: "t-shirt, hoodie, casual clothing, colorful background, wrinkled suit, harsh flash, flat lighting",
   },
   executive: {
     prompt:
-      `OHWX person wearing a charcoal suit and white dress shirt, dark neutral backdrop, dramatic Rembrandt studio lighting, authoritative professional expression, executive headshot${HEADSHOT_CROP_SUFFIX}`,
-    negative: "t-shirt, casual wear, bright background, informal clothing",
+      `OHWX person wearing a charcoal gray tailored suit with a crisp white dress shirt, deep dark gradient backdrop, dramatic Rembrandt lighting with a soft directional key, defined cheekbone shadow and a single catchlight, refined low-key contrast, authoritative confident expression, executive portrait${HEADSHOT_CROP_SUFFIX}`,
+    negative: "t-shirt, casual wear, bright background, informal clothing, flat lighting, washed out, overexposed",
   },
   tech: {
     prompt:
-      `OHWX person wearing a dark navy button-up shirt, modern minimal office with subtle window light, confident approachable expression, tech professional headshot${HEADSHOT_CROP_SUFFIX}`,
-    negative: "suit, tie, casual t-shirt, hoodie, messy background",
+      `OHWX person wearing a dark navy button-up shirt in soft matte cotton with the top button open, modern minimal office background softly blurred with cool daylight from a large window, natural directional window light with soft shadows, confident relaxed approachable expression, tech professional headshot${HEADSHOT_CROP_SUFFIX}`,
+    negative: "suit, tie, casual t-shirt, hoodie, messy background, cluttered desk, harsh shadows, flat lighting",
   },
   creative: {
     prompt:
-      `OHWX person wearing a smart casual blazer over a white shirt, warm bokeh background with golden atmospheric light, relaxed creative expression, editorial headshot${HEADSHOT_CROP_SUFFIX}`,
-    negative: "t-shirt, formal suit, dark background, casual clothing",
+      `OHWX person wearing a smart casual textured wool blazer over an open-collar white shirt, warm softly blurred background with golden bokeh and gentle backlight, soft warm window light wrapping the face with a subtle rim light, relaxed creative thoughtful expression, editorial portrait${HEADSHOT_CROP_SUFFIX}`,
+    negative: "t-shirt, formal suit, dark background, casual clothing, cold lighting, harsh shadows, flat lighting",
   },
   startup: {
     prompt:
-      `OHWX person wearing a clean white premium t-shirt or minimal hoodie, pure white studio background, natural soft lighting, relaxed confident founder expression, startup headshot${HEADSHOT_CROP_SUFFIX}`,
-    negative: "suit, tie, formal wear, dark background, busy background",
+      `OHWX person wearing a clean premium heather-gray crewneck t-shirt in soft cotton, bright clean off-white studio background, soft even natural daylight with a gentle wraparound fill, relaxed confident genuine founder expression with a natural smile, modern startup headshot${HEADSHOT_CROP_SUFFIX}`,
+    negative: "suit, tie, formal wear, dark background, busy background, logo on shirt, graphic print, harsh shadows",
   },
 } as const;
 
@@ -54,8 +54,9 @@ export const EXPECTED_HEADSHOT_COUNT = STYLE_KEYS.length * IMAGES_PER_STYLE;
 function buildStylePrompt(style: (typeof HEADSHOT_STYLES)[HeadshotStyle]): string {
   return [
     `${PHOTOREALISM_PREFIX}.`,
-    "Same hairstyle and facial features as in the reference photos. Do not add or remove hair.",
+    "Same hairstyle, same hairline and the exact same facial features as in the reference photos. Do not add or remove hair.",
     style.prompt,
+    "The skin must look real with natural pores, fine texture and authentic tone — never smooth, plastic, waxy or airbrushed.",
     "The outfit must match this style exactly and should not copy the clothing from the input selfies.",
     `Avoid: ${style.negative}, ${GLOBAL_NEGATIVE_PROMPT}.`,
   ].join(" ");
