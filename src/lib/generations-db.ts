@@ -210,14 +210,23 @@ export async function attachPaymentInfo(input: {
   if (!rows[0]) throw new Error(`attachPaymentInfo: generation ${input.id} not found`);
 }
 
-/** Mark a generation as paid. Returns the row, or null if not found. */
-export async function markGenerationPaid(id: string): Promise<GenerationRow | null> {
+/**
+ * Mark a generation as paid, verified against the expected payment_id to
+ * prevent one payment event from activating an unrelated generation row.
+ * Returns the updated row, or null if not found or payment_id mismatch.
+ */
+export async function markGenerationPaid(
+  id: string,
+  paymentId: string
+): Promise<GenerationRow | null> {
   await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     update generations
     set paid = true, updated_at = now()
     where id = ${id}
+      and payment_id = ${paymentId}
+      and paid = false
     returning *
   `;
   return rows[0] ? mapGeneration(rows[0]) : null;

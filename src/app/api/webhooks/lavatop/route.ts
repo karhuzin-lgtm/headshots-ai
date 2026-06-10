@@ -49,8 +49,19 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
     }
   }
 
-  const paid = await markGenerationPaid(generation.id);
-  if (paid) generation = paid;
+  // Verify payment_id atomically to prevent one event from activating the
+  // wrong generation row. generation.payment_id is set above if contractId arrived.
+  const effectivePaymentId = generation.payment_id ?? contractId;
+  if (!effectivePaymentId) {
+    console.error("LavaTop webhook: no payment_id to verify against", { generationId: generation.id });
+    return;
+  }
+  const paid = await markGenerationPaid(generation.id, effectivePaymentId);
+  if (!paid) {
+    // Already paid, payment_id mismatch, or not found — skip.
+    return;
+  }
+  generation = paid;
 
   // Throws on Astria failure → caught by POST → 5xx → LavaTop retries.
   await startAstriaGeneration(generation);
