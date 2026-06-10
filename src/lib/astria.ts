@@ -142,7 +142,12 @@ export async function createAstrinaTune(
     );
   }
   const styleKeys = resolveStyleKeys(generation.style_keys);
-  const imagesPerStyle = Math.max(1, Math.round(count / styleKeys.length));
+  if (count % styleKeys.length !== 0) {
+    throw new AstriaValidationError(
+      `expected_count (${count}) must be divisible by the number of styles (${styleKeys.length})`
+    );
+  }
+  const imagesPerStyle = count / styleKeys.length;
 
   const body = {
     tune: {
@@ -205,7 +210,10 @@ export async function createAstrinaTune(
 }
 
 export async function fetchTuneOutputUrls(tuneId: string): Promise<string[]> {
-  const res = await fetch(`${BASE}/tunes/${tuneId}/prompts`, {
+  if (!/^\d+$/.test(tuneId)) {
+    throw new AstriaValidationError(`Invalid tuneId format: ${tuneId}`);
+  }
+  const res = await fetch(`${BASE}/tunes/${encodeURIComponent(tuneId)}/prompts`, {
     headers: {
       Authorization: `Bearer ${getAstriaApiKey()}`,
       Accept: "application/json",
