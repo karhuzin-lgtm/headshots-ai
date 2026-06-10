@@ -380,16 +380,24 @@ export async function claimGenerationForProcessing(
   return rows[0] ? mapGeneration(rows[0]) : null;
 }
 
-/** Persist the LavaTop contractId so webhook retries can match by payment_id. */
-export async function setGenerationPaymentId(id: string, paymentId: string): Promise<void> {
+/**
+ * Persist the LavaTop contractId so webhook retries can match by payment_id.
+ * Returns true when the row was updated, false when:
+ *   - the generation was not found, OR
+ *   - payment_id is already set to a DIFFERENT value (conflict — skip, don't retry).
+ * Never overwrites an existing, differing payment_id.
+ */
+export async function setGenerationPaymentId(id: string, paymentId: string): Promise<boolean> {
   await ensureSchema();
   const sql = getSql();
   const rows = await sql`
-    update generations set payment_id = ${paymentId}, updated_at = now()
+    update generations
+    set payment_id = ${paymentId}, updated_at = now()
     where id = ${id}
+      and (payment_id is null or payment_id = ${paymentId})
     returning id
   `;
-  if (!rows[0]) throw new Error(`setGenerationPaymentId: generation ${id} not found`);
+  return !!rows[0];
 }
 
 /**

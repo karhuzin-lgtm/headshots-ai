@@ -41,12 +41,18 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
 
   // Persist contractId so a retry matches by payment_id (the email fallback only
   // works while paid=false, which markGenerationPaid below flips).
+  // setGenerationPaymentId refuses to overwrite a different existing payment_id
+  // (returns false) — treat that as a conflict and skip this webhook event.
   if (contractId && generation.payment_id !== contractId) {
-    try {
-      await setGenerationPaymentId(generation.id, contractId);
-    } catch (error) {
-      console.error("Could not persist contractId:", error);
+    const saved = await setGenerationPaymentId(generation.id, contractId);
+    if (!saved) {
+      console.error("LavaTop webhook: payment_id conflict or generation not found", {
+        generationId: generation.id,
+        contractId,
+      });
+      return;
     }
+    generation = { ...generation, payment_id: contractId };
   }
 
   // Verify payment_id atomically to prevent one event from activating the
