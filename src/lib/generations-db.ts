@@ -136,6 +136,14 @@ export async function createGeneration(input: {
   const inferenceSteps = input.inferenceSteps ?? DEFAULT_INFERENCE_STEPS;
   const trainingSteps = input.trainingSteps ?? DEFAULT_TRAINING_STEPS;
 
+  if (!input.inputUrls.length) throw new Error("inputUrls must not be empty");
+  if (!Number.isInteger(expectedCount) || expectedCount <= 0)
+    throw new Error(`expectedCount must be a positive integer, got ${expectedCount}`);
+  if (!Number.isInteger(inferenceSteps) || inferenceSteps <= 0)
+    throw new Error(`inferenceSteps must be a positive integer, got ${inferenceSteps}`);
+  if (!Number.isInteger(trainingSteps) || trainingSteps <= 0)
+    throw new Error(`trainingSteps must be a positive integer, got ${trainingSteps}`);
+
   const rows = await sql`
     insert into generations (
       email, status, input_urls, output_urls, payment_id,
@@ -230,7 +238,8 @@ export async function updateGenerationStatus(input: {
   id: string;
   status: GenerationStatus;
   outputUrls?: string[];
-  tuneId?: string | null;
+  /** Set only to store a new tuneId — coalesce keeps existing value; cannot clear. */
+  tuneId?: string;
   errorMessage?: string | null;
 }): Promise<GenerationRow> {
   await ensureSchema();
@@ -306,12 +315,16 @@ export async function countRecentUnpaidGenerations(
  * call won the claim. Conditions:
  * - paid=true (never start Astria for unpaid orders)
  * - tune_id is null (tune not yet created)
- * - Not marked ASTRIA_STATUS_UNKNOWN (ambiguous: blocks auto-retry to prevent
- *   duplicate billing when we can't confirm whether Astria processed the request)
- * - Status pending or failed OR processing with a stale claim (>5 min since
- *   updated_at) — handles crash-after-claim where the process died before saving
- *   tuneId or error. A stale processing+no-tune row is safe to retry because
- *   tune_id being null means Astria was never called successfully.
+ * - status in ('pending', 'failed') — only safe retry states
+ * - Not marked ASTRIA_STATUS_UNKNOWN: blocks retry when Astria status is
+ *   ambiguous (timeout/5xx) to prevent duplicate billing. Admin must verify
+ *   via fetchTuneOutputUrls before clearing the UNKNOWN marker.
+ *
+ * Note: a process crash between claim and tuneId save leaves the row in
+ * status='processing' with tune_id=null. That row is NOT re-claimable here
+ * to avoid a potential second Astria billing. Admin recovery: if Astria
+ * created the tune, fetch the tuneId via fetchTuneOutputUrls and update
+ * directly; otherwise reset status to 'pending'.
  */
 export async function claimGenerationForProcessing(
   id: string
@@ -324,11 +337,8 @@ export async function claimGenerationForProcessing(
     where id = ${id}
       and paid = true
       and tune_id is null
+      and status in ('pending', 'failed')
       and (error_message is null or error_message not like 'ASTRIA_STATUS_UNKNOWN:%')
-      and (
-        status in ('pending', 'failed')
-        or (status = 'processing' and updated_at < now() - interval '5 minutes')
-      )
     returning *
   `;
   return rows[0] ? mapGeneration(rows[0]) : null;
