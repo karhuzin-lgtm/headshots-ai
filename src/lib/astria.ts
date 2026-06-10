@@ -111,13 +111,16 @@ async function parseAstriaResponse(res: Response): Promise<any> {
 
 function resolveStyleKeys(keys: string[]): HeadshotStyle[] {
   const unique = [...new Set(keys)];
-  const valid = unique.filter((k): k is HeadshotStyle => k in HEADSHOT_STYLES);
-  if (valid.length === 0) {
+  if (unique.length === 0) {
+    throw new AstriaValidationError("No style keys provided.");
+  }
+  const invalid = unique.filter((k) => !VALID_STYLE_KEYS.has(k));
+  if (invalid.length > 0) {
     throw new AstriaValidationError(
-      `No valid style keys provided. Got: ${keys.join(", ")}. Valid: ${STYLE_KEYS.join(", ")}`
+      `Unknown style keys: ${invalid.join(", ")}. Valid: ${STYLE_KEYS.join(", ")}`
     );
   }
-  return valid;
+  return unique as HeadshotStyle[];
 }
 
 export async function createAstrinaTune(
@@ -132,11 +135,14 @@ export async function createAstrinaTune(
   >,
   callbackUrl: string
 ): Promise<string> {
+  const count = generation.expected_count;
+  if (!Number.isSafeInteger(count) || count <= 0 || count > 200) {
+    throw new AstriaValidationError(
+      `expected_count must be a positive integer ≤ 200, got: ${count}`
+    );
+  }
   const styleKeys = resolveStyleKeys(generation.style_keys);
-  const imagesPerStyle = Math.max(
-    1,
-    Math.round(generation.expected_count / styleKeys.length)
-  );
+  const imagesPerStyle = Math.max(1, Math.round(count / styleKeys.length));
 
   const body = {
     tune: {
@@ -163,12 +169,13 @@ export async function createAstrinaTune(
     },
   };
 
+  const apiKey = getAstriaApiKey();
   let res: Response;
   try {
     res = await fetch(`${BASE}/tunes`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${getAstriaApiKey()}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
