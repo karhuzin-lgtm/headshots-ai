@@ -19,6 +19,8 @@ function safeErrorMessage(error: unknown): string {
     .replace(/api[_\-]?key[=:\s]+\S+/gi, "[скрыто]")
     .replace(/"token"\s*:\s*"[^"]*"/gi, '"token":"[скрыто]"')
     .replace(/"password"\s*:\s*"[^"]*"/gi, '"password":"[скрыто]"')
+    // Strip query strings from URLs — signed S3/Blob URLs embed credentials there.
+    .replace(/(https?:\/\/[^\s"'?]+)\?[^\s"']*/gi, "$1?[скрыто]")
     .slice(0, 300);
 }
 
@@ -63,8 +65,13 @@ export async function startAstriaGeneration(
     ) {
       return; // legitimately complete or Astria is already running
     }
-    // Blocked: ASTRIA_STATUS_UNKNOWN, unpaid, or stale processing without
-    // tune_id — throw so the webhook returns 5xx and LavaTop retries.
+    if (current?.error_message?.startsWith("ASTRIA_STATUS_UNKNOWN:")) {
+      // Admin must verify the Astria tune via fetchTuneOutputUrls and clear the
+      // marker before re-queuing. Return 2xx to stop LavaTop from retrying.
+      return;
+    }
+    // Blocked: unpaid or stale processing without tune_id — throw so the webhook
+    // returns 5xx and LavaTop retries.
     throw new Error(
       `Cannot claim generation ${generation.id} for processing: ` +
         `status=${current?.status ?? "missing"} tune_id=${current?.tune_id ?? "null"} ` +

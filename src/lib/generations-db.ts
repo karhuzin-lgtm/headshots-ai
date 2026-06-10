@@ -144,13 +144,18 @@ export async function createGeneration(input: {
   for (const url of input.inputUrls) {
     if (typeof url !== "string" || url.length > 2048)
       throw new Error("inputUrls contains an invalid or too-long entry");
+    let parsed: URL;
     try {
-      const parsed = new URL(url);
-      if (parsed.protocol !== "https:")
-        throw new Error(`inputUrls must use https, got ${parsed.protocol}`);
+      parsed = new URL(url);
     } catch {
       throw new Error(`inputUrls contains a malformed URL: ${url.slice(0, 100)}`);
     }
+    if (parsed.protocol !== "https:")
+      throw new Error(`inputUrls must use https, got ${parsed.protocol}`);
+    // Restrict to Vercel Blob storage to prevent Astria from being used as an
+    // SSRF proxy to reach private networks or incur unexpected egress costs.
+    if (!parsed.hostname.endsWith(".blob.vercel-storage.com"))
+      throw new Error(`inputUrls must be from Vercel Blob storage, got ${parsed.hostname}`);
   }
   if (!Number.isInteger(expectedCount) || expectedCount <= 0 || expectedCount > 100)
     throw new Error(`expectedCount must be 1–100, got ${expectedCount}`);

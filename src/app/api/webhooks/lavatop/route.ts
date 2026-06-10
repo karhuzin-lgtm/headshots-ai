@@ -97,7 +97,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
+  // Reject payloads above 64 KB — legitimate LavaTop webhooks are well under 1 KB.
+  const contentLength = parseInt(request.headers.get("content-length") ?? "0", 10);
+  if (contentLength > 65_536) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   const body = await request.text();
+  if (body.length > 65_536) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
 
   // NOTE: we dispatch manually rather than via the SDK's WebhookHandler, because
   // that handler swallows exceptions from onPaymentSuccess (logs + returns), so a
