@@ -213,7 +213,12 @@ export async function attachPaymentInfo(input: {
 /**
  * Mark a generation as paid, verified against the expected payment_id to
  * prevent one payment event from activating an unrelated generation row.
- * Returns the updated row, or null if not found or payment_id mismatch.
+ *
+ * Idempotent: if the row is already paid with the SAME payment_id (e.g. a
+ * webhook retry after a transient Astria error), returns the existing row so
+ * the caller can re-attempt startAstriaGeneration without losing the order.
+ *
+ * Returns null if not found or payment_id mismatches (wrong generation).
  */
 export async function markGenerationPaid(
   id: string,
@@ -221,7 +226,7 @@ export async function markGenerationPaid(
 ): Promise<GenerationRow | null> {
   await ensureSchema();
   const sql = getSql();
-  const rows = await sql`
+  const updated = await sql`
     update generations
     set paid = true, updated_at = now()
     where id = ${id}
@@ -229,7 +234,16 @@ export async function markGenerationPaid(
       and paid = false
     returning *
   `;
-  return rows[0] ? mapGeneration(rows[0]) : null;
+  if (updated[0]) return mapGeneration(updated[0]);
+  // Row was already paid with the same payment_id — idempotent retry path.
+  const existing = await sql`
+    select * from generations
+    where id = ${id}
+      and payment_id = ${paymentId}
+      and paid = true
+    limit 1
+  `;
+  return existing[0] ? mapGeneration(existing[0]) : null;
 }
 
 export async function getGenerationByPaymentId(

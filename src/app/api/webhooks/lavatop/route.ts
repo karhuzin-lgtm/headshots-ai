@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { PaymentSuccessData } from "lava-top-sdk";
 
 import {
-  findPendingUnpaidGeneration,
   getGenerationByPaymentId,
   markGenerationPaid,
   setGenerationPaymentId,
@@ -17,14 +16,18 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
   const contractId = data.contractId;
   const email = data.buyer?.email?.trim().toLowerCase() ?? "";
 
-  // Match the paid contract back to the pending generation: by stored invoice
-  // id first, then fall back to the buyer's most recent unpaid upload.
-  let generation =
-    (contractId ? await getGenerationByPaymentId(contractId) : null) ??
-    (email ? await findPendingUnpaidGeneration(email) : null);
+  // LavaTop always includes contractId in payment.success — reject if missing
+  // rather than falling back to email-based matching (which is ambiguous and
+  // allows a payment for any product to activate any pending generation).
+  if (!contractId) {
+    console.error("LavaTop webhook: missing contractId", { email });
+    return;
+  }
+
+  let generation = await getGenerationByPaymentId(contractId);
 
   if (!generation) {
-    console.error("LavaTop webhook: no matching generation", { contractId, email });
+    console.error("LavaTop webhook: no matching generation for contractId", { contractId, email });
     return;
   }
 
