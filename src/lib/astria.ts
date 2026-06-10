@@ -104,7 +104,11 @@ function validateCallbackUrl(url: string): void {
     parsed.origin !== trustedOrigin.origin ||
     parsed.username ||
     parsed.password ||
-    !parsed.pathname.startsWith("/api/webhook/astria")
+    !(
+      parsed.pathname === "/api/webhook/astria" ||
+      parsed.pathname.startsWith("/api/webhook/astria/")
+    ) ||
+    /[%\\]/.test(parsed.pathname)
   ) {
     throw new AstriaValidationError(
       `callbackUrl must be ${trustedOrigin.origin}/api/webhook/astria[...], got: ${url}`
@@ -185,7 +189,7 @@ async function parseAstriaResponse(res: Response): Promise<any> {
 }
 
 function resolveStyleKeys(keys: string[]): HeadshotStyle[] {
-  const unique = [...new Set(keys)];
+  const unique = Array.from(new Set(keys));
   if (unique.length === 0) {
     throw new AstriaValidationError("No style keys provided.");
   }
