@@ -47,12 +47,19 @@ function isHeic(file: File): boolean {
 async function heicToJpeg(file: File): Promise<File> {
   if (!isHeic(file)) return file;
   try {
-    const heic2any = (await import("heic2any")).default;
-    const out = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 });
+    const mod = (await import("heic2any")) as unknown as {
+      default?: (opts: { blob: Blob; toType?: string; quality?: number }) => Promise<Blob | Blob[]>;
+    };
+    // heic2any is CommonJS — depending on bundling the fn is on .default or is
+    // the module itself. Handle both so the call never silently throws.
+    const convert = mod.default ?? (mod as unknown as typeof mod.default);
+    if (typeof convert !== "function") throw new Error("heic2any not callable");
+    const out = await convert({ blob: file, toType: "image/jpeg", quality: 0.92 });
     const blob = (Array.isArray(out) ? out[0] : out) as Blob;
     return new File([blob], file.name.replace(/\.(heic|heif)$/i, ".jpg"), { type: "image/jpeg" });
-  } catch {
-    return file; // keep original on failure — server still accepts HEIC; preview falls back
+  } catch (e) {
+    console.error("HEIC→JPEG conversion failed:", e);
+    return file; // keep original — server still accepts HEIC; preview falls back to placeholder
   }
 }
 
