@@ -296,16 +296,19 @@ export async function updateGenerationStatus(input: {
 }): Promise<GenerationRow> {
   await ensureSchema();
   const sql = getSql();
-  // tune_id is saved regardless of status — if the Astria callback completes the
-  // row before startAstriaGeneration saves the tuneId, we still want to record it.
+  // For done rows: status, output_urls, and error_message are immutable.
+  // tune_id is allowed to be filled in even for done rows (late webhook completing
+  // the tuneId after the Astria callback already set status=done).
   const rows = await sql`
     update generations
     set
-      status = case when status = 'done' then 'done' else ${input.status} end,
-      output_urls = coalesce(${input.outputUrls !== undefined ? textArray(input.outputUrls) : null}::text[], output_urls),
-      tune_id = coalesce(${input.tuneId ?? null}, tune_id),
+      status      = case when status = 'done' then 'done' else ${input.status} end,
+      output_urls = case when status = 'done' then output_urls
+                         else coalesce(${input.outputUrls !== undefined ? textArray(input.outputUrls) : null}::text[], output_urls)
+                    end,
+      tune_id     = coalesce(${input.tuneId ?? null}, tune_id),
       error_message = case when status = 'done' then error_message else ${input.errorMessage ?? null} end,
-      updated_at = now()
+      updated_at  = now()
     where id = ${input.id}
     returning *
   `;
