@@ -213,6 +213,26 @@ export async function attachPaymentInfo(input: {
 }
 
 /**
+ * Persist the LavaTop contractId so webhook retries can match by payment_id.
+ * Returns true when the row was updated, false when:
+ *   - the generation was not found, OR
+ *   - payment_id is already set to a DIFFERENT value (conflict — skip, don't retry).
+ * Never overwrites an existing, differing payment_id.
+ */
+export async function setGenerationPaymentId(id: string, paymentId: string): Promise<boolean> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`
+    update generations
+    set payment_id = ${paymentId}, updated_at = now()
+    where id = ${id}
+      and (payment_id is null or payment_id = ${paymentId})
+    returning id
+  `;
+  return !!rows[0];
+}
+
+/**
  * Mark a generation as paid, verified against the expected payment_id to
  * prevent one payment event from activating an unrelated generation row.
  *
@@ -316,6 +336,55 @@ export async function updateGenerationStatus(input: {
   throw new Error(`Generation ${input.id} not found`);
 }
 
+/**
+ * Atomically union new output URLs into the row and flip to 'done' when the
+ * count reaches expected_count.
+ *
+ * The merge is expressed as inline subqueries inside the UPDATE SET clause.
+ * PostgreSQL acquires a row-level lock before evaluating any SET expression,
+ * so concurrent callbacks see the committed state after the prior update
+ * rather than a stale CTE snapshot — this eliminates the lost-update race.
+ *
+ * Allows failed→done recovery: late callbacks still deliver images even if
+ * an earlier error set status=failed (e.g. after a tune-creation timeout).
+ *
+ * Returns null if the row was already done (no-op) or not found.
+ */
+export async function appendGenerationOutputs(
+  id: string,
+  incoming: string[]
+): Promise<{ row: GenerationRow; becameDone: boolean } | null> {
+  await ensureSchema();
+  const sql = getSql();
+  const incomingArr = textArray(incoming);
+  const rows = await sql`
+    update generations
+    set
+      output_urls = (
+        select coalesce(array_agg(distinct u), '{}')
+        from unnest(output_urls || ${incomingArr}::text[]) as u
+      ),
+      status = case
+                 when (
+                   select cardinality(coalesce(array_agg(distinct u), '{}')::text[])
+                   from unnest(output_urls || ${incomingArr}::text[]) as u
+                 ) >= expected_count
+                 then 'done'
+                 else status
+               end,
+      updated_at = now()
+    where id = ${id}
+      and status <> 'done'
+    returning *
+  `;
+  if (!rows[0]) return null;
+  const row = mapGeneration(rows[0]);
+  // If the returned row is 'done', THIS call caused the transition —
+  // the WHERE status <> 'done' guard ensures it was not done before.
+  const becameDone = row.status === "done";
+  return { row, becameDone };
+}
+
 export async function getGeneration(id: string): Promise<GenerationRow | null> {
   await ensureSchema();
   const sql = getSql();
@@ -399,71 +468,3 @@ export async function claimGenerationForProcessing(
   return rows[0] ? mapGeneration(rows[0]) : null;
 }
 
-/**
- * Persist the LavaTop contractId so webhook retries can match by payment_id.
- * Returns true when the row was updated, false when:
- *   - the generation was not found, OR
- *   - payment_id is already set to a DIFFERENT value (conflict — skip, don't retry).
- * Never overwrites an existing, differing payment_id.
- */
-export async function setGenerationPaymentId(id: string, paymentId: string): Promise<boolean> {
-  await ensureSchema();
-  const sql = getSql();
-  const rows = await sql`
-    update generations
-    set payment_id = ${paymentId}, updated_at = now()
-    where id = ${id}
-      and (payment_id is null or payment_id = ${paymentId})
-    returning id
-  `;
-  return !!rows[0];
-}
-
-/**
- * Atomically union new output URLs into the row and flip to 'done' when the
- * count reaches expected_count.
- *
- * The merge is expressed as inline subqueries inside the UPDATE SET clause.
- * PostgreSQL acquires a row-level lock before evaluating any SET expression,
- * so concurrent callbacks see the committed state after the prior update
- * rather than a stale CTE snapshot — this eliminates the lost-update race.
- *
- * Allows failed→done recovery: late callbacks still deliver images even if
- * an earlier error set status=failed (e.g. after a tune-creation timeout).
- *
- * Returns null if the row was already done (no-op) or not found.
- */
-export async function appendGenerationOutputs(
-  id: string,
-  incoming: string[]
-): Promise<{ row: GenerationRow; becameDone: boolean } | null> {
-  await ensureSchema();
-  const sql = getSql();
-  const incomingArr = textArray(incoming);
-  const rows = await sql`
-    update generations
-    set
-      output_urls = (
-        select coalesce(array_agg(distinct u), '{}')
-        from unnest(output_urls || ${incomingArr}::text[]) as u
-      ),
-      status = case
-                 when (
-                   select cardinality(coalesce(array_agg(distinct u), '{}')::text[])
-                   from unnest(output_urls || ${incomingArr}::text[]) as u
-                 ) >= expected_count
-                 then 'done'
-                 else status
-               end,
-      updated_at = now()
-    where id = ${id}
-      and status <> 'done'
-    returning *
-  `;
-  if (!rows[0]) return null;
-  const row = mapGeneration(rows[0]);
-  // If the returned row is 'done', THIS call caused the transition —
-  // the WHERE status <> 'done' guard ensures it was not done before.
-  const becameDone = row.status === "done";
-  return { row, becameDone };
-}
