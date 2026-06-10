@@ -1,7 +1,7 @@
 "use client";
 
 import { upload } from "@vercel/blob/client";
-import { Loader2, Upload } from "lucide-react";
+import { Check, Loader2, Upload } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -33,6 +33,35 @@ const TIPS_BAD = [
   "Без сильных фильтров и режима «бьюти»",
   "Без фото, где вы выглядите уставшим, больным или отёкшим",
 ];
+
+const HEIC_RE = /heic|heif/i;
+function isHeic(file: File): boolean {
+  return HEIC_RE.test(file.type) || HEIC_RE.test(file.name);
+}
+
+/**
+ * Convert iPhone HEIC/HEIF to JPEG so it (a) previews in the browser and (b) is
+ * usable by Astria. heic2any is heavy, so it's dynamically imported only when a
+ * HEIC file is actually added.
+ */
+async function heicToJpeg(file: File): Promise<File> {
+  if (!isHeic(file)) return file;
+  try {
+    const mod = (await import("heic2any")) as unknown as {
+      default?: (opts: { blob: Blob; toType?: string; quality?: number }) => Promise<Blob | Blob[]>;
+    };
+    // heic2any is CommonJS — depending on bundling the fn is on .default or is
+    // the module itself. Handle both so the call never silently throws.
+    const convert = mod.default ?? (mod as unknown as typeof mod.default);
+    if (typeof convert !== "function") throw new Error("heic2any not callable");
+    const out = await convert({ blob: file, toType: "image/jpeg", quality: 0.92 });
+    const blob = (Array.isArray(out) ? out[0] : out) as Blob;
+    return new File([blob], file.name.replace(/\.(heic|heif)$/i, ".jpg"), { type: "image/jpeg" });
+  } catch (e) {
+    console.error("HEIC→JPEG conversion failed:", e);
+    return file; // keep original — server still accepts HEIC; preview falls back to placeholder
+  }
+}
 
 async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
@@ -102,6 +131,49 @@ function StylePreviewStrip() {
   );
 }
 
+/**
+ * Single selfie preview. Browsers can't decode HEIC in <img> (common from
+ * iPhone), so on a decode error we show a labelled placeholder — the buyer still
+ * sees that the photo is loaded instead of a blank square.
+ */
+function PreviewTile({
+  url,
+  index,
+  onRemove,
+}: {
+  url: string;
+  index: number;
+  onRemove: () => void;
+}) {
+  const [broken, setBroken] = useState(false);
+  return (
+    <div className="relative aspect-square overflow-hidden rounded-xl ring-1 ring-gray-200/80">
+      {broken ? (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-[#faf8f5] text-center">
+          <Check className="h-4 w-4 text-emerald-500" aria-hidden />
+          <span className="text-[10px] font-medium text-gray-500">Фото {index + 1}</span>
+        </div>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt=""
+          className="h-full w-full object-cover"
+          onError={() => setBroken(true)}
+        />
+      )}
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs leading-none text-white"
+        aria-label="Удалить фото"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
 export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
@@ -112,6 +184,7 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
   const [consent, setConsent] = useState<LegalConsentState>(emptyWaitlistConsent);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   // Tier selection. When no per-tier LavaTop offers are configured, `tiers` is
   // empty and we fall back to the single default offer + landing-config price.
@@ -147,10 +220,18 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
     return () => window.removeEventListener("pageshow", onPageShow);
   }, []);
 
-  function addFiles(incoming: File[]) {
+  async function addFiles(incoming: File[]) {
     // accept= only constrains the picker, not drag-drop — filter to images here.
-    const images = incoming.filter((f) => f.type.startsWith("image/"));
-    setFiles((prev) => [...prev, ...images].slice(0, 20));
+    const images = incoming.filter((f) => f.type.startsWith("image/") || isHeic(f));
+    if (!images.length) return;
+    setProcessing(true);
+    try {
+      // Convert HEIC → JPEG up front (previewable + Astria-compatible).
+      const converted = await Promise.all(images.map(heicToJpeg));
+      setFiles((prev) => [...prev, ...converted].slice(0, 20));
+    } finally {
+      setProcessing(false);
+    }
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -197,7 +278,12 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       const res = await fetch("/api/payment/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalizedEmail, photoUrls, tier: postTier }),
+        body: JSON.stringify({
+          email: normalizedEmail,
+          photoUrls,
+          tier: postTier,
+          testKey: searchParams.get("test") ?? undefined,
+        }),
       });
       const text = await res.text();
       let json: { url?: string; id?: string; error?: string } = {};
@@ -208,15 +294,21 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       } catch {
         json = { error: text };
       }
-      if (!res.ok || !json.url) {
+      if (!res.ok || !json.url || !json.id) {
         throw new Error(json.error || text || "Не удалось перейти к оплате.");
       }
 
-      // Redirect straight to the LavaTop checkout. The pending generation id is
-      // stored in an httpOnly cookie by /api/payment/create, so after a
-      // successful payment LavaTop returns the buyer to /try/payment-return,
-      // which forwards them to /try/result/{id} (the waiting screen).
-      window.location.href = json.url;
+      // LavaTop has no post-payment redirect back to us, so we DON'T navigate
+      // away to it. Instead: open checkout in a new tab (this is inside the
+      // submit gesture, so it isn't popup-blocked) and send THIS tab to our
+      // waiting page, which polls for payment and shows generation right here.
+      // Test mode returns an internal /try/result url → just navigate. Normal
+      // flow returns the LavaTop (http) url → open it in a new tab + go to the
+      // waiting page in this tab.
+      if (json.url.startsWith("http")) {
+        window.open(json.url, "_blank", "noopener");
+      }
+      window.location.href = `/try/result/${json.id}`;
       return;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось перейти к оплате.");
@@ -351,25 +443,22 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
             />
           </label>
 
+          {processing && (
+            <p className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Обрабатываем фото…
+            </p>
+          )}
+
           {files.length > 0 && (
             <div className="mt-4">
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
                 {previews.map((url, idx) => (
-                  <div
+                  <PreviewTile
                     key={url}
-                    className="relative aspect-square overflow-hidden rounded-xl ring-1 ring-gray-200/80"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="" className="h-full w-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs leading-none text-white"
-                      aria-label="Удалить фото"
-                    >
-                      ×
-                    </button>
-                  </div>
+                    url={url}
+                    index={idx}
+                    onRemove={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                  />
                 ))}
               </div>
               <p className="mt-3 text-xs text-gray-500">
