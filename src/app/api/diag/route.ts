@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { FeedItemType, FeedVisibility, Currency } from "lava-top-sdk";
-import { getLavaClient } from "@/lib/lavatop";
+import { getLavaClient, resolveOfferId } from "@/lib/lavatop";
 import { TIER_ORDER, TIERS } from "@/lib/tiers";
 
 export const runtime = "nodejs";
@@ -18,10 +18,21 @@ export async function GET(request: Request) {
 
   const result: Record<string, unknown> = {};
 
-  // Report only whether each tier env var is set — never expose the value.
-  const tierStatus: Record<string, { set: boolean }> = {};
+  // For each tier: env var set + which offer UUID resolves to.
+  const tierStatus: Record<string, { set: boolean; resolvedOfferId?: string; resolveError?: string }> = {};
   for (const id of TIER_ORDER) {
-    tierStatus[id] = { set: !!process.env[TIERS[id].offerEnvKey] };
+    const tier = TIERS[id];
+    const set = !!process.env[tier.offerEnvKey];
+    if (!set) {
+      tierStatus[id] = { set: false };
+      continue;
+    }
+    try {
+      const resolvedOfferId = await resolveOfferId(tier);
+      tierStatus[id] = { set: true, resolvedOfferId };
+    } catch (err) {
+      tierStatus[id] = { set: true, resolveError: String(err).slice(0, 200) };
+    }
   }
   result.tiers = tierStatus;
 
