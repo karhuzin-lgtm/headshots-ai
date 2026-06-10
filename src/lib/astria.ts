@@ -4,6 +4,23 @@ import type { GenerationRow } from "@/lib/generations-db";
 const ASTRIA_API_KEY = process.env.ASTRIA_API_KEY;
 const BASE = "https://api.astria.ai";
 
+/**
+ * Typed error for Astria API failures. isRetriable=true means Astria confirmed
+ * rejection (4xx) — the tune was never created, auto-retry is safe.
+ * isRetriable=false (5xx) means the tune may have been created — treat as
+ * ASTRIA_STATUS_UNKNOWN and block automatic retry.
+ */
+export class AstriaApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly isRetriable: boolean
+  ) {
+    super(message);
+    this.name = "AstriaApiError";
+  }
+}
+
 // Flux does not respond to negative prompts — avoid-clauses are embedded in
 // the positive text as "not X" or "do not wear X" per Astria docs.
 const PHOTO_SPECS =
@@ -74,7 +91,9 @@ async function parseAstriaResponse(res: Response): Promise<any> {
       data?.message ??
       data?.error ??
       `Astria API request failed with status ${res.status}${details}`;
-    throw new Error(message);
+    // 4xx = Astria confirmed rejection; tune was never created — safe to retry.
+    // 5xx = ambiguous; tune may exist on Astria's side — block auto-retry.
+    throw new AstriaApiError(message, res.status, res.status >= 400 && res.status < 500);
   }
 
   return data;

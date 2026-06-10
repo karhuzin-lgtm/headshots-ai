@@ -354,7 +354,6 @@ export async function appendGenerationOutputs(
                    select cardinality(coalesce(array_agg(distinct u), '{}')::text[])
                    from unnest(output_urls || ${incomingArr}::text[]) as u
                  ) >= expected_count
-                 and status <> 'failed'
                  then 'done'
                  else status
                end,

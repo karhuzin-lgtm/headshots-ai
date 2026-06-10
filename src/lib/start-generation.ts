@@ -1,4 +1,4 @@
-import { createAstrinaTune } from "@/lib/astria";
+import { AstriaApiError, createAstrinaTune } from "@/lib/astria";
 import { buildAstriaCallbackUrl } from "@/lib/generation-complete";
 import {
   claimGenerationForProcessing,
@@ -22,17 +22,18 @@ function safeErrorMessage(error: unknown): string {
 }
 
 /**
- * Network or timeout errors are ambiguous — Astria may have processed the
- * request before the connection dropped. Confirmed Astria API rejections
- * (4xx/5xx with a structured error body) are non-ambiguous.
+ * Returns true when we cannot determine whether Astria created the tune.
+ * Only confirmed 4xx Astria rejections are safe to retry — the tune was
+ * never started. Everything else (5xx, network errors, timeout, missing id)
+ * is ambiguous: the tune may exist on Astria's side.
  */
 function isAmbiguousError(error: unknown): boolean {
-  if (!(error instanceof Error)) return true;
-  return (
-    error.name === "TimeoutError" ||
-    error.name === "AbortError" ||
-    error.name === "TypeError"
-  );
+  if (error instanceof AstriaApiError) {
+    return !error.isRetriable; // 5xx → ambiguous; 4xx → safe to retry
+  }
+  // TypeError (fetch failed), TimeoutError, AbortError, and any other error
+  // (e.g. "tune creation returned no tune id") are all ambiguous.
+  return true;
 }
 
 /**
