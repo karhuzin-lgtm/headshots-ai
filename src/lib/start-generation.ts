@@ -1,4 +1,4 @@
-import { createAstrinaTune } from "@/lib/astria";
+import { AstriaApiError, createAstrinaTune } from "@/lib/astria";
 import { buildAstriaCallbackUrl } from "@/lib/generation-complete";
 import {
   claimGenerationForProcessing,
@@ -7,74 +7,110 @@ import {
 } from "@/lib/generations-db";
 import { sendGenerationFailed, sendHeadshotsStarted, sendOwnerAlert } from "@/lib/email";
 
-/** Strip anything that looks like a secret before persisting/showing an error. */
+/**
+ * Strip credentials using explicit patterns rather than a suffix-based regex.
+ * Covers "Bearer <token>", "api_key=<val>", and JSON fields "token"/"password".
+ */
 function safeErrorMessage(error: unknown): string {
   const raw = error instanceof Error ? error.message : "Неизвестная ошибка генерации";
   return raw
-    .replace(/(api[_-]?key|bearer|token)[^,\s]*/gi, "[скрыто]")
+    .replace(/Bearer\s+\S+/gi, "Bearer [скрыто]")
+    .replace(/api[_\-]?key[=:\s]+\S+/gi, "[скрыто]")
+    .replace(/"token"\s*:\s*"[^"]*"/gi, '"token":"[скрыто]"')
+    .replace(/"password"\s*:\s*"[^"]*"/gi, '"password":"[скрыто]"')
     .slice(0, 300);
+}
+
+/**
+ * Returns true when we cannot determine whether Astria created the tune.
+ * Only confirmed Astria 4xx rejections are safe to retry — the tune was never
+ * started. 5xx, network errors, timeout, and unexpected responses are ambiguous.
+ */
+function isAmbiguousError(error: unknown): boolean {
+  if (error instanceof AstriaApiError) {
+    return !error.isRetriable; // 4xx isRetriable=true → safe; 5xx → ambiguous
+  }
+  // TypeError (fetch failed), TimeoutError, AbortError, and anything else
+  // (e.g. "tune creation returned no tune id") are all ambiguous — Astria may
+  // have accepted the request before the connection dropped.
+  return true;
 }
 
 /**
  * Kick off Astria training + portrait generation for a paid generation row.
  *
- * Atomically CLAIMS the row first (status pending/failed + no tune_id) so
- * concurrent webhook deliveries can't start two tunes. A `failed` row without a
- * tune_id is re-claimable — that's the recovery path for a transient failure.
+ * Phase 1 — createAstrinaTune: confirmed Astria 4xx → safe to retry (status=failed).
+ *   Any ambiguous outcome (5xx, network, timeout) → ASTRIA_STATUS_UNKNOWN prefix,
+ *   which claimGenerationForProcessing refuses to re-claim, blocking duplicate billing.
  *
- * Throws on Astria failure (after marking failed + notifying) so the webhook
- * returns 5xx and LavaTop retries.
+ * Phase 2 — persist tuneId: if the DB save fails after Astria returned a tuneId,
+ *   the tune IS created. We mark ASTRIA_STATUS_UNKNOWN so retry is blocked; the
+ *   Astria callback will still arrive and appendGenerationOutputs will complete
+ *   the order via image URL delivery.
+ *
+ * Throws on failure so the LavaTop webhook returns 5xx and retries.
  */
 export async function startAstriaGeneration(
   generation: GenerationRow
 ): Promise<void> {
-  // Whether this is the first attempt (no prior error) — used to avoid spamming
-  // the buyer with a "failed" email on every LavaTop retry.
   const isFirstAttempt = !generation.error_message;
 
   const claimed = await claimGenerationForProcessing(generation.id);
   if (!claimed) {
-    // Already processing/done, or another delivery won the claim.
     return;
   }
 
+  // Phase 1: call Astria ---------------------------------------------------
+  let tuneId: string;
   try {
     const callbackUrl = buildAstriaCallbackUrl(claimed.id);
-    const tuneId = await createAstrinaTune(claimed, callbackUrl);
+    tuneId = await createAstrinaTune(claimed, callbackUrl);
+  } catch (createError) {
+    const message = safeErrorMessage(createError);
+    const ambiguous = isAmbiguousError(createError);
+    await updateGenerationStatus({
+      id: claimed.id,
+      status: "failed",
+      errorMessage: ambiguous ? `ASTRIA_STATUS_UNKNOWN: ${message}` : message,
+    }).catch((e) => console.error("persist createError status failed:", e));
+
+    if (isFirstAttempt && !ambiguous) {
+      await sendGenerationFailed(claimed.email, `/try/result/${claimed.id}`).catch((e) =>
+        console.error("failed-generation email failed:", e)
+      );
+    }
+    await sendOwnerAlert(claimed, message).catch((e) =>
+      console.error("owner alert email failed:", e)
+    );
+    throw new Error(`Astria generation failed: ${message}`);
+  }
+
+  // Phase 2: persist tuneId ------------------------------------------------
+  // tuneId is known — persist it before doing anything else.
+  // If this save fails, the tune IS created on Astria's side. Mark ambiguous
+  // so claimGenerationForProcessing blocks retry; the Astria callback will
+  // still deliver images via appendGenerationOutputs.
+  try {
     await updateGenerationStatus({
       id: claimed.id,
       status: "processing",
       tuneId,
     });
-
-    // Tune created — now safe to tell the buyer we started.
-    try {
-      await sendHeadshotsStarted(claimed.email, `/try/result/${claimed.id}`);
-    } catch (error) {
-      console.error("started email failed:", error);
-    }
-  } catch (error) {
-    const message = safeErrorMessage(error);
+  } catch (saveError) {
+    const message = safeErrorMessage(saveError);
     await updateGenerationStatus({
       id: claimed.id,
       status: "failed",
-      errorMessage: message,
-    });
-
-    if (isFirstAttempt) {
-      try {
-        await sendGenerationFailed(claimed.email, `/try/result/${claimed.id}`);
-      } catch (mailError) {
-        console.error("failed-generation email failed:", mailError);
-      }
-    }
-    // Always alert the owner so a paid-but-failed order never goes unnoticed.
-    try {
-      await sendOwnerAlert(claimed, message);
-    } catch (alertError) {
-      console.error("owner alert email failed:", alertError);
-    }
-
-    throw new Error(`Astria generation failed: ${message}`);
+      errorMessage: `ASTRIA_STATUS_UNKNOWN: tune ${tuneId} created but save failed: ${message}`,
+    }).catch((e) => console.error("persist saveError status failed:", e));
+    await sendOwnerAlert(claimed, `tuneId save failed (tune ${tuneId}): ${message}`).catch(
+      (e) => console.error("owner alert email failed:", e)
+    );
+    throw saveError;
   }
+
+  // Phase 3: notify buyer --------------------------------------------------
+  await sendHeadshotsStarted(claimed.email, `/try/result/${claimed.id}`).catch((e) =>
+    console.error("started email failed:", e)
+  );
 }
