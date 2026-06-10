@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { VALID_STYLE_KEYS } from "@/lib/astria";
 
 export type GenerationStatus = "pending" | "processing" | "done" | "failed";
 
@@ -55,25 +56,20 @@ function getSql() {
   return neon(databaseUrl);
 }
 
-// Ensure the schema once per lambda instance (not per query). Idempotent and
-// additive — lets a fresh deploy work even before migration 004 is applied,
-// without the old per-query DDL cost. Mirrors supabase/migrations/004.
+// Schema guard: verifies the DB connection is live. All DDL (ALTER TABLE,
+// CREATE INDEX) lives exclusively in supabase/migrations/ and must be applied
+// before deploy — NOT at runtime. This avoids table-level locks on cold starts
+// that could block webhooks and user requests.
+//
+// Migration order: 001_jobs → 002_generations → 003_generations_payment
+//                  → 004_generation_tiers → 005_payment_id_unique
 let schemaReady: Promise<void> | null = null;
 function ensureSchema(): Promise<void> {
   if (schemaReady) return schemaReady;
   const sql = getSql();
-  schemaReady = (async () => {
-    await sql`alter table generations add column if not exists tune_id text`;
-    await sql`alter table generations add column if not exists paid boolean not null default false`;
-    await sql`alter table generations add column if not exists payment_id text`;
-    await sql`alter table generations add column if not exists payment_url text`;
-    await sql`alter table generations add column if not exists tier text not null default 'pro'`;
-    await sql`alter table generations add column if not exists expected_count int not null default 18`;
-    await sql`alter table generations add column if not exists style_keys text[] not null default '{}'`;
-    await sql`alter table generations add column if not exists super_resolution boolean not null default false`;
-    await sql`alter table generations add column if not exists inference_steps int not null default 30`;
-    await sql`alter table generations add column if not exists training_steps int not null default 500`;
-  })().catch((error) => {
+  // Lightweight connection check — one row read is enough to confirm the DB
+  // is reachable and the migrations have been applied.
+  schemaReady = sql`select 1 from generations limit 0`.then(() => undefined).catch((error) => {
     schemaReady = null; // allow retry on next call
     throw error;
   });
@@ -136,6 +132,43 @@ export async function createGeneration(input: {
   const inferenceSteps = input.inferenceSteps ?? DEFAULT_INFERENCE_STEPS;
   const trainingSteps = input.trainingSteps ?? DEFAULT_TRAINING_STEPS;
 
+  if (!input.inputUrls.length || input.inputUrls.length > 20)
+    throw new Error(`inputUrls must have 1–20 entries, got ${input.inputUrls.length}`);
+  for (const url of input.inputUrls) {
+    if (typeof url !== "string" || url.length > 2048)
+      throw new Error("inputUrls contains an invalid or too-long entry");
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      throw new Error(`inputUrls contains a malformed URL: ${url.slice(0, 100)}`);
+    }
+    if (parsed.protocol !== "https:")
+      throw new Error(`inputUrls must use https, got ${parsed.protocol}`);
+    // Restrict to Vercel Blob storage to prevent Astria from being used as an
+    // SSRF proxy to reach private networks or incur unexpected egress costs.
+    if (!parsed.hostname.endsWith(".blob.vercel-storage.com"))
+      throw new Error(`inputUrls must be from Vercel Blob storage, got ${parsed.hostname}`);
+  }
+  if (!Number.isInteger(expectedCount) || expectedCount <= 0 || expectedCount > 100)
+    throw new Error(`expectedCount must be 1–100, got ${expectedCount}`);
+  if (!Number.isInteger(inferenceSteps) || inferenceSteps <= 0 || inferenceSteps > 150)
+    throw new Error(`inferenceSteps must be 1–150, got ${inferenceSteps}`);
+  if (!Number.isInteger(trainingSteps) || trainingSteps <= 0 || trainingSteps > 2000)
+    throw new Error(`trainingSteps must be 1–2000, got ${trainingSteps}`);
+  if (styleKeys.length > 200)
+    throw new Error(`styleKeys raw array too large (${styleKeys.length}), max 200`);
+  const uniqueStyleKeys = Array.from(new Set(styleKeys));
+  if (!uniqueStyleKeys.length || uniqueStyleKeys.length > 20)
+    throw new Error(`styleKeys must have 1–20 unique entries, got ${uniqueStyleKeys.length}`);
+  const unknownStyles = uniqueStyleKeys.filter((k) => !VALID_STYLE_KEYS.has(k));
+  if (unknownStyles.length)
+    throw new Error(`styleKeys contains unknown styles: [${unknownStyles.join(",")}]`);
+  if (expectedCount < uniqueStyleKeys.length)
+    throw new Error(
+      `expectedCount (${expectedCount}) must be >= number of unique styles (${uniqueStyleKeys.length})`
+    );
+
   const rows = await sql`
     insert into generations (
       email, status, input_urls, output_urls, payment_id,
@@ -149,7 +182,7 @@ export async function createGeneration(input: {
       ${input.paymentId ?? null},
       ${tier},
       ${expectedCount},
-      ${textArray(styleKeys)}::text[],
+      ${textArray(uniqueStyleKeys)}::text[],
       ${superResolution},
       ${inferenceSteps},
       ${trainingSteps}
@@ -164,31 +197,81 @@ export async function attachPaymentInfo(input: {
   paymentId: string;
   paymentUrl: string;
 }): Promise<void> {
+  await ensureSchema();
   const sql = getSql();
-  await sql`
+  const rows = await sql`
     update generations
     set payment_id = ${input.paymentId},
         payment_url = ${input.paymentUrl},
         updated_at = now()
     where id = ${input.id}
+      and (payment_id is null or payment_id = ${input.paymentId})
+    returning id
   `;
+  if (!rows[0])
+    throw new Error(`attachPaymentInfo: generation ${input.id} not found or payment_id conflict`);
 }
 
-/** Mark a generation as paid. Returns the row, or null if not found. */
-export async function markGenerationPaid(id: string): Promise<GenerationRow | null> {
+/**
+ * Persist the LavaTop contractId so webhook retries can match by payment_id.
+ * Returns true when the row was updated, false when:
+ *   - the generation was not found, OR
+ *   - payment_id is already set to a DIFFERENT value (conflict — skip, don't retry).
+ * Never overwrites an existing, differing payment_id.
+ */
+export async function setGenerationPaymentId(id: string, paymentId: string): Promise<boolean> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     update generations
+    set payment_id = ${paymentId}, updated_at = now()
+    where id = ${id}
+      and (payment_id is null or payment_id = ${paymentId})
+    returning id
+  `;
+  return !!rows[0];
+}
+
+/**
+ * Mark a generation as paid, verified against the expected payment_id to
+ * prevent one payment event from activating an unrelated generation row.
+ *
+ * Idempotent: if the row is already paid with the SAME payment_id (e.g. a
+ * webhook retry after a transient Astria error), returns the existing row so
+ * the caller can re-attempt startAstriaGeneration without losing the order.
+ *
+ * Returns null if not found or payment_id mismatches (wrong generation).
+ */
+export async function markGenerationPaid(
+  id: string,
+  paymentId: string
+): Promise<GenerationRow | null> {
+  await ensureSchema();
+  const sql = getSql();
+  const updated = await sql`
+    update generations
     set paid = true, updated_at = now()
     where id = ${id}
+      and payment_id = ${paymentId}
+      and paid = false
     returning *
   `;
-  return rows[0] ? mapGeneration(rows[0]) : null;
+  if (updated[0]) return mapGeneration(updated[0]);
+  // Row was already paid with the same payment_id — idempotent retry path.
+  const existing = await sql`
+    select * from generations
+    where id = ${id}
+      and payment_id = ${paymentId}
+      and paid = true
+    limit 1
+  `;
+  return existing[0] ? mapGeneration(existing[0]) : null;
 }
 
 export async function getGenerationByPaymentId(
   paymentId: string
 ): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -208,6 +291,7 @@ export async function getGenerationByPaymentId(
 export async function findPendingUnpaidGeneration(
   email: string
 ): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -226,25 +310,83 @@ export async function updateGenerationStatus(input: {
   id: string;
   status: GenerationStatus;
   outputUrls?: string[];
-  tuneId?: string | null;
+  /** Set only to store a new tuneId — coalesce keeps existing value; cannot clear. */
+  tuneId?: string;
   errorMessage?: string | null;
 }): Promise<GenerationRow> {
+  await ensureSchema();
   const sql = getSql();
+  // For done rows: status, output_urls, and error_message are immutable.
+  // tune_id is allowed to be filled in even for done rows (late webhook completing
+  // the tuneId after the Astria callback already set status=done).
   const rows = await sql`
     update generations
     set
-      status = ${input.status},
-      output_urls = coalesce(${input.outputUrls ? textArray(input.outputUrls) : null}::text[], output_urls),
-      tune_id = coalesce(${input.tuneId ?? null}, tune_id),
-      error_message = ${input.errorMessage ?? null},
-      updated_at = now()
+      status      = case when status = 'done' then 'done' else ${input.status} end,
+      output_urls = case when status = 'done' then output_urls
+                         else coalesce(${input.outputUrls !== undefined ? textArray(input.outputUrls) : null}::text[], output_urls)
+                    end,
+      tune_id     = coalesce(${input.tuneId ?? null}, tune_id),
+      error_message = case when status = 'done' then error_message else ${input.errorMessage ?? null} end,
+      updated_at  = now()
     where id = ${input.id}
     returning *
   `;
-  return mapGeneration(rows[0]);
+  if (rows[0]) return mapGeneration(rows[0]);
+  throw new Error(`Generation ${input.id} not found`);
+}
+
+/**
+ * Atomically union new output URLs into the row and flip to 'done' when the
+ * count reaches expected_count.
+ *
+ * The merge is expressed as inline subqueries inside the UPDATE SET clause.
+ * PostgreSQL acquires a row-level lock before evaluating any SET expression,
+ * so concurrent callbacks see the committed state after the prior update
+ * rather than a stale CTE snapshot — this eliminates the lost-update race.
+ *
+ * Allows failed→done recovery: late callbacks still deliver images even if
+ * an earlier error set status=failed (e.g. after a tune-creation timeout).
+ *
+ * Returns null if the row was already done (no-op) or not found.
+ */
+export async function appendGenerationOutputs(
+  id: string,
+  incoming: string[]
+): Promise<{ row: GenerationRow; becameDone: boolean } | null> {
+  await ensureSchema();
+  const sql = getSql();
+  const incomingArr = textArray(incoming);
+  const rows = await sql`
+    update generations
+    set
+      output_urls = (
+        select coalesce(array_agg(distinct u), '{}')
+        from unnest(output_urls || ${incomingArr}::text[]) as u
+      ),
+      status = case
+                 when (
+                   select cardinality(coalesce(array_agg(distinct u), '{}')::text[])
+                   from unnest(output_urls || ${incomingArr}::text[]) as u
+                 ) >= expected_count
+                 then 'done'
+                 else status
+               end,
+      updated_at = now()
+    where id = ${id}
+      and status <> 'done'
+    returning *
+  `;
+  if (!rows[0]) return null;
+  const row = mapGeneration(rows[0]);
+  // If the returned row is 'done', THIS call caused the transition —
+  // the WHERE status <> 'done' guard ensures it was not done before.
+  const becameDone = row.status === "done";
+  return { row, becameDone };
 }
 
 export async function getGeneration(id: string): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -256,6 +398,7 @@ export async function getGeneration(id: string): Promise<GenerationRow | null> {
 }
 
 export async function findRateLimitedGeneration(email: string): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -277,6 +420,9 @@ export async function countRecentUnpaidGenerations(
   email: string,
   withinMinutes: number
 ): Promise<number> {
+  if (!Number.isInteger(withinMinutes) || withinMinutes <= 0 || withinMinutes > 1440)
+    throw new Error(`withinMinutes must be 1–1440, got ${withinMinutes}`);
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select count(*)::int as n
@@ -290,8 +436,19 @@ export async function countRecentUnpaidGenerations(
 
 /**
  * Atomically claim a generation for processing. Returns the row only if THIS
- * call won the claim (row was pending/failed with no tune yet). Concurrent
- * webhook deliveries get null and must not start a second Astria tune.
+ * call won the claim. Conditions:
+ * - paid=true (never start Astria for unpaid orders)
+ * - tune_id is null (tune not yet created)
+ * - status in ('pending', 'failed') — only safe retry states
+ * - Not marked ASTRIA_STATUS_UNKNOWN: blocks retry when Astria status is
+ *   ambiguous (timeout/5xx) to prevent duplicate billing. Admin must verify
+ *   via fetchTuneOutputUrls before clearing the UNKNOWN marker.
+ *
+ * Note: a process crash between claim and tuneId save leaves the row in
+ * status='processing' with tune_id=null. That row is NOT re-claimable here
+ * to avoid a potential second Astria billing. Admin recovery: if Astria
+ * created the tune, fetch the tuneId via fetchTuneOutputUrls and update
+ * directly; otherwise reset status to 'pending'.
  */
 export async function claimGenerationForProcessing(
   id: string
@@ -302,62 +459,25 @@ export async function claimGenerationForProcessing(
     update generations
     set status = 'processing', updated_at = now()
     where id = ${id}
+      and paid = true
       and tune_id is null
-      and status in ('pending', 'failed')
+      and (
+        -- Normal retry: pending or failed (not UNKNOWN-blocked).
+        (
+          status in ('pending', 'failed')
+          and (error_message is null or error_message not like 'ASTRIA_STATUS_UNKNOWN:%')
+        )
+        -- Stale-processing recovery: claimed but tuneId never saved and
+        -- Astria did not callback within 15 minutes → assume no tune was
+        -- created and allow retry. 15 min > typical Astria training time;
+        -- if the tune was created, the callback will arrive and set tune_id.
+        or (
+          status = 'processing'
+          and updated_at < now() - interval '15 minutes'
+        )
+      )
     returning *
   `;
   return rows[0] ? mapGeneration(rows[0]) : null;
 }
 
-/** Persist the LavaTop contractId so webhook retries can match by payment_id. */
-export async function setGenerationPaymentId(id: string, paymentId: string): Promise<void> {
-  await ensureSchema();
-  const sql = getSql();
-  await sql`
-    update generations set payment_id = ${paymentId}, updated_at = now() where id = ${id}
-  `;
-}
-
-/**
- * Atomically union new output URLs into the row and flip to 'done' when the
- * count reaches expected_count. Avoids the read-modify-write lost-update race
- * across concurrent Astria callbacks. Returns the updated row plus whether THIS
- * call caused the processing→done transition (so the ready email is sent once).
- * Returns null if the row was already 'done' (no-op) or missing.
- */
-export async function appendGenerationOutputs(
-  id: string,
-  incoming: string[]
-): Promise<{ row: GenerationRow; becameDone: boolean } | null> {
-  await ensureSchema();
-  const sql = getSql();
-  const rows = await sql`
-    with merged as (
-      select
-        g.id,
-        g.status as old_status,
-        g.expected_count,
-        (
-          select coalesce(array_agg(distinct u), '{}')
-          from unnest(g.output_urls || ${textArray(incoming)}::text[]) as u
-        ) as new_urls
-      from generations g
-      where g.id = ${id}
-    )
-    update generations g
-    set output_urls = m.new_urls,
-        status = case
-                   when cardinality(m.new_urls) >= m.expected_count and g.status <> 'failed'
-                   then 'done'
-                   else g.status
-                 end,
-        updated_at = now()
-    from merged m
-    where g.id = m.id and g.status <> 'done'
-    returning g.*, m.old_status
-  `;
-  if (!rows[0]) return null;
-  const row = mapGeneration(rows[0]);
-  const becameDone = row.status === "done" && rows[0].old_status !== "done";
-  return { row, becameDone };
-}

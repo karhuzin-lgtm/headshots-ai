@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { PaymentSuccessData } from "lava-top-sdk";
 
 import {
-  findPendingUnpaidGeneration,
   getGenerationByPaymentId,
   markGenerationPaid,
   setGenerationPaymentId,
@@ -17,48 +16,71 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
   const contractId = data.contractId;
   const email = data.buyer?.email?.trim().toLowerCase() ?? "";
 
-  // Match the paid contract back to the pending generation: by stored invoice
-  // id first, then fall back to the buyer's most recent unpaid upload.
-  let generation =
-    (contractId ? await getGenerationByPaymentId(contractId) : null) ??
-    (email ? await findPendingUnpaidGeneration(email) : null);
+  // LavaTop always includes contractId in payment.success — reject if missing
+  // rather than falling back to email-based matching (which is ambiguous and
+  // allows a payment for any product to activate any pending generation).
+  if (!contractId) {
+    console.error("LavaTop webhook: missing contractId", { email });
+    return;
+  }
+
+  let generation = await getGenerationByPaymentId(contractId);
 
   if (!generation) {
-    console.error("LavaTop webhook: no matching generation", { contractId, email });
-    return;
+    // Return 5xx so LavaTop retries — handles the narrow race where the webhook
+    // arrives before attachPaymentInfo persists the contractId (e.g. a cold-start
+    // DB write delay). If the generation truly doesn't exist, retries will also
+    // eventually stop (LavaTop exhausts its retry schedule).
+    console.error("LavaTop webhook: no matching generation for contractId", { contractId, email });
+    throw new Error(`No generation found for contractId ${contractId}`);
   }
 
-  // Skip only if generation already started/finished. A `failed` row WITHOUT a
-  // tune_id (transient Astria error) is intentionally NOT skipped, so a webhook
-  // retry can recover it. startAstriaGeneration is idempotent (atomic claim).
-  const alreadyStarted =
-    !!generation.tune_id ||
-    generation.status === "processing" ||
-    generation.status === "done";
-  if (alreadyStarted) {
+  // Skip only if the tune is known-created (tune_id set) or the order is done.
+  // processing+tune_id = Astria is running, safe to skip.
+  // processing+no tune_id = stuck (crash between claim and tuneId save) — alert
+  //   and skip rather than retry, to avoid an infinite 5xx↔retry loop.
+  // failed+no tune_id = safe to retry via startAstriaGeneration (atomic claim).
+  if (generation.status === "done" || !!generation.tune_id) {
     return;
   }
-
   // Persist contractId so a retry matches by payment_id (the email fallback only
   // works while paid=false, which markGenerationPaid below flips).
+  // setGenerationPaymentId refuses to overwrite a different existing payment_id
+  // (returns false) — treat that as a conflict and skip this webhook event.
   if (contractId && generation.payment_id !== contractId) {
-    try {
-      await setGenerationPaymentId(generation.id, contractId);
-    } catch (error) {
-      console.error("Could not persist contractId:", error);
+    const saved = await setGenerationPaymentId(generation.id, contractId);
+    if (!saved) {
+      console.error("LavaTop webhook: payment_id conflict or generation not found", {
+        generationId: generation.id,
+        contractId,
+      });
+      return;
     }
+    generation = { ...generation, payment_id: contractId };
   }
 
-  const paid = await markGenerationPaid(generation.id);
-  if (paid) generation = paid;
+  // Verify payment_id atomically to prevent one event from activating the
+  // wrong generation row. generation.payment_id is set above if contractId arrived.
+  const effectivePaymentId = generation.payment_id ?? contractId;
+  if (!effectivePaymentId) {
+    console.error("LavaTop webhook: no payment_id to verify against", { generationId: generation.id });
+    return;
+  }
+  const paid = await markGenerationPaid(generation.id, effectivePaymentId);
+  if (!paid) {
+    // Already paid, payment_id mismatch, or not found — skip.
+    return;
+  }
+  generation = paid;
 
   // Throws on Astria failure → caught by POST → 5xx → LavaTop retries.
   await startAstriaGeneration(generation);
 }
 
 export async function POST(request: Request) {
+  // Authenticate before reading the body so unauthenticated callers cannot
+  // consume serverless memory/time with large payloads.
   const signature = request.headers.get("x-api-key") ?? "";
-  const body = await request.text();
 
   let secret: string;
   try {
@@ -72,6 +94,43 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
+  // Stream-read the body with a hard byte-level cap (64 KB) so an attacker
+  // with a valid webhook secret cannot exhaust serverless memory. Content-Length
+  // is checked as a fast-reject, but we count actual bytes from the stream to
+  // handle absent, truncated, or spoofed Content-Length headers.
+  const MAX_BODY_BYTES = 65_536;
+  const contentLength = parseInt(request.headers.get("content-length") ?? "0", 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
+  let body: string;
+  {
+    const reader = request.body?.getReader();
+    if (!reader) {
+      return NextResponse.json({ error: "No body" }, { status: 400 });
+    }
+    const chunks: Uint8Array[] = [];
+    let totalBytes = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_BODY_BYTES) {
+        return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+      }
+      chunks.push(value);
+    }
+    body = new TextDecoder().decode(
+      chunks.reduce((acc, c) => {
+        const merged = new Uint8Array(acc.byteLength + c.byteLength);
+        merged.set(acc, 0);
+        merged.set(c, acc.byteLength);
+        return merged;
+      }, new Uint8Array(0))
+    );
+  }
+
   // NOTE: we dispatch manually rather than via the SDK's WebhookHandler, because
   // that handler swallows exceptions from onPaymentSuccess (logs + returns), so a
   // failed generation would still 200 and LavaTop would NOT retry. Here a throw
@@ -83,9 +142,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
+  // Reject payloads with no eventType — they're structurally invalid.
+  // Unknown but well-formed eventTypes are acknowledged with 200 (LavaTop may
+  // add new events in future; rejecting them would trigger pointless retries).
+  if (typeof data?.eventType !== "string") {
+    return NextResponse.json({ error: "Missing or invalid eventType" }, { status: 400 });
+  }
+
   try {
-    if (data?.eventType === "payment.success") {
+    if (data.eventType === "payment.success") {
       await handlePaymentSuccess(data);
+    } else {
+      console.log("LavaTop webhook: unhandled eventType (ignored)", { eventType: data.eventType });
     }
     return NextResponse.json({ success: true });
   } catch (error) {
