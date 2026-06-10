@@ -2,6 +2,7 @@ import { AstriaApiError, AstriaValidationError, createAstrinaTune } from "@/lib/
 import { buildAstriaCallbackUrl } from "@/lib/generation-complete";
 import {
   claimGenerationForProcessing,
+  getGeneration,
   updateGenerationStatus,
   type GenerationRow,
 } from "@/lib/generations-db";
@@ -54,7 +55,21 @@ export async function startAstriaGeneration(
 
   const claimed = await claimGenerationForProcessing(generation.id);
   if (!claimed) {
-    return;
+    // Claim failed — verify why to avoid silently swallowing stuck orders.
+    const current = await getGeneration(generation.id);
+    if (
+      current?.status === "done" ||
+      (current?.status === "processing" && current.tune_id)
+    ) {
+      return; // legitimately complete or Astria is already running
+    }
+    // Blocked: ASTRIA_STATUS_UNKNOWN, unpaid, or stale processing without
+    // tune_id — throw so the webhook returns 5xx and LavaTop retries.
+    throw new Error(
+      `Cannot claim generation ${generation.id} for processing: ` +
+        `status=${current?.status ?? "missing"} tune_id=${current?.tune_id ?? "null"} ` +
+        `error=${current?.error_message?.slice(0, 80) ?? "none"}`
+    );
   }
 
   // Phase 1: call Astria ---------------------------------------------------
@@ -65,11 +80,14 @@ export async function startAstriaGeneration(
   } catch (createError) {
     const message = safeErrorMessage(createError);
     const ambiguous = isAmbiguousError(createError);
+    // Do not swallow the status-persist error — if it fails, throw so the
+    // webhook returns 5xx and LavaTop retries rather than silently succeeding
+    // on a generation that is stuck in processing.
     await updateGenerationStatus({
       id: claimed.id,
       status: "failed",
       errorMessage: ambiguous ? `ASTRIA_STATUS_UNKNOWN: ${message}` : message,
-    }).catch((e) => console.error("persist createError status failed:", e));
+    });
 
     if (isFirstAttempt && !ambiguous) {
       await sendGenerationFailed(claimed.email, `/try/result/${claimed.id}`).catch((e) =>
