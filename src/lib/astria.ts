@@ -33,10 +33,62 @@ export class AstriaValidationError extends Error {
   }
 }
 
-// 4xx codes where Astria has confirmed the POST was rejected before any tune was
-// created — safe for auto-retry. 429 excluded: rate-limit can fire after server
-// starts processing, so tune status is ambiguous for POST.
+// 4xx codes treated as pre-processing rejections for POST — isRetriable=true.
+// Risk accepted by design: a well-formed API returns these before creating
+// resources. If Astria ever contradicts this, the tune will be orphaned.
+// 429 excluded: may fire after server starts processing (ambiguous for POST).
 const ASTRIA_SAFE_REJECTION_CODES = new Set([400, 401, 403, 422]);
+
+const ALLOWED_INPUT_URL_HOSTNAME = ".blob.vercel-storage.com";
+
+function isPrivateHost(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "0.0.0.0" ||
+    hostname === "::1" ||
+    /^10\./.test(hostname) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+    /^192\.168\./.test(hostname) ||
+    hostname.endsWith(".internal") ||
+    hostname.endsWith(".local")
+  );
+}
+
+function validateInputUrl(url: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new AstriaValidationError(`input_urls contains an invalid URL: ${url}`);
+  }
+  if (parsed.protocol !== "https:") {
+    throw new AstriaValidationError(`input_urls must use https, got: ${url}`);
+  }
+  if (!parsed.hostname.endsWith(ALLOWED_INPUT_URL_HOSTNAME)) {
+    throw new AstriaValidationError(
+      `input_urls hostname not allowed (must be *.blob.vercel-storage.com): ${parsed.hostname}`
+    );
+  }
+}
+
+function validateCallbackUrl(url: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new AstriaValidationError(`callbackUrl is not a valid URL: ${url}`);
+  }
+  if (parsed.protocol !== "https:") {
+    throw new AstriaValidationError(`callbackUrl must use https: ${url}`);
+  }
+  if (isPrivateHost(parsed.hostname)) {
+    throw new AstriaValidationError(`callbackUrl hostname is private/internal: ${parsed.hostname}`);
+  }
+  if (parsed.port && parsed.port !== "443") {
+    throw new AstriaValidationError(`callbackUrl must use standard HTTPS port: ${url}`);
+  }
+}
 
 const HEADSHOT_CROP_SUFFIX =
   ", tight headshot crop, face and shoulders only, no torso, no waist, close-up portrait framing";
@@ -149,12 +201,7 @@ export async function createAstrinaTune(
     throw new AstriaValidationError("input_urls must be a non-empty array");
   }
   for (const url of generation.input_urls) {
-    try {
-      const parsed = new URL(url);
-      if (parsed.protocol !== "https:") throw new Error("not https");
-    } catch {
-      throw new AstriaValidationError(`input_urls contains an invalid HTTPS URL: ${url}`);
-    }
+    validateInputUrl(url);
   }
   const ts = generation.training_steps;
   if (ts !== null && ts !== undefined && (!Number.isSafeInteger(ts) || ts <= 0 || ts > 3000)) {
@@ -172,12 +219,7 @@ export async function createAstrinaTune(
   }
   const imagesPerStyle = count / styleKeys.length;
 
-  try {
-    const parsed = new URL(callbackUrl);
-    if (parsed.protocol !== "https:") throw new Error("not https");
-  } catch {
-    throw new AstriaValidationError(`callbackUrl must be a valid HTTPS URL: ${callbackUrl}`);
-  }
+  validateCallbackUrl(callbackUrl);
   if (typeof generation.super_resolution !== "boolean") {
     throw new AstriaValidationError(
       `super_resolution must be a boolean, got: ${typeof generation.super_resolution}`
@@ -232,7 +274,8 @@ export async function createAstrinaTune(
   }
   const data = await parseAstriaResponse(res);
 
-  if (!data?.id) {
+  const rawId = data?.id;
+  if (typeof rawId !== "string" && typeof rawId !== "number") {
     // POST succeeded but no id returned — tune may have been created; block retry.
     throw new AstriaApiError(
       "ASTRIA_STATUS_UNKNOWN: Astria tune creation returned no tune id",
@@ -240,8 +283,16 @@ export async function createAstrinaTune(
       false
     );
   }
+  const tuneId = String(rawId);
+  if (!/^\d+$/.test(tuneId)) {
+    throw new AstriaApiError(
+      `ASTRIA_STATUS_UNKNOWN: Astria tune id has unexpected format: ${tuneId}`,
+      res.status,
+      false
+    );
+  }
 
-  return String(data.id);
+  return tuneId;
 }
 
 export async function fetchTuneOutputUrls(tuneId: string): Promise<string[]> {
