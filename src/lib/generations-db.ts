@@ -137,7 +137,19 @@ export async function createGeneration(input: {
   const inferenceSteps = input.inferenceSteps ?? DEFAULT_INFERENCE_STEPS;
   const trainingSteps = input.trainingSteps ?? DEFAULT_TRAINING_STEPS;
 
-  if (!input.inputUrls.length) throw new Error("inputUrls must not be empty");
+  if (!input.inputUrls.length || input.inputUrls.length > 20)
+    throw new Error(`inputUrls must have 1–20 entries, got ${input.inputUrls.length}`);
+  for (const url of input.inputUrls) {
+    if (typeof url !== "string" || url.length > 2048)
+      throw new Error("inputUrls contains an invalid or too-long entry");
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "https:")
+        throw new Error(`inputUrls must use https, got ${parsed.protocol}`);
+    } catch {
+      throw new Error(`inputUrls contains a malformed URL: ${url.slice(0, 100)}`);
+    }
+  }
   if (!Number.isInteger(expectedCount) || expectedCount <= 0 || expectedCount > 100)
     throw new Error(`expectedCount must be 1–100, got ${expectedCount}`);
   if (!Number.isInteger(inferenceSteps) || inferenceSteps <= 0 || inferenceSteps > 150)
@@ -187,13 +199,15 @@ export async function attachPaymentInfo(input: {
 }): Promise<void> {
   await ensureSchema();
   const sql = getSql();
-  await sql`
+  const rows = await sql`
     update generations
     set payment_id = ${input.paymentId},
         payment_url = ${input.paymentUrl},
         updated_at = now()
     where id = ${input.id}
+    returning id
   `;
+  if (!rows[0]) throw new Error(`attachPaymentInfo: generation ${input.id} not found`);
 }
 
 /** Mark a generation as paid. Returns the row, or null if not found. */
@@ -361,9 +375,12 @@ export async function claimGenerationForProcessing(
 export async function setGenerationPaymentId(id: string, paymentId: string): Promise<void> {
   await ensureSchema();
   const sql = getSql();
-  await sql`
-    update generations set payment_id = ${paymentId}, updated_at = now() where id = ${id}
+  const rows = await sql`
+    update generations set payment_id = ${paymentId}, updated_at = now()
+    where id = ${id}
+    returning id
   `;
+  if (!rows[0]) throw new Error(`setGenerationPaymentId: generation ${id} not found`);
 }
 
 /**

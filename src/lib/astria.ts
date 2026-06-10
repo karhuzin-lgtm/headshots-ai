@@ -98,9 +98,9 @@ function getAstriaApiKey(): string {
 }
 
 // Codes where Astria provably rejected the request before any tune was created.
-// 4xx codes NOT in this set (e.g. 408 Request Timeout) are ambiguous — Astria
-// may have processed the request and timed out sending the response.
-const ASTRIA_SAFE_REJECTION_CODES = new Set([400, 401, 403, 422]);
+// 429 (rate limit) is safe — Astria queues are not started until the request
+// is accepted. 408 and 5xx are ambiguous (Astria may have processed the tune).
+const ASTRIA_SAFE_REJECTION_CODES = new Set([400, 401, 403, 422, 429]);
 
 async function parseAstriaResponse(res: Response): Promise<any> {
   const data = await res.json().catch(() => null);
