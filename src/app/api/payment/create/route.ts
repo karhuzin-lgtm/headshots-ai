@@ -6,6 +6,7 @@ import {
   createGeneration,
   findRateLimitedGeneration,
   markGenerationPaid,
+  markGenerationPaidTestMode,
 } from "@/lib/generations-db";
 import { createPaymentInvoice, PENDING_GENERATION_COOKIE } from "@/lib/lavatop";
 import { startAstriaGeneration } from "@/lib/start-generation";
@@ -118,7 +119,7 @@ export async function POST(request: Request) {
 
     // TEST MODE: mark paid + start generation immediately, no LavaTop charge.
     if (isTest) {
-      const paid = await markGenerationPaid(generation.id);
+      const paid = await markGenerationPaidTestMode(generation.id);
       try {
         await startAstriaGeneration(paid ?? generation);
       } catch (error) {
@@ -140,16 +141,44 @@ export async function POST(request: Request) {
     }
 
     let paymentUrl: string;
+    let invoiceId: string;
     try {
       const invoice = await createPaymentInvoice({ email, tier });
       paymentUrl = invoice.paymentUrl;
-      await attachPaymentInfo({
-        id: generation.id,
-        paymentId: invoice.invoiceId,
-        paymentUrl,
-      });
+      invoiceId = invoice.invoiceId;
     } catch (error) {
       console.error("LavaTop createInvoice failed:", error);
+      return NextResponse.json(
+        { error: "Не удалось перейти к оплате. Попробуйте ещё раз." },
+        { status: 502 }
+      );
+    }
+
+    let attached = false;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await attachPaymentInfo({
+          id: generation.id,
+          paymentId: invoiceId,
+          paymentUrl,
+        });
+        attached = true;
+        break;
+      } catch (error) {
+        console.error(
+          `attachPaymentInfo failed (attempt ${attempt + 1}/3):`,
+          error
+        );
+        if (attempt < 2) {
+          await new Promise((resolve) => setTimeout(resolve, 100 * 2 ** attempt));
+        }
+      }
+    }
+
+    if (!attached) {
+      console.error(
+        `CRITICAL: invoice created but not attached. Manual reconciliation needed. invoiceId=${invoiceId} generationId=${generation.id}`
+      );
       return NextResponse.json(
         { error: "Не удалось перейти к оплате. Попробуйте ещё раз." },
         { status: 502 }
