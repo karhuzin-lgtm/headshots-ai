@@ -141,6 +141,20 @@ export async function createAstrinaTune(
       `expected_count must be a positive integer ≤ 200, got: ${count}`
     );
   }
+  if (!Array.isArray(generation.style_keys)) {
+    throw new AstriaValidationError("style_keys must be an array");
+  }
+  if (!Array.isArray(generation.input_urls) || generation.input_urls.length === 0) {
+    throw new AstriaValidationError("input_urls must be a non-empty array");
+  }
+  const ts = generation.training_steps;
+  if (ts !== null && ts !== undefined && (!Number.isSafeInteger(ts) || ts <= 0 || ts > 3000)) {
+    throw new AstriaValidationError(`training_steps must be a positive integer ≤ 3000, got: ${ts}`);
+  }
+  const is = generation.inference_steps;
+  if (is !== null && is !== undefined && (!Number.isSafeInteger(is) || is <= 0 || is > 150)) {
+    throw new AstriaValidationError(`inference_steps must be a positive integer ≤ 150, got: ${is}`);
+  }
   const styleKeys = resolveStyleKeys(generation.style_keys);
   if (count % styleKeys.length !== 0) {
     throw new AstriaValidationError(
@@ -213,16 +227,47 @@ export async function fetchTuneOutputUrls(tuneId: string): Promise<string[]> {
   if (!/^\d+$/.test(tuneId)) {
     throw new AstriaValidationError(`Invalid tuneId format: ${tuneId}`);
   }
-  const res = await fetch(`${BASE}/tunes/${encodeURIComponent(tuneId)}/prompts`, {
-    headers: {
-      Authorization: `Bearer ${getAstriaApiKey()}`,
-      Accept: "application/json",
-    },
-    signal: AbortSignal.timeout(30_000),
-  });
-  const data = await parseAstriaResponse(res);
-  const prompts = Array.isArray(data) ? data : [];
+  const apiKey = getAstriaApiKey();
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}/tunes/${encodeURIComponent(tuneId)}/prompts`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: "application/json",
+      },
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch (err) {
+    // GET is idempotent — network errors and timeouts are safe to retry.
+    throw new AstriaApiError(
+      `Network error fetching tune outputs: ${err instanceof Error ? err.message : String(err)}`,
+      0,
+      true
+    );
+  }
 
-  const urls = prompts.flatMap((prompt) => collectAstriaImageUrls(prompt));
+  const data = await (async () => {
+    const raw = await res.json().catch(() => null);
+    if (!res.ok) {
+      const details = raw ? `: ${JSON.stringify(raw)}` : "";
+      const message =
+        (typeof raw?.message === "string" ? raw.message : null) ??
+        (typeof raw?.error === "string" ? raw.error : null) ??
+        `Astria prompts request failed with status ${res.status}${details}`;
+      // GET: 5xx and 429 are retriable; 4xx are permanent.
+      throw new AstriaApiError(message, res.status, res.status === 429 || res.status >= 500);
+    }
+    return raw;
+  })();
+
+  if (!Array.isArray(data)) {
+    throw new AstriaApiError(
+      `Unexpected response format from Astria prompts endpoint (expected array, got ${typeof data})`,
+      res.status,
+      true
+    );
+  }
+
+  const urls = data.flatMap((prompt) => collectAstriaImageUrls(prompt));
   return Array.from(new Set(urls));
 }
