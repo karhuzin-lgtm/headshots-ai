@@ -278,7 +278,12 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       const res = await fetch("/api/payment/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalizedEmail, photoUrls, tier: postTier }),
+        body: JSON.stringify({
+          email: normalizedEmail,
+          photoUrls,
+          tier: postTier,
+          testKey: searchParams.get("test") ?? undefined,
+        }),
       });
       const text = await res.text();
       let json: { url?: string; id?: string; error?: string } = {};
@@ -297,7 +302,12 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       // away to it. Instead: open checkout in a new tab (this is inside the
       // submit gesture, so it isn't popup-blocked) and send THIS tab to our
       // waiting page, which polls for payment and shows generation right here.
-      window.open(json.url, "_blank", "noopener");
+      // Test mode returns an internal /try/result url → just navigate. Normal
+      // flow returns the LavaTop (http) url → open it in a new tab + go to the
+      // waiting page in this tab.
+      if (json.url.startsWith("http")) {
+        window.open(json.url, "_blank", "noopener");
+      }
       window.location.href = `/try/result/${json.id}`;
       return;
     } catch (e) {

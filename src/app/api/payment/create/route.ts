@@ -5,8 +5,10 @@ import {
   countRecentUnpaidGenerations,
   createGeneration,
   findRateLimitedGeneration,
+  markGenerationPaid,
 } from "@/lib/generations-db";
 import { createPaymentInvoice, PENDING_GENERATION_COOKIE } from "@/lib/lavatop";
+import { startAstriaGeneration } from "@/lib/start-generation";
 import { DEFAULT_TIER, getTier, purchasableTiers } from "@/lib/tiers";
 
 const MAX_URL_LENGTH = 2048;
@@ -35,7 +37,12 @@ export async function POST(request: Request) {
       email?: unknown;
       photoUrls?: unknown;
       tier?: unknown;
+      testKey?: unknown;
     };
+    // Owner test mode: skip LavaTop payment entirely (so test runs cost only
+    // Astria, not 400₽). Gated by a secret env — never works in prod without it.
+    const testKey = typeof body.testKey === "string" ? body.testKey : "";
+    const isTest = !!process.env.TEST_GENERATE_SECRET && testKey === process.env.TEST_GENERATE_SECRET;
     const email =
       typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
     const photoUrls = Array.isArray(body.photoUrls)
@@ -70,24 +77,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Некорректные ссылки на фото." }, { status: 400 });
     }
 
-    const existingGeneration = await findRateLimitedGeneration(email);
-    if (existingGeneration) {
-      return NextResponse.json(
-        {
-          error:
-            "У вас уже есть генерация в работе. Проверьте почту — результат придёт туда.",
-        },
-        { status: 429 }
-      );
-    }
+    // Rate-limits don't apply to owner test runs.
+    if (!isTest) {
+      const existingGeneration = await findRateLimitedGeneration(email);
+      if (existingGeneration) {
+        return NextResponse.json(
+          {
+            error:
+              "У вас уже есть генерация в работе. Проверьте почту — результат придёт туда.",
+          },
+          { status: 429 }
+        );
+      }
 
-    // Throttle create-spam (each call makes a LavaTop invoice + a DB row).
-    const recentUnpaid = await countRecentUnpaidGenerations(email, 15);
-    if (recentUnpaid >= 5) {
-      return NextResponse.json(
-        { error: "Слишком много попыток. Попробуйте через несколько минут." },
-        { status: 429 }
-      );
+      // Throttle create-spam (each call makes a LavaTop invoice + a DB row).
+      const recentUnpaid = await countRecentUnpaidGenerations(email, 15);
+      if (recentUnpaid >= 5) {
+        return NextResponse.json(
+          { error: "Слишком много попыток. Попробуйте через несколько минут." },
+          { status: 429 }
+        );
+      }
     }
 
     if (!tier) {
@@ -105,6 +115,29 @@ export async function POST(request: Request) {
       inferenceSteps: tier.inferenceSteps,
       trainingSteps: tier.trainingSteps,
     });
+
+    // TEST MODE: mark paid + start generation immediately, no LavaTop charge.
+    if (isTest) {
+      const paid = await markGenerationPaid(generation.id);
+      try {
+        await startAstriaGeneration(paid ?? generation);
+      } catch (error) {
+        console.error("test generation start failed:", error);
+      }
+      const response = NextResponse.json({
+        url: `/try/result/${generation.id}`,
+        id: generation.id,
+        test: true,
+      });
+      response.cookies.set(PENDING_GENERATION_COOKIE, generation.id, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 60 * 6,
+      });
+      return response;
+    }
 
     let paymentUrl: string;
     try {
