@@ -86,7 +86,7 @@ function resolveStyleKeys(keys: string[]): HeadshotStyle[] {
   if (unknown.length) {
     throw new Error(`resolveStyleKeys: unknown style keys [${unknown.join(",")}]`);
   }
-  const deduped = [...new Set(keys)] as HeadshotStyle[];
+  const deduped = Array.from(new Set(keys)) as HeadshotStyle[];
   if (!deduped.length) {
     throw new Error("resolveStyleKeys: style_keys is empty");
   }

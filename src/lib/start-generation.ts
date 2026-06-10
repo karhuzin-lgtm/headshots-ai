@@ -55,10 +55,15 @@ export async function startAstriaGeneration(
     }
   } catch (error) {
     const message = safeErrorMessage(error);
+    // On AbortSignal timeout the Astria request may have been processed before
+    // the connection dropped — the tune_id is unknown. Prefix the error so
+    // claimGenerationForProcessing blocks automatic retry until an admin
+    // verifies via fetchTuneOutputUrls, preventing duplicate Astria billing.
+    const isTimeout = error instanceof Error && error.name === "TimeoutError";
     await updateGenerationStatus({
       id: claimed.id,
       status: "failed",
-      errorMessage: message,
+      errorMessage: isTimeout ? `ASTRIA_STATUS_UNKNOWN: ${message}` : message,
     });
 
     if (isFirstAttempt) {

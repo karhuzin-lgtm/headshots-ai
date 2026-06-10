@@ -239,9 +239,14 @@ export async function updateGenerationStatus(input: {
       error_message = ${input.errorMessage ?? null},
       updated_at = now()
     where id = ${input.id}
+      and status <> 'done'
     returning *
   `;
-  return mapGeneration(rows[0]);
+  if (rows[0]) return mapGeneration(rows[0]);
+  // Row is already done — re-read without modification.
+  const current = await getGeneration(input.id);
+  if (!current) throw new Error(`Generation ${input.id} not found`);
+  return current;
 }
 
 export async function getGeneration(id: string): Promise<GenerationRow | null> {
@@ -290,8 +295,10 @@ export async function countRecentUnpaidGenerations(
 
 /**
  * Atomically claim a generation for processing. Returns the row only if THIS
- * call won the claim (row was pending/failed with no tune yet). Concurrent
- * webhook deliveries get null and must not start a second Astria tune.
+ * call won the claim (row was paid, pending/failed, and has no tune yet).
+ * Concurrent webhook deliveries get null and must not start a second Astria tune.
+ * Rows with ASTRIA_STATUS_UNKNOWN error are not claimable — they require manual
+ * admin verification to avoid duplicate Astria billing on timeout retries.
  */
 export async function claimGenerationForProcessing(
   id: string
@@ -302,8 +309,10 @@ export async function claimGenerationForProcessing(
     update generations
     set status = 'processing', updated_at = now()
     where id = ${id}
+      and paid = true
       and tune_id is null
       and status in ('pending', 'failed')
+      and (error_message is null or error_message not like 'ASTRIA_STATUS_UNKNOWN:%')
     returning *
   `;
   return rows[0] ? mapGeneration(rows[0]) : null;
@@ -320,9 +329,10 @@ export async function setGenerationPaymentId(id: string, paymentId: string): Pro
 
 /**
  * Atomically union new output URLs into the row and flip to 'done' when the
- * count reaches expected_count. Avoids the read-modify-write lost-update race
- * across concurrent Astria callbacks. Returns the updated row plus whether THIS
- * call caused the processing→done transition (so the ready email is sent once).
+ * count reaches expected_count. Merges directly in the UPDATE SET expression
+ * so concurrent Astria callbacks see the live row value rather than a CTE
+ * snapshot — eliminates the lost-update race. Returns the updated row plus
+ * whether THIS call caused the processing→done transition (ready email gate).
  * Returns null if the row was already 'done' (no-op) or missing.
  */
 export async function appendGenerationOutputs(
@@ -331,33 +341,32 @@ export async function appendGenerationOutputs(
 ): Promise<{ row: GenerationRow; becameDone: boolean } | null> {
   await ensureSchema();
   const sql = getSql();
+  const incomingArr = textArray(incoming);
   const rows = await sql`
-    with merged as (
-      select
-        g.id,
-        g.status as old_status,
-        g.expected_count,
-        (
-          select coalesce(array_agg(distinct u), '{}')
-          from unnest(g.output_urls || ${textArray(incoming)}::text[]) as u
-        ) as new_urls
-      from generations g
-      where g.id = ${id}
-    )
-    update generations g
-    set output_urls = m.new_urls,
-        status = case
-                   when cardinality(m.new_urls) >= m.expected_count and g.status <> 'failed'
-                   then 'done'
-                   else g.status
-                 end,
-        updated_at = now()
-    from merged m
-    where g.id = m.id and g.status <> 'done'
-    returning g.*, m.old_status
+    update generations
+    set
+      output_urls = (
+        select coalesce(array_agg(distinct u), '{}')
+        from unnest(output_urls || ${incomingArr}::text[]) as u
+      ),
+      status = case
+                 when (
+                   select cardinality(coalesce(array_agg(distinct u), '{}')::text[])
+                   from unnest(output_urls || ${incomingArr}::text[]) as u
+                 ) >= expected_count
+                 and status <> 'failed'
+                 then 'done'
+                 else status
+               end,
+      updated_at = now()
+    where id = ${id}
+      and status <> 'done'
+    returning *
   `;
   if (!rows[0]) return null;
   const row = mapGeneration(rows[0]);
-  const becameDone = row.status === "done" && rows[0].old_status !== "done";
+  // If this UPDATE returned a 'done' row, this call caused the transition
+  // (WHERE status <> 'done' ensures the row wasn't already done).
+  const becameDone = row.status === "done";
   return { row, becameDone };
 }
