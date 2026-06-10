@@ -461,8 +461,21 @@ export async function claimGenerationForProcessing(
     where id = ${id}
       and paid = true
       and tune_id is null
-      and status in ('pending', 'failed')
-      and (error_message is null or error_message not like 'ASTRIA_STATUS_UNKNOWN:%')
+      and (
+        -- Normal retry: pending or failed (not UNKNOWN-blocked).
+        (
+          status in ('pending', 'failed')
+          and (error_message is null or error_message not like 'ASTRIA_STATUS_UNKNOWN:%')
+        )
+        -- Stale-processing recovery: claimed but tuneId never saved and
+        -- Astria did not callback within 15 minutes → assume no tune was
+        -- created and allow retry. 15 min > typical Astria training time;
+        -- if the tune was created, the callback will arrive and set tune_id.
+        or (
+          status = 'processing'
+          and updated_at < now() - interval '15 minutes'
+        )
+      )
     returning *
   `;
   return rows[0] ? mapGeneration(rows[0]) : null;

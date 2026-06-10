@@ -45,13 +45,14 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
   }
   if (generation.status === "processing" && !generation.tune_id) {
     // Stuck: claim succeeded but tuneId was never persisted (process crashed).
-    // Cannot auto-recover without risking duplicate Astria billing.
-    // Admin must verify via Astria dashboard: if tune exists → set tune_id directly;
-    // if no tune was created → reset status to 'pending'.
-    console.error("LavaTop webhook: generation stuck in processing without tune_id", {
+    // Return 5xx so LavaTop retries. claimGenerationForProcessing will re-claim
+    // the row after a 15-minute stale-processing window, allowing a second attempt.
+    // If the Astria tune was already created, its callback will arrive independently
+    // and set tune_id via appendGenerationOutputs/updateGenerationStatus.
+    console.error("LavaTop webhook: generation stuck in processing without tune_id, retrying", {
       generationId: generation.id,
     });
-    return;
+    throw new Error(`Generation ${generation.id} stuck in processing — awaiting stale recovery`);
   }
 
   // Persist contractId so a retry matches by payment_id (the email fallback only
