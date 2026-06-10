@@ -152,15 +152,22 @@ export async function startAstriaGeneration(
     // return 2xx (LavaTop should NOT retry — the Astria callback will deliver
     // images once the row is reachable). Only throw if even the marker save fails.
     try {
-      await updateGenerationStatus({
+      const savedRow = await updateGenerationStatus({
         id: claimed.id,
         status: "failed",
         errorMessage: `ASTRIA_STATUS_UNKNOWN: tune ${tuneId} created but save failed: ${message}`,
       });
-      await sendOwnerAlert(claimed, `tuneId save failed (tune ${tuneId}): ${message}`).catch(
-        (e) => console.error("owner alert email failed:", e)
-      );
-      return; // UNKNOWN saved — stop retrying, admin will recover manually.
+      // If a concurrent Astria callback already completed the generation (status=done),
+      // the done-protection guard in updateGenerationStatus prevented the failed/UNKNOWN
+      // write. Either way, the order is in a safe state — return 2xx.
+      const unknownSaved = savedRow.error_message?.startsWith("ASTRIA_STATUS_UNKNOWN:");
+      await sendOwnerAlert(
+        claimed,
+        unknownSaved
+          ? `tuneId save failed (tune ${tuneId}): ${message}`
+          : `tuneId save failed but callback already completed generation (tune ${tuneId})`
+      ).catch((e) => console.error("owner alert email failed:", e));
+      return; // UNKNOWN saved (or already done) — stop retrying, admin will recover if needed.
     } catch (persistErr) {
       // Marker save also failed — throw so webhook returns 5xx and retries.
       await sendOwnerAlert(claimed, `CRITICAL: tuneId ${tuneId} and UNKNOWN marker both unsaved`).catch(

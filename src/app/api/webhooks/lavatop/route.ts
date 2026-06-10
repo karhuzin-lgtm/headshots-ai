@@ -145,9 +145,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
+  // Reject payloads with no eventType — they're structurally invalid.
+  // Unknown but well-formed eventTypes are acknowledged with 200 (LavaTop may
+  // add new events in future; rejecting them would trigger pointless retries).
+  if (typeof data?.eventType !== "string") {
+    return NextResponse.json({ error: "Missing or invalid eventType" }, { status: 400 });
+  }
+
   try {
-    if (data?.eventType === "payment.success") {
+    if (data.eventType === "payment.success") {
       await handlePaymentSuccess(data);
+    } else {
+      console.log("LavaTop webhook: unhandled eventType (ignored)", { eventType: data.eventType });
     }
     return NextResponse.json({ success: true });
   } catch (error) {

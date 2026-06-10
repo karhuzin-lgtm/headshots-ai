@@ -56,27 +56,20 @@ function getSql() {
   return neon(databaseUrl);
 }
 
-// Ensure the schema once per lambda instance (not per query). Idempotent and
-// additive — lets a fresh deploy work even before migration 004 is applied,
-// without the old per-query DDL cost. Mirrors supabase/migrations/004.
+// Schema guard: verifies the DB connection is live. All DDL (ALTER TABLE,
+// CREATE INDEX) lives exclusively in supabase/migrations/ and must be applied
+// before deploy — NOT at runtime. This avoids table-level locks on cold starts
+// that could block webhooks and user requests.
+//
+// Migration order: 001_jobs → 002_generations → 003_generations_payment
+//                  → 004_generation_tiers → 005_payment_id_unique
 let schemaReady: Promise<void> | null = null;
 function ensureSchema(): Promise<void> {
   if (schemaReady) return schemaReady;
   const sql = getSql();
-  schemaReady = (async () => {
-    await sql`alter table generations add column if not exists tune_id text`;
-    await sql`alter table generations add column if not exists paid boolean not null default false`;
-    await sql`alter table generations add column if not exists payment_id text`;
-    await sql`alter table generations add column if not exists payment_url text`;
-    await sql`alter table generations add column if not exists tier text not null default 'pro'`;
-    await sql`alter table generations add column if not exists expected_count int not null default 18`;
-    await sql`alter table generations add column if not exists style_keys text[] not null default '{}'`;
-    await sql`alter table generations add column if not exists super_resolution boolean not null default false`;
-    await sql`alter table generations add column if not exists inference_steps int not null default 30`;
-    await sql`alter table generations add column if not exists training_steps int not null default 500`;
-    // Prevent duplicate contractId → generation associations.
-    await sql`create unique index if not exists generations_payment_id_key on generations (payment_id) where payment_id is not null`;
-  })().catch((error) => {
+  // Lightweight connection check — one row read is enough to confirm the DB
+  // is reachable and the migrations have been applied.
+  schemaReady = sql`select 1 from generations limit 0`.then(() => undefined).catch((error) => {
     schemaReady = null; // allow retry on next call
     throw error;
   });
