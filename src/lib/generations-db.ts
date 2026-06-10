@@ -143,8 +143,13 @@ export async function createGeneration(input: {
     throw new Error(`inferenceSteps must be 1–150, got ${inferenceSteps}`);
   if (!Number.isInteger(trainingSteps) || trainingSteps <= 0 || trainingSteps > 2000)
     throw new Error(`trainingSteps must be 1–2000, got ${trainingSteps}`);
-  if (!styleKeys.length || styleKeys.length > 20)
-    throw new Error(`styleKeys must have 1–20 entries, got ${styleKeys.length}`);
+  const uniqueStyleKeys = Array.from(new Set(styleKeys));
+  if (!uniqueStyleKeys.length || uniqueStyleKeys.length > 20)
+    throw new Error(`styleKeys must have 1–20 unique entries, got ${uniqueStyleKeys.length}`);
+  if (expectedCount < uniqueStyleKeys.length)
+    throw new Error(
+      `expectedCount (${expectedCount}) must be >= number of unique styles (${uniqueStyleKeys.length})`
+    );
 
   const rows = await sql`
     insert into generations (
@@ -246,23 +251,21 @@ export async function updateGenerationStatus(input: {
 }): Promise<GenerationRow> {
   await ensureSchema();
   const sql = getSql();
+  // tune_id is saved regardless of status — if the Astria callback completes the
+  // row before startAstriaGeneration saves the tuneId, we still want to record it.
   const rows = await sql`
     update generations
     set
-      status = ${input.status},
-      output_urls = coalesce(${input.outputUrls ? textArray(input.outputUrls) : null}::text[], output_urls),
+      status = case when status = 'done' then 'done' else ${input.status} end,
+      output_urls = coalesce(${input.outputUrls !== undefined ? textArray(input.outputUrls) : null}::text[], output_urls),
       tune_id = coalesce(${input.tuneId ?? null}, tune_id),
-      error_message = ${input.errorMessage ?? null},
+      error_message = case when status = 'done' then error_message else ${input.errorMessage ?? null} end,
       updated_at = now()
     where id = ${input.id}
-      and status <> 'done'
     returning *
   `;
   if (rows[0]) return mapGeneration(rows[0]);
-  // Row is already done — re-read without modification so callers get the row.
-  const current = await getGeneration(input.id);
-  if (!current) throw new Error(`Generation ${input.id} not found`);
-  return current;
+  throw new Error(`Generation ${input.id} not found`);
 }
 
 export async function getGeneration(id: string): Promise<GenerationRow | null> {
