@@ -74,6 +74,8 @@ function ensureSchema(): Promise<void> {
     await sql`alter table generations add column if not exists super_resolution boolean not null default false`;
     await sql`alter table generations add column if not exists inference_steps int not null default 30`;
     await sql`alter table generations add column if not exists training_steps int not null default 500`;
+    // Prevent duplicate contractId → generation associations.
+    await sql`create unique index if not exists generations_payment_id_key on generations (payment_id) where payment_id is not null`;
   })().catch((error) => {
     schemaReady = null; // allow retry on next call
     throw error;
@@ -205,9 +207,11 @@ export async function attachPaymentInfo(input: {
         payment_url = ${input.paymentUrl},
         updated_at = now()
     where id = ${input.id}
+      and (payment_id is null or payment_id = ${input.paymentId})
     returning id
   `;
-  if (!rows[0]) throw new Error(`attachPaymentInfo: generation ${input.id} not found`);
+  if (!rows[0])
+    throw new Error(`attachPaymentInfo: generation ${input.id} not found or payment_id conflict`);
 }
 
 /**

@@ -27,8 +27,12 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
   let generation = await getGenerationByPaymentId(contractId);
 
   if (!generation) {
+    // Return 5xx so LavaTop retries — handles the narrow race where the webhook
+    // arrives before attachPaymentInfo persists the contractId (e.g. a cold-start
+    // DB write delay). If the generation truly doesn't exist, retries will also
+    // eventually stop (LavaTop exhausts its retry schedule).
     console.error("LavaTop webhook: no matching generation for contractId", { contractId, email });
-    return;
+    throw new Error(`No generation found for contractId ${contractId}`);
   }
 
   // Skip only if generation already started/finished. A `failed` row WITHOUT a
@@ -77,8 +81,9 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
 }
 
 export async function POST(request: Request) {
+  // Authenticate before reading the body so unauthenticated callers cannot
+  // consume serverless memory/time with large payloads.
   const signature = request.headers.get("x-api-key") ?? "";
-  const body = await request.text();
 
   let secret: string;
   try {
@@ -91,6 +96,8 @@ export async function POST(request: Request) {
   if (signature !== secret) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
+
+  const body = await request.text();
 
   // NOTE: we dispatch manually rather than via the SDK's WebhookHandler, because
   // that handler swallows exceptions from onPaymentSuccess (logs + returns), so a

@@ -104,10 +104,16 @@ export async function startAstriaGeneration(
       // fetchTuneOutputUrls and clear the marker before re-queuing.
       return;
     }
-    // Confirmed Astria rejection (4xx): throw so webhook returns 5xx and
-    // LavaTop retries with backoff. Handles transient errors (e.g. rate limit,
-    // expired key) without requiring manual intervention for every failure.
-    throw new Error(`Astria generation failed: ${message}`);
+    // Confirmed Astria rejection (tune never created). Only 429 (rate limit) is
+    // a transient error worth retrying via webhook backoff. 400/401/403/422 are
+    // permanent data or credential failures — retrying won't help, and would
+    // loop the paid order forever. Return 2xx; owner alert (above) prompts
+    // manual intervention.
+    const isRateLimit = createError instanceof AstriaApiError && createError.status === 429;
+    if (!isRateLimit) {
+      return;
+    }
+    throw new Error(`Astria generation failed (rate limit): ${message}`);
   }
 
   // Phase 2: persist tuneId ------------------------------------------------
@@ -134,15 +140,27 @@ export async function startAstriaGeneration(
   }
   if (saveError !== null) {
     const message = safeErrorMessage(saveError);
-    await updateGenerationStatus({
-      id: claimed.id,
-      status: "failed",
-      errorMessage: `ASTRIA_STATUS_UNKNOWN: tune ${tuneId} created but save failed: ${message}`,
-    }).catch((e) => console.error("persist saveError status failed:", e));
-    await sendOwnerAlert(claimed, `tuneId save failed (tune ${tuneId}): ${message}`).catch(
-      (e) => console.error("owner alert email failed:", e)
-    );
-    throw saveError;
+    // tuneId is created in Astria — mark UNKNOWN to block auto-retry and
+    // prevent duplicate billing. If the UNKNOWN marker is saved successfully,
+    // return 2xx (LavaTop should NOT retry — the Astria callback will deliver
+    // images once the row is reachable). Only throw if even the marker save fails.
+    try {
+      await updateGenerationStatus({
+        id: claimed.id,
+        status: "failed",
+        errorMessage: `ASTRIA_STATUS_UNKNOWN: tune ${tuneId} created but save failed: ${message}`,
+      });
+      await sendOwnerAlert(claimed, `tuneId save failed (tune ${tuneId}): ${message}`).catch(
+        (e) => console.error("owner alert email failed:", e)
+      );
+      return; // UNKNOWN saved — stop retrying, admin will recover manually.
+    } catch (persistErr) {
+      // Marker save also failed — throw so webhook returns 5xx and retries.
+      await sendOwnerAlert(claimed, `CRITICAL: tuneId ${tuneId} and UNKNOWN marker both unsaved`).catch(
+        (e) => console.error("owner alert email failed:", e)
+      );
+      throw saveError;
+    }
   }
 
   // Phase 3: notify buyer --------------------------------------------------
