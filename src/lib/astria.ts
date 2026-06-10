@@ -70,6 +70,12 @@ function validateInputUrl(url: string): void {
       `input_urls hostname not allowed (must be *.blob.vercel-storage.com): ${parsed.hostname}`
     );
   }
+  if (parsed.username || parsed.password) {
+    throw new AstriaValidationError(`input_urls must not contain credentials`);
+  }
+  if (parsed.port !== "" && parsed.port !== "443") {
+    throw new AstriaValidationError(`input_urls must use standard HTTPS port`);
+  }
 }
 
 function validateCallbackUrl(url: string): void {
@@ -94,9 +100,14 @@ function validateCallbackUrl(url: string): void {
   } catch {
     throw new AstriaValidationError("NEXT_PUBLIC_APP_URL is not a valid URL");
   }
-  if (parsed.hostname !== trustedOrigin.hostname) {
+  if (
+    parsed.origin !== trustedOrigin.origin ||
+    parsed.username ||
+    parsed.password ||
+    !parsed.pathname.startsWith("/api/webhook/astria")
+  ) {
     throw new AstriaValidationError(
-      `callbackUrl hostname must be ${trustedOrigin.hostname}, got: ${parsed.hostname}`
+      `callbackUrl must be ${trustedOrigin.origin}/api/webhook/astria[...], got: ${url}`
     );
   }
 }
@@ -212,6 +223,9 @@ export async function createAstrinaTune(
     throw new AstriaValidationError("input_urls must be a non-empty array");
   }
   for (const url of generation.input_urls) {
+    if (typeof url !== "string") {
+      throw new AstriaValidationError(`input_urls must contain strings, got: ${typeof url}`);
+    }
     validateInputUrl(url);
   }
   const ts = generation.training_steps;
