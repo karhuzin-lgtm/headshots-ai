@@ -106,9 +106,10 @@ async function parseAstriaResponse(res: Response): Promise<any> {
   const data = await res.json().catch(() => null);
   if (!res.ok) {
     const details = data ? `: ${JSON.stringify(data)}` : "";
+    // Coerce to string — Astria may return objects/arrays in message/error fields.
     const message =
-      data?.message ??
-      data?.error ??
+      (typeof data?.message === "string" ? data.message : null) ??
+      (typeof data?.error === "string" ? data.error : null) ??
       `Astria API request failed with status ${res.status}${details}`;
     throw new AstriaApiError(
       message,

@@ -13,7 +13,7 @@ import { sendGenerationFailed, sendHeadshotsStarted, sendOwnerAlert } from "@/li
  * Covers "Bearer <token>", "api_key=<val>", and JSON fields "token"/"password".
  */
 function safeErrorMessage(error: unknown): string {
-  const raw = error instanceof Error ? error.message : "Неизвестная ошибка генерации";
+  const raw = error instanceof Error ? String(error.message) : "Неизвестная ошибка генерации";
   return raw
     .replace(/Bearer\s+\S+/gi, "Bearer [скрыто]")
     .replace(/api[_\-]?key[=:\s]+\S+/gi, "[скрыто]")
