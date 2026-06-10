@@ -350,6 +350,40 @@ export async function updateGenerationStatus(input: {
  *
  * Returns null if the row was already done (no-op) or not found.
  */
+export async function findRateLimitedGeneration(email: string): Promise<GenerationRow | null> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`
+    select *
+    from generations
+    where email = ${email}
+      and paid = true
+      and status in ('pending', 'processing')
+    order by created_at desc
+    limit 1
+  `;
+  return rows[0] ? mapGeneration(rows[0]) : null;
+}
+
+/** Count recent unpaid attempts for an email — lightweight create-spam throttle. */
+export async function countRecentUnpaidGenerations(
+  email: string,
+  withinMinutes: number
+): Promise<number> {
+  if (!Number.isInteger(withinMinutes) || withinMinutes <= 0 || withinMinutes > 1440)
+    throw new Error(`withinMinutes must be 1–1440, got ${withinMinutes}`);
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`
+    select count(*)::int as n
+    from generations
+    where email = ${email}
+      and paid = false
+      and created_at > now() - (${withinMinutes} * interval '1 minute')
+  `;
+  return intOr(rows[0]?.n, 0);
+}
+
 export async function appendGenerationOutputs(
   id: string,
   incoming: string[]
@@ -397,41 +431,17 @@ export async function getGeneration(id: string): Promise<GenerationRow | null> {
   return rows[0] ? mapGeneration(rows[0]) : null;
 }
 
-export async function findRateLimitedGeneration(email: string): Promise<GenerationRow | null> {
+export async function markGenerationPaidTestMode(id: string): Promise<GenerationRow | null> {
   await ensureSchema();
   const sql = getSql();
-  const rows = await sql`
-    select *
-    from generations
-    where email = ${email}
-      and paid = true
-      and (
-        status in ('pending', 'processing')
-        or (status = 'done' and created_at > now() - interval '24 hours')
-      )
-    order by created_at desc
-    limit 1
-  `;
-  return rows[0] ? mapGeneration(rows[0]) : null;
-}
-
-/** Count recent unpaid attempts for an email — lightweight create-spam throttle. */
-export async function countRecentUnpaidGenerations(
-  email: string,
-  withinMinutes: number
-): Promise<number> {
-  if (!Number.isInteger(withinMinutes) || withinMinutes <= 0 || withinMinutes > 1440)
-    throw new Error(`withinMinutes must be 1–1440, got ${withinMinutes}`);
-  await ensureSchema();
-  const sql = getSql();
-  const rows = await sql`
-    select count(*)::int as n
-    from generations
-    where email = ${email}
+  const updated = await sql`
+    update generations
+    set paid = true, updated_at = now()
+    where id = ${id}
       and paid = false
-      and created_at > now() - (${withinMinutes} * interval '1 minute')
+    returning *
   `;
-  return intOr(rows[0]?.n, 0);
+  return updated[0] ? mapGeneration(updated[0]) : null;
 }
 
 /**
