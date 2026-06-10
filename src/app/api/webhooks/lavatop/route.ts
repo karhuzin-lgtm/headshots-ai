@@ -97,15 +97,41 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  // Reject payloads above 64 KB — legitimate LavaTop webhooks are well under 1 KB.
+  // Stream-read the body with a hard byte-level cap (64 KB) so an attacker
+  // with a valid webhook secret cannot exhaust serverless memory. Content-Length
+  // is checked as a fast-reject, but we count actual bytes from the stream to
+  // handle absent, truncated, or spoofed Content-Length headers.
+  const MAX_BODY_BYTES = 65_536;
   const contentLength = parseInt(request.headers.get("content-length") ?? "0", 10);
-  if (contentLength > 65_536) {
+  if (contentLength > MAX_BODY_BYTES) {
     return NextResponse.json({ error: "Payload too large" }, { status: 413 });
   }
 
-  const body = await request.text();
-  if (body.length > 65_536) {
-    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  let body: string;
+  {
+    const reader = request.body?.getReader();
+    if (!reader) {
+      return NextResponse.json({ error: "No body" }, { status: 400 });
+    }
+    const chunks: Uint8Array[] = [];
+    let totalBytes = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_BODY_BYTES) {
+        return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+      }
+      chunks.push(value);
+    }
+    body = new TextDecoder().decode(
+      chunks.reduce((acc, c) => {
+        const merged = new Uint8Array(acc.byteLength + c.byteLength);
+        merged.set(acc, 0);
+        merged.set(c, acc.byteLength);
+        return merged;
+      }, new Uint8Array(0))
+    );
   }
 
   // NOTE: we dispatch manually rather than via the SDK's WebhookHandler, because
