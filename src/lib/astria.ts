@@ -33,9 +33,10 @@ export class AstriaValidationError extends Error {
   }
 }
 
-// 4xx codes where Astria has confirmed the request was rejected before any tune
-// was created — safe for the caller to auto-retry once the input is corrected.
-const ASTRIA_SAFE_REJECTION_CODES = new Set([400, 401, 403, 422, 429]);
+// 4xx codes where Astria has confirmed the POST was rejected before any tune was
+// created — safe for auto-retry. 429 excluded: rate-limit can fire after server
+// starts processing, so tune status is ambiguous for POST.
+const ASTRIA_SAFE_REJECTION_CODES = new Set([400, 401, 403, 422]);
 
 const HEADSHOT_CROP_SUFFIX =
   ", tight headshot crop, face and shoulders only, no torso, no waist, close-up portrait framing";
@@ -147,6 +148,14 @@ export async function createAstrinaTune(
   if (!Array.isArray(generation.input_urls) || generation.input_urls.length === 0) {
     throw new AstriaValidationError("input_urls must be a non-empty array");
   }
+  for (const url of generation.input_urls) {
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "https:") throw new Error("not https");
+    } catch {
+      throw new AstriaValidationError(`input_urls contains an invalid HTTPS URL: ${url}`);
+    }
+  }
   const ts = generation.training_steps;
   if (ts !== null && ts !== undefined && (!Number.isSafeInteger(ts) || ts <= 0 || ts > 3000)) {
     throw new AstriaValidationError(`training_steps must be a positive integer ≤ 3000, got: ${ts}`);
@@ -162,6 +171,18 @@ export async function createAstrinaTune(
     );
   }
   const imagesPerStyle = count / styleKeys.length;
+
+  try {
+    const parsed = new URL(callbackUrl);
+    if (parsed.protocol !== "https:") throw new Error("not https");
+  } catch {
+    throw new AstriaValidationError(`callbackUrl must be a valid HTTPS URL: ${callbackUrl}`);
+  }
+  if (typeof generation.super_resolution !== "boolean") {
+    throw new AstriaValidationError(
+      `super_resolution must be a boolean, got: ${typeof generation.super_resolution}`
+    );
+  }
 
   const body = {
     tune: {
