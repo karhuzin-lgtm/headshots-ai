@@ -110,8 +110,14 @@ async function parseAstriaResponse(res: Response): Promise<any> {
 }
 
 function resolveStyleKeys(keys: string[]): HeadshotStyle[] {
-  const valid = keys.filter((k): k is HeadshotStyle => k in HEADSHOT_STYLES);
-  return valid.length ? valid : STYLE_KEYS;
+  const unique = [...new Set(keys)];
+  const valid = unique.filter((k): k is HeadshotStyle => k in HEADSHOT_STYLES);
+  if (valid.length === 0) {
+    throw new AstriaValidationError(
+      `No valid style keys provided. Got: ${keys.join(", ")}. Valid: ${STYLE_KEYS.join(", ")}`
+    );
+  }
+  return valid;
 }
 
 export async function createAstrinaTune(
@@ -157,19 +163,35 @@ export async function createAstrinaTune(
     },
   };
 
-  const res = await fetch(`${BASE}/tunes`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getAstriaApiKey()}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(60_000),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}/tunes`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getAstriaApiKey()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(60_000),
+    });
+  } catch (err) {
+    // Network error or timeout after the request may have reached Astria — tune
+    // status is unknown; block auto-retry to avoid duplicate creation/billing.
+    throw new AstriaApiError(
+      `ASTRIA_STATUS_UNKNOWN: network error during tune creation: ${err instanceof Error ? err.message : String(err)}`,
+      0,
+      false
+    );
+  }
   const data = await parseAstriaResponse(res);
 
   if (!data?.id) {
-    throw new AstriaValidationError("Astria tune creation returned no tune id");
+    // POST succeeded but no id returned — tune may have been created; block retry.
+    throw new AstriaApiError(
+      "ASTRIA_STATUS_UNKNOWN: Astria tune creation returned no tune id",
+      res.status,
+      false
+    );
   }
 
   return String(data.id);
