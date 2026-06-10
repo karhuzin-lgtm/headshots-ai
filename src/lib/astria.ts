@@ -82,11 +82,22 @@ function validateCallbackUrl(url: string): void {
   if (parsed.protocol !== "https:") {
     throw new AstriaValidationError(`callbackUrl must use https: ${url}`);
   }
-  if (isPrivateHost(parsed.hostname)) {
-    throw new AstriaValidationError(`callbackUrl hostname is private/internal: ${parsed.hostname}`);
+  // Restrict to our own server origin to prevent Astria from being used as a
+  // SSRF proxy (IP allowlist is insufficient against DNS rebinding attacks).
+  const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!rawAppUrl) {
+    throw new AstriaValidationError("NEXT_PUBLIC_APP_URL env var is not set; cannot validate callbackUrl");
   }
-  if (parsed.port && parsed.port !== "443") {
-    throw new AstriaValidationError(`callbackUrl must use standard HTTPS port: ${url}`);
+  let trustedOrigin: URL;
+  try {
+    trustedOrigin = new URL(rawAppUrl);
+  } catch {
+    throw new AstriaValidationError("NEXT_PUBLIC_APP_URL is not a valid URL");
+  }
+  if (parsed.hostname !== trustedOrigin.hostname) {
+    throw new AstriaValidationError(
+      `callbackUrl hostname must be ${trustedOrigin.hostname}, got: ${parsed.hostname}`
+    );
   }
 }
 
