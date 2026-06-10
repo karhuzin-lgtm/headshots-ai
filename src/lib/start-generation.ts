@@ -155,6 +155,7 @@ export async function startAstriaGeneration(
       const savedRow = await updateGenerationStatus({
         id: claimed.id,
         status: "failed",
+        tuneId, // persist known tuneId so Astria callback can still be matched
         errorMessage: `ASTRIA_STATUS_UNKNOWN: tune ${tuneId} created but save failed: ${message}`,
       });
       // If a concurrent Astria callback already completed the generation (status=done),

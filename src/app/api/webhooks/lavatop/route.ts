@@ -35,14 +35,22 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
     throw new Error(`No generation found for contractId ${contractId}`);
   }
 
-  // Skip only if generation already started/finished. A `failed` row WITHOUT a
-  // tune_id (transient Astria error) is intentionally NOT skipped, so a webhook
-  // retry can recover it. startAstriaGeneration is idempotent (atomic claim).
-  const alreadyStarted =
-    !!generation.tune_id ||
-    generation.status === "processing" ||
-    generation.status === "done";
-  if (alreadyStarted) {
+  // Skip only if the tune is known-created (tune_id set) or the order is done.
+  // processing+tune_id = Astria is running, safe to skip.
+  // processing+no tune_id = stuck (crash between claim and tuneId save) — alert
+  //   and skip rather than retry, to avoid an infinite 5xx↔retry loop.
+  // failed+no tune_id = safe to retry via startAstriaGeneration (atomic claim).
+  if (generation.status === "done" || !!generation.tune_id) {
+    return;
+  }
+  if (generation.status === "processing" && !generation.tune_id) {
+    // Stuck: claim succeeded but tuneId was never persisted (process crashed).
+    // Cannot auto-recover without risking duplicate Astria billing.
+    // Admin must verify via Astria dashboard: if tune exists → set tune_id directly;
+    // if no tune was created → reset status to 'pending'.
+    console.error("LavaTop webhook: generation stuck in processing without tune_id", {
+      generationId: generation.id,
+    });
     return;
   }
 
