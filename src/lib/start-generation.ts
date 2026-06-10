@@ -98,13 +98,16 @@ export async function startAstriaGeneration(
       console.error("owner alert email failed:", e)
     );
     if (ambiguous) {
-      // Ambiguous — throw so webhook returns 5xx and LavaTop retries.
-      // Admin must clear ASTRIA_STATUS_UNKNOWN before retry proceeds.
-      throw new Error(`Astria generation failed (ambiguous): ${message}`);
+      // ASTRIA_STATUS_UNKNOWN saved — return 2xx so LavaTop does not retry.
+      // claimGenerationForProcessing already blocks re-claim for UNKNOWN rows,
+      // so retrying the webhook would loop forever. Admin must verify via
+      // fetchTuneOutputUrls and clear the marker before re-queuing.
+      return;
     }
-    // Confirmed rejection (e.g. Astria 4xx) — return normally so webhook
-    // responds 2xx and LavaTop does not retry a known-failed request.
-    return;
+    // Confirmed Astria rejection (4xx): throw so webhook returns 5xx and
+    // LavaTop retries with backoff. Handles transient errors (e.g. rate limit,
+    // expired key) without requiring manual intervention for every failure.
+    throw new Error(`Astria generation failed: ${message}`);
   }
 
   // Phase 2: persist tuneId ------------------------------------------------
