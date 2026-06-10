@@ -211,6 +211,7 @@ export async function getGenerationByPaymentId(
 export async function findPendingUnpaidGeneration(
   email: string
 ): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -232,6 +233,7 @@ export async function updateGenerationStatus(input: {
   tuneId?: string | null;
   errorMessage?: string | null;
 }): Promise<GenerationRow> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     update generations
@@ -253,6 +255,7 @@ export async function updateGenerationStatus(input: {
 }
 
 export async function getGeneration(id: string): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -264,6 +267,7 @@ export async function getGeneration(id: string): Promise<GenerationRow | null> {
 }
 
 export async function findRateLimitedGeneration(email: string): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select *
@@ -285,6 +289,7 @@ export async function countRecentUnpaidGenerations(
   email: string,
   withinMinutes: number
 ): Promise<number> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select count(*)::int as n
@@ -298,9 +303,15 @@ export async function countRecentUnpaidGenerations(
 
 /**
  * Atomically claim a generation for processing. Returns the row only if THIS
- * call won the claim: the row is paid, has no tune yet, and is in a safe
- * retry state. Rows with ASTRIA_STATUS_UNKNOWN error are excluded to prevent
- * duplicate Astria billing when the tune status is ambiguous.
+ * call won the claim. Conditions:
+ * - paid=true (never start Astria for unpaid orders)
+ * - tune_id is null (tune not yet created)
+ * - Not marked ASTRIA_STATUS_UNKNOWN (ambiguous: blocks auto-retry to prevent
+ *   duplicate billing when we can't confirm whether Astria processed the request)
+ * - Status pending or failed OR processing with a stale claim (>5 min since
+ *   updated_at) — handles crash-after-claim where the process died before saving
+ *   tuneId or error. A stale processing+no-tune row is safe to retry because
+ *   tune_id being null means Astria was never called successfully.
  */
 export async function claimGenerationForProcessing(
   id: string
@@ -313,8 +324,11 @@ export async function claimGenerationForProcessing(
     where id = ${id}
       and paid = true
       and tune_id is null
-      and status in ('pending', 'failed')
       and (error_message is null or error_message not like 'ASTRIA_STATUS_UNKNOWN:%')
+      and (
+        status in ('pending', 'failed')
+        or (status = 'processing' and updated_at < now() - interval '5 minutes')
+      )
     returning *
   `;
   return rows[0] ? mapGeneration(rows[0]) : null;
