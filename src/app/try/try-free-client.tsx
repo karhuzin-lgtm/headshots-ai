@@ -289,15 +289,16 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       } catch {
         json = { error: text };
       }
-      if (!res.ok || !json.url) {
+      if (!res.ok || !json.url || !json.id) {
         throw new Error(json.error || text || "Не удалось перейти к оплате.");
       }
 
-      // Redirect straight to the LavaTop checkout. The pending generation id is
-      // stored in an httpOnly cookie by /api/payment/create, so after a
-      // successful payment LavaTop returns the buyer to /try/payment-return,
-      // which forwards them to /try/result/{id} (the waiting screen).
-      window.location.href = json.url;
+      // LavaTop has no post-payment redirect back to us, so we DON'T navigate
+      // away to it. Instead: open checkout in a new tab (this is inside the
+      // submit gesture, so it isn't popup-blocked) and send THIS tab to our
+      // waiting page, which polls for payment and shows generation right here.
+      window.open(json.url, "_blank", "noopener");
+      window.location.href = `/try/result/${json.id}`;
       return;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось перейти к оплате.");

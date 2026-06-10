@@ -88,32 +88,33 @@ export function TryResultClient({ requestId }: { requestId: string }) {
     };
   }, [requestId]);
 
-  // Ждём подтверждения оплаты от вебхука LavaTop. Пользователь только что
-  // вернулся со страницы оплаты — это занимает несколько секунд.
+  // Оплата открывается в отдельной вкладке (у LavaTop нет редиректа назад). Эта
+  // страница опрашивает статус и сама переключится на генерацию после оплаты.
   if (status?.awaitingPayment) {
     return (
       <div className="px-5 py-20 sm:py-28">
         <StatusCard>
-          <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#c9a96e]" />
-          <h1 className="mt-8 font-display text-2xl font-normal tracking-tight text-[#111827] sm:text-3xl">
-            Подтверждаем оплату
+          <h1 className="font-display text-2xl font-normal tracking-tight text-[#111827] sm:text-3xl">
+            Завершите оплату
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-gray-600">
-            Это занимает несколько секунд. Как только платёж подтвердится, мы
-            автоматически запустим генерацию — страница обновится сама.
+            Окно оплаты открылось в новой вкладке. После оплаты эта страница
+            автоматически покажет создание ваших портретов — не закрывайте её.
           </p>
-          <p className="mt-2 text-sm text-gray-500">Не закрывайте эту вкладку.</p>
           {status.paymentUrl ? (
-            <p className="mt-8 text-xs text-gray-400">
-              Не завершили оплату?{" "}
-              <a
-                href={status.paymentUrl}
-                className="font-medium text-[#9a7b4f] underline-offset-2 hover:underline"
-              >
-                Оплатить {PRICE_LABEL}
-              </a>
-            </p>
+            <a
+              href={status.paymentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#111827] px-6 text-base font-semibold text-white transition hover:bg-black"
+            >
+              Оплатить {PRICE_LABEL}
+            </a>
           ) : null}
+          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
+            <Loader2 className="h-4 w-4 animate-spin text-[#c9a96e]" />
+            Ждём подтверждения оплаты…
+          </div>
         </StatusCard>
       </div>
     );
