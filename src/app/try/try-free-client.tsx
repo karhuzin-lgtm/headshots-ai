@@ -38,31 +38,42 @@ async function compressImage(file: File): Promise<File> {
   return new Promise((resolve) => {
     const img = document.createElement("img");
     const url = URL.createObjectURL(file);
+    // Fall back to the original file on anything that can't be decoded in the
+    // browser (e.g. HEIC on desktop/Android) — the upload route accepts HEIC, so
+    // we never hang the form. (Previously: no onerror + blob! → permanent hang.)
+    const finish = (result: File) => {
+      URL.revokeObjectURL(url);
+      resolve(result);
+    };
+    img.onerror = () => finish(file);
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const maxDim = 1024;
-      let w = img.width;
-      let h = img.height;
-      if (w > maxDim || h > maxDim) {
-        if (w > h) {
-          h = Math.round((h * maxDim) / w);
-          w = maxDim;
-        } else {
-          w = Math.round((w * maxDim) / h);
-          h = maxDim;
+      try {
+        const canvas = document.createElement("canvas");
+        const maxDim = 1024;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
         }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return finish(file);
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob(
+          (blob) => finish(blob ? new File([blob], file.name, { type: "image/jpeg" }) : file),
+          "image/jpeg",
+          0.72
+        );
+      } catch {
+        finish(file);
       }
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
-      canvas.toBlob(
-        (blob) => {
-          resolve(new File([blob!], file.name, { type: "image/jpeg" }));
-          URL.revokeObjectURL(url);
-        },
-        "image/jpeg",
-        0.72
-      );
     };
     img.src = url;
   });
@@ -123,8 +134,23 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
     return () => urls.forEach((u) => URL.revokeObjectURL(u));
   }, [files]);
 
+  // Reset the submit spinner if the buyer returns via the browser "back" button
+  // from the LavaTop page (bfcache restore keeps loading=true otherwise).
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        setLoading(false);
+        setUploadProgress(null);
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
   function addFiles(incoming: File[]) {
-    setFiles((prev) => [...prev, ...incoming].slice(0, 20));
+    // accept= only constrains the picker, not drag-drop — filter to images here.
+    const images = incoming.filter((f) => f.type.startsWith("image/"));
+    setFiles((prev) => [...prev, ...images].slice(0, 20));
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {

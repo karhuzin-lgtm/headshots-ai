@@ -5,7 +5,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(_request: Request, { params }: { params: { requestId: string } }) {
+  // Validate before hitting Postgres — a non-UUID id otherwise throws 22P02.
+  if (!UUID_RE.test(params.requestId)) {
+    return Response.json(
+      { error: "Generation not found" },
+      { status: 404, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
   let generation = await getGeneration(params.requestId);
 
   if (!generation) {
@@ -34,7 +44,6 @@ export async function GET(_request: Request, { params }: { params: { requestId: 
       id: generation.id,
       status: generation.status,
       tuneId: generation.tune_id,
-      inputUrls: generation.input_urls,
       outputUrls: generation.output_urls,
       imageUrl: generation.output_urls[0],
       error: generation.error_message,

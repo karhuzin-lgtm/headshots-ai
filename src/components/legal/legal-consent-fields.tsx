@@ -66,7 +66,13 @@ function LegalLink({ href, variant }: { href: string; variant: "light" | "dark" 
       target="_blank"
       rel="noopener noreferrer"
     >
-      {href === "/privacy" ? "Политику конфиденциальности" : href === "/terms" ? "Условия использования" : "Правовую информацию"}
+      {href === "/privacy"
+        ? "Политику конфиденциальности"
+        : href === "/terms"
+          ? "Условия использования"
+          : href === "/consent"
+            ? "Согласие на обработку биометрических данных"
+            : "Правовую информацию"}
     </Link>
   );
 }
@@ -131,7 +137,8 @@ export function PhotoProcessingConsentFields({ value, onChange, variant = "light
         variant={variant}
       >
         Я даю явное согласие на обработку фотографий моего лица для обучения приватной AI-модели и генерации
-        портретов. Я понимаю, что могу отозвать согласие и запросить удаление в любой момент.
+        портретов (подробнее — <LegalLink href="/consent" variant={variant} />). Я понимаю, что могу отозвать
+        согласие и запросить удаление в любой момент.
       </CheckboxRow>
     </div>
   );

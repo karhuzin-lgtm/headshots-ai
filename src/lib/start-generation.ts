@@ -1,7 +1,11 @@
 import { createAstrinaTune } from "@/lib/astria";
 import { buildAstriaCallbackUrl } from "@/lib/generation-complete";
-import { updateGenerationStatus, type GenerationRow } from "@/lib/generations-db";
-import { sendGenerationFailed, sendHeadshotsStarted } from "@/lib/email";
+import {
+  claimGenerationForProcessing,
+  updateGenerationStatus,
+  type GenerationRow,
+} from "@/lib/generations-db";
+import { sendGenerationFailed, sendHeadshotsStarted, sendOwnerAlert } from "@/lib/email";
 
 /** Strip anything that looks like a secret before persisting/showing an error. */
 function safeErrorMessage(error: unknown): string {
@@ -12,54 +16,65 @@ function safeErrorMessage(error: unknown): string {
 }
 
 /**
- * Kick off Astria model training + portrait generation for a generation row.
+ * Kick off Astria training + portrait generation for a paid generation row.
  *
- * Idempotent: callers (e.g. retried payment webhooks) may invoke this more than
- * once, so we skip rows that already started or finished. A `failed` row WITHOUT
- * a tune_id is NOT skipped — that's the recovery path for a transient failure.
+ * Atomically CLAIMS the row first (status pending/failed + no tune_id) so
+ * concurrent webhook deliveries can't start two tunes. A `failed` row without a
+ * tune_id is re-claimable — that's the recovery path for a transient failure.
  *
- * Throws on Astria failure (after marking failed + notifying the buyer) so the
- * webhook returns 5xx and LavaTop retries.
+ * Throws on Astria failure (after marking failed + notifying) so the webhook
+ * returns 5xx and LavaTop retries.
  */
 export async function startAstriaGeneration(
   generation: GenerationRow
 ): Promise<void> {
-  if (
-    generation.tune_id ||
-    generation.status === "processing" ||
-    generation.status === "done"
-  ) {
+  // Whether this is the first attempt (no prior error) — used to avoid spamming
+  // the buyer with a "failed" email on every LavaTop retry.
+  const isFirstAttempt = !generation.error_message;
+
+  const claimed = await claimGenerationForProcessing(generation.id);
+  if (!claimed) {
+    // Already processing/done, or another delivery won the claim.
     return;
   }
 
   try {
-    await updateGenerationStatus({ id: generation.id, status: "processing" });
-    const callbackUrl = buildAstriaCallbackUrl(generation.id);
-    const tuneId = await createAstrinaTune(generation, callbackUrl);
+    const callbackUrl = buildAstriaCallbackUrl(claimed.id);
+    const tuneId = await createAstrinaTune(claimed, callbackUrl);
     await updateGenerationStatus({
-      id: generation.id,
+      id: claimed.id,
       status: "processing",
       tuneId,
     });
 
-    // Tune created successfully — now it's safe to tell the buyer we started.
+    // Tune created — now safe to tell the buyer we started.
     try {
-      await sendHeadshotsStarted(generation.email, `/try/result/${generation.id}`);
+      await sendHeadshotsStarted(claimed.email, `/try/result/${claimed.id}`);
     } catch (error) {
       console.error("started email failed:", error);
     }
   } catch (error) {
     const message = safeErrorMessage(error);
     await updateGenerationStatus({
-      id: generation.id,
+      id: claimed.id,
       status: "failed",
       errorMessage: message,
     });
-    try {
-      await sendGenerationFailed(generation.email, `/try/result/${generation.id}`);
-    } catch (mailError) {
-      console.error("failed-generation email failed:", mailError);
+
+    if (isFirstAttempt) {
+      try {
+        await sendGenerationFailed(claimed.email, `/try/result/${claimed.id}`);
+      } catch (mailError) {
+        console.error("failed-generation email failed:", mailError);
+      }
     }
+    // Always alert the owner so a paid-but-failed order never goes unnoticed.
+    try {
+      await sendOwnerAlert(claimed, message);
+    } catch (alertError) {
+      console.error("owner alert email failed:", alertError);
+    }
+
     throw new Error(`Astria generation failed: ${message}`);
   }
 }

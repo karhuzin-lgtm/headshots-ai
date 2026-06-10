@@ -287,3 +287,77 @@ export async function countRecentUnpaidGenerations(
   `;
   return intOr(rows[0]?.n, 0);
 }
+
+/**
+ * Atomically claim a generation for processing. Returns the row only if THIS
+ * call won the claim (row was pending/failed with no tune yet). Concurrent
+ * webhook deliveries get null and must not start a second Astria tune.
+ */
+export async function claimGenerationForProcessing(
+  id: string
+): Promise<GenerationRow | null> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`
+    update generations
+    set status = 'processing', updated_at = now()
+    where id = ${id}
+      and tune_id is null
+      and status in ('pending', 'failed')
+    returning *
+  `;
+  return rows[0] ? mapGeneration(rows[0]) : null;
+}
+
+/** Persist the LavaTop contractId so webhook retries can match by payment_id. */
+export async function setGenerationPaymentId(id: string, paymentId: string): Promise<void> {
+  await ensureSchema();
+  const sql = getSql();
+  await sql`
+    update generations set payment_id = ${paymentId}, updated_at = now() where id = ${id}
+  `;
+}
+
+/**
+ * Atomically union new output URLs into the row and flip to 'done' when the
+ * count reaches expected_count. Avoids the read-modify-write lost-update race
+ * across concurrent Astria callbacks. Returns the updated row plus whether THIS
+ * call caused the processing→done transition (so the ready email is sent once).
+ * Returns null if the row was already 'done' (no-op) or missing.
+ */
+export async function appendGenerationOutputs(
+  id: string,
+  incoming: string[]
+): Promise<{ row: GenerationRow; becameDone: boolean } | null> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`
+    with merged as (
+      select
+        g.id,
+        g.status as old_status,
+        g.expected_count,
+        (
+          select coalesce(array_agg(distinct u), '{}')
+          from unnest(g.output_urls || ${textArray(incoming)}::text[]) as u
+        ) as new_urls
+      from generations g
+      where g.id = ${id}
+    )
+    update generations g
+    set output_urls = m.new_urls,
+        status = case
+                   when cardinality(m.new_urls) >= m.expected_count and g.status <> 'failed'
+                   then 'done'
+                   else g.status
+                 end,
+        updated_at = now()
+    from merged m
+    where g.id = m.id and g.status <> 'done'
+    returning g.*, m.old_status
+  `;
+  if (!rows[0]) return null;
+  const row = mapGeneration(rows[0]);
+  const becameDone = row.status === "done" && rows[0].old_status !== "done";
+  return { row, becameDone };
+}

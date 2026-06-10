@@ -134,7 +134,10 @@ export function TryResultClient({ requestId }: { requestId: string }) {
     );
   }
 
-  if (error) {
+  // Only show the error screen if we never got a status. A transient poll failure
+  // (network blip, tab woke from sleep during the ~20-min wait) must NOT blank out
+  // the progress screen — we keep showing progress and retry on the next tick.
+  if (error && !status) {
     return (
       <div className="px-5 py-20 sm:py-28">
         <StatusCard>

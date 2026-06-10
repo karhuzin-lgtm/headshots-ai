@@ -1,5 +1,39 @@
 import { Resend } from "resend";
 
+import type { GenerationRow } from "@/lib/generations-db";
+
+const OWNER_EMAIL = "aleksei@alekseimedia.com";
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/** Internal alert to the operator when a PAID order fails — so it never goes unnoticed. */
+export async function sendOwnerAlert(generation: GenerationRow, errorMessage: string) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("RESEND_API_KEY is not set; skipping owner alert.");
+    return;
+  }
+  const resend = new Resend(apiKey);
+  await resend.emails.send({
+    from: "Headshots <noreply@alekseimedia.com>",
+    to: OWNER_EMAIL,
+    subject: `[ALERT] Сбой оплаченного заказа ${generation.id}`,
+    html: `<div style="font-family: monospace; font-size: 14px; line-height: 1.6;">
+      <p><b>Заказ:</b> ${escapeHtml(generation.id)}</p>
+      <p><b>Тариф:</b> ${escapeHtml(generation.tier)} (${generation.expected_count} фото)</p>
+      <p><b>Покупатель:</b> ${escapeHtml(generation.email)}</p>
+      <p><b>Оплачено:</b> ${generation.paid ? "да" : "нет"} · <b>payment_id:</b> ${escapeHtml(generation.payment_id ?? "—")}</p>
+      <p><b>Ошибка:</b> ${escapeHtml(errorMessage)}</p>
+      <p>LavaTop повторит вебхук автоматически. Если заказ застрял в failed — перезапусти вручную.</p>
+    </div>`,
+  });
+}
+
 function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com").replace(/\/$/, "");
 }

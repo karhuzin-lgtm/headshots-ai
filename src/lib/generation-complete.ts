@@ -1,11 +1,18 @@
+import crypto from "crypto";
+
 import { fetchTuneOutputUrls } from "@/lib/astria";
-import { EXPECTED_HEADSHOT_OUTPUTS, collectAstriaImageUrls } from "@/lib/astria-images";
+import { collectAstriaImageUrls } from "@/lib/astria-images";
 import { sendHeadshotsReady } from "@/lib/email";
 import {
+  appendGenerationOutputs,
   getGeneration,
-  updateGenerationStatus,
   type GenerationRow,
 } from "@/lib/generations-db";
+
+/** Per-generation token so the global secret never travels in a callback URL. */
+function astriaToken(generationId: string, secret: string): string {
+  return crypto.createHmac("sha256", secret).update(generationId).digest("hex");
+}
 
 export function buildAstriaCallbackUrl(generationId: string): string {
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://headshots.alekseimedia.com").replace(
@@ -16,7 +23,9 @@ export function buildAstriaCallbackUrl(generationId: string): string {
   url.searchParams.set("generationId", generationId);
   const secret = process.env.ASTRIA_WEBHOOK_SECRET;
   if (secret) {
-    url.searchParams.set("webhook_secret", secret);
+    // HMAC(secret, generationId) — leaks in logs are scoped to one generation,
+    // not the global secret, and can't be replayed for other orders.
+    url.searchParams.set("webhook_secret", astriaToken(generationId, secret));
   }
   return url.toString();
 }
@@ -32,45 +41,41 @@ export function isAstriaWebhookAuthorized(request: Request): boolean {
     return false;
   }
 
-  const headerSig = request.headers.get("x-astria-signature") ?? "";
-  const querySecret = new URL(request.url).searchParams.get("webhook_secret") ?? "";
-  return headerSig === secret || querySecret === secret;
+  const params = new URL(request.url).searchParams;
+  const generationId = params.get("generationId") ?? "";
+  const provided =
+    params.get("webhook_secret") ?? request.headers.get("x-astria-signature") ?? "";
+  if (!generationId || !provided) return false;
+
+  const expected = astriaToken(generationId, secret);
+  const a = Buffer.from(expected);
+  const b = Buffer.from(provided);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
-/** Merge new URLs, mark done at 18 outputs, send ready email once. */
+/** Atomically merge new URLs, flip to done at expected_count, send ready email once. */
 export async function mergeGenerationOutputs(
   generationId: string,
   incomingUrls: string[]
 ): Promise<GenerationRow> {
-  const generation = await getGeneration(generationId);
-  if (!generation) {
-    throw new Error("Generation not found");
+  const result = await appendGenerationOutputs(generationId, incomingUrls);
+  if (!result) {
+    // Already done (no-op) or missing.
+    const existing = await getGeneration(generationId);
+    if (!existing) throw new Error("Generation not found");
+    return existing;
   }
 
-  const combined = Array.from(new Set([...generation.output_urls, ...incomingUrls]));
-  const target = generation.expected_count || EXPECTED_HEADSHOT_OUTPUTS;
-  const nextStatus = combined.length >= target ? "done" : "processing";
-  const wasDone = generation.status === "done";
-
-  const updated = await updateGenerationStatus({
-    id: generationId,
-    status: nextStatus,
-    outputUrls: combined,
-  });
-
-  if (nextStatus === "done" && !wasDone) {
+  const { row, becameDone } = result;
+  if (becameDone) {
     try {
-      await sendHeadshotsReady(
-        updated.email,
-        `/try/result/${updated.id}`,
-        updated.output_urls
-      );
+      await sendHeadshotsReady(row.email, `/try/result/${row.id}`, row.output_urls);
     } catch (error) {
       console.error("headshots-ready email failed:", error);
     }
   }
 
-  return updated;
+  return row;
 }
 
 /** Pull finished images from Astria when webhooks were missed. */
