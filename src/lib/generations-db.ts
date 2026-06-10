@@ -164,6 +164,7 @@ export async function attachPaymentInfo(input: {
   paymentId: string;
   paymentUrl: string;
 }): Promise<void> {
+  await ensureSchema();
   const sql = getSql();
   await sql`
     update generations
@@ -176,6 +177,7 @@ export async function attachPaymentInfo(input: {
 
 /** Mark a generation as paid. Returns the row, or null if not found. */
 export async function markGenerationPaid(id: string): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     update generations
@@ -189,6 +191,7 @@ export async function markGenerationPaid(id: string): Promise<GenerationRow | nu
 export async function getGenerationByPaymentId(
   paymentId: string
 ): Promise<GenerationRow | null> {
+  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     select *

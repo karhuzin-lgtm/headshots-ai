@@ -83,6 +83,11 @@ function getAstriaApiKey(): string {
   return ASTRIA_API_KEY;
 }
 
+// Codes where Astria provably rejected the request before any tune was created.
+// 4xx codes NOT in this set (e.g. 408 Request Timeout) are ambiguous — Astria
+// may have processed the request and timed out sending the response.
+const ASTRIA_SAFE_REJECTION_CODES = new Set([400, 401, 403, 422]);
+
 async function parseAstriaResponse(res: Response): Promise<any> {
   const data = await res.json().catch(() => null);
   if (!res.ok) {
@@ -91,9 +96,11 @@ async function parseAstriaResponse(res: Response): Promise<any> {
       data?.message ??
       data?.error ??
       `Astria API request failed with status ${res.status}${details}`;
-    // 4xx = Astria confirmed rejection; tune was never created — safe to retry.
-    // 5xx = ambiguous; tune may exist on Astria's side — block auto-retry.
-    throw new AstriaApiError(message, res.status, res.status >= 400 && res.status < 500);
+    throw new AstriaApiError(
+      message,
+      res.status,
+      ASTRIA_SAFE_REJECTION_CODES.has(res.status)
+    );
   }
 
   return data;
