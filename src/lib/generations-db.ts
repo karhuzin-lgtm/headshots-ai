@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { VALID_STYLE_KEYS } from "@/lib/astria";
 
 export type GenerationStatus = "pending" | "processing" | "done" | "failed";
 
@@ -143,9 +144,14 @@ export async function createGeneration(input: {
     throw new Error(`inferenceSteps must be 1–150, got ${inferenceSteps}`);
   if (!Number.isInteger(trainingSteps) || trainingSteps <= 0 || trainingSteps > 2000)
     throw new Error(`trainingSteps must be 1–2000, got ${trainingSteps}`);
+  if (styleKeys.length > 200)
+    throw new Error(`styleKeys raw array too large (${styleKeys.length}), max 200`);
   const uniqueStyleKeys = Array.from(new Set(styleKeys));
   if (!uniqueStyleKeys.length || uniqueStyleKeys.length > 20)
     throw new Error(`styleKeys must have 1–20 unique entries, got ${uniqueStyleKeys.length}`);
+  const unknownStyles = uniqueStyleKeys.filter((k) => !VALID_STYLE_KEYS.has(k));
+  if (unknownStyles.length)
+    throw new Error(`styleKeys contains unknown styles: [${unknownStyles.join(",")}]`);
   if (expectedCount < uniqueStyleKeys.length)
     throw new Error(
       `expectedCount (${expectedCount}) must be >= number of unique styles (${uniqueStyleKeys.length})`
@@ -164,7 +170,7 @@ export async function createGeneration(input: {
       ${input.paymentId ?? null},
       ${tier},
       ${expectedCount},
-      ${textArray(styleKeys)}::text[],
+      ${textArray(uniqueStyleKeys)}::text[],
       ${superResolution},
       ${inferenceSteps},
       ${trainingSteps}
@@ -303,6 +309,8 @@ export async function countRecentUnpaidGenerations(
   email: string,
   withinMinutes: number
 ): Promise<number> {
+  if (!Number.isInteger(withinMinutes) || withinMinutes <= 0 || withinMinutes > 1440)
+    throw new Error(`withinMinutes must be 1–1440, got ${withinMinutes}`);
   await ensureSchema();
   const sql = getSql();
   const rows = await sql`

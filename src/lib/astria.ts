@@ -77,6 +77,8 @@ export type HeadshotStyle = keyof typeof HEADSHOT_STYLES;
 export const IMAGES_PER_STYLE = 3;
 const STYLE_KEYS = Object.keys(HEADSHOT_STYLES) as HeadshotStyle[];
 export const EXPECTED_HEADSHOT_COUNT = STYLE_KEYS.length * IMAGES_PER_STYLE;
+/** Exported for use in server-side tier/generation validation. */
+export const VALID_STYLE_KEYS: ReadonlySet<string> = new Set(STYLE_KEYS);
 
 function buildStylePrompt(style: (typeof HEADSHOT_STYLES)[HeadshotStyle]): string {
   return [
@@ -165,8 +167,18 @@ export async function createAstrinaTune(
 ): Promise<string> {
   const styleKeys = resolveStyleKeys(generation.style_keys);
   const imagesPerStyleArr = distributeImages(generation.expected_count, styleKeys.length);
-  const trainingSteps = generation.training_steps > 0 ? generation.training_steps : 500;
-  const inferenceSteps = generation.inference_steps > 0 ? generation.inference_steps : 30;
+  const trainingSteps =
+    Number.isInteger(generation.training_steps) &&
+    generation.training_steps > 0 &&
+    generation.training_steps <= 2000
+      ? generation.training_steps
+      : 500;
+  const inferenceSteps =
+    Number.isInteger(generation.inference_steps) &&
+    generation.inference_steps > 0 &&
+    generation.inference_steps <= 150
+      ? generation.inference_steps
+      : 30;
 
   const body = {
     tune: {

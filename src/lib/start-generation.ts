@@ -97,7 +97,14 @@ export async function startAstriaGeneration(
     await sendOwnerAlert(claimed, message).catch((e) =>
       console.error("owner alert email failed:", e)
     );
-    throw new Error(`Astria generation failed: ${message}`);
+    if (ambiguous) {
+      // Ambiguous — throw so webhook returns 5xx and LavaTop retries.
+      // Admin must clear ASTRIA_STATUS_UNKNOWN before retry proceeds.
+      throw new Error(`Astria generation failed (ambiguous): ${message}`);
+    }
+    // Confirmed rejection (e.g. Astria 4xx) — return normally so webhook
+    // responds 2xx and LavaTop does not retry a known-failed request.
+    return;
   }
 
   // Phase 2: persist tuneId ------------------------------------------------
