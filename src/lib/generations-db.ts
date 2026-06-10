@@ -137,12 +137,14 @@ export async function createGeneration(input: {
   const trainingSteps = input.trainingSteps ?? DEFAULT_TRAINING_STEPS;
 
   if (!input.inputUrls.length) throw new Error("inputUrls must not be empty");
-  if (!Number.isInteger(expectedCount) || expectedCount <= 0)
-    throw new Error(`expectedCount must be a positive integer, got ${expectedCount}`);
-  if (!Number.isInteger(inferenceSteps) || inferenceSteps <= 0)
-    throw new Error(`inferenceSteps must be a positive integer, got ${inferenceSteps}`);
-  if (!Number.isInteger(trainingSteps) || trainingSteps <= 0)
-    throw new Error(`trainingSteps must be a positive integer, got ${trainingSteps}`);
+  if (!Number.isInteger(expectedCount) || expectedCount <= 0 || expectedCount > 100)
+    throw new Error(`expectedCount must be 1–100, got ${expectedCount}`);
+  if (!Number.isInteger(inferenceSteps) || inferenceSteps <= 0 || inferenceSteps > 150)
+    throw new Error(`inferenceSteps must be 1–150, got ${inferenceSteps}`);
+  if (!Number.isInteger(trainingSteps) || trainingSteps <= 0 || trainingSteps > 2000)
+    throw new Error(`trainingSteps must be 1–2000, got ${trainingSteps}`);
+  if (!styleKeys.length || styleKeys.length > 20)
+    throw new Error(`styleKeys must have 1–20 entries, got ${styleKeys.length}`);
 
   const rows = await sql`
     insert into generations (

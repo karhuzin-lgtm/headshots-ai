@@ -21,6 +21,18 @@ export class AstriaApiError extends Error {
   }
 }
 
+/**
+ * Thrown for local validation errors that occur before any Astria request is
+ * made — confirmed pre-fetch failures where auto-retry is safe once the
+ * underlying data is fixed (e.g. unknown style key, bad expectedCount).
+ */
+export class AstriaValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AstriaValidationError";
+  }
+}
+
 // Flux does not respond to negative prompts — avoid-clauses are embedded in
 // the positive text as "not X" or "do not wear X" per Astria docs.
 const PHOTO_SPECS =
@@ -77,7 +89,7 @@ function buildStylePrompt(style: (typeof HEADSHOT_STYLES)[HeadshotStyle]): strin
 
 function getAstriaApiKey(): string {
   if (!ASTRIA_API_KEY) {
-    throw new Error("ASTRIA_API_KEY is not configured");
+    throw new AstriaValidationError("ASTRIA_API_KEY is not configured");
   }
 
   return ASTRIA_API_KEY;
@@ -110,11 +122,11 @@ async function parseAstriaResponse(res: Response): Promise<any> {
 function resolveStyleKeys(keys: string[]): HeadshotStyle[] {
   const unknown = keys.filter((k) => !Object.hasOwn(HEADSHOT_STYLES, k));
   if (unknown.length) {
-    throw new Error(`resolveStyleKeys: unknown style keys [${unknown.join(",")}]`);
+    throw new AstriaValidationError(`resolveStyleKeys: unknown style keys [${unknown.join(",")}]`);
   }
   const deduped = Array.from(new Set(keys)) as HeadshotStyle[];
   if (!deduped.length) {
-    throw new Error("resolveStyleKeys: style_keys is empty");
+    throw new AstriaValidationError("resolveStyleKeys: style_keys is empty");
   }
   return deduped;
 }
@@ -126,7 +138,7 @@ function resolveStyleKeys(keys: string[]): HeadshotStyle[] {
  */
 function distributeImages(expectedCount: number, styleCount: number): number[] {
   if (!Number.isSafeInteger(expectedCount) || expectedCount < styleCount) {
-    throw new Error(
+    throw new AstriaValidationError(
       `expected_count (${expectedCount}) must be a safe integer >= styleCount (${styleCount})`
     );
   }

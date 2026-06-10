@@ -1,4 +1,4 @@
-import { AstriaApiError, createAstrinaTune } from "@/lib/astria";
+import { AstriaApiError, AstriaValidationError, createAstrinaTune } from "@/lib/astria";
 import { buildAstriaCallbackUrl } from "@/lib/generation-complete";
 import {
   claimGenerationForProcessing,
@@ -23,16 +23,13 @@ function safeErrorMessage(error: unknown): string {
 
 /**
  * Returns true when we cannot determine whether Astria created the tune.
- * Only confirmed Astria 4xx rejections are safe to retry — the tune was never
- * started. 5xx, network errors, timeout, and unexpected responses are ambiguous.
+ * AstriaValidationError = local pre-fetch failure (safe, tune never started).
+ * AstriaApiError.isRetriable=true = Astria 4xx confirmed rejection (safe).
+ * Everything else = ambiguous (5xx, network, timeout, missing tune id).
  */
 function isAmbiguousError(error: unknown): boolean {
-  if (error instanceof AstriaApiError) {
-    return !error.isRetriable; // 4xx isRetriable=true → safe; 5xx → ambiguous
-  }
-  // TypeError (fetch failed), TimeoutError, AbortError, and anything else
-  // (e.g. "tune creation returned no tune id") are all ambiguous — Astria may
-  // have accepted the request before the connection dropped.
+  if (error instanceof AstriaValidationError) return false;
+  if (error instanceof AstriaApiError) return !error.isRetriable;
   return true;
 }
 
@@ -86,17 +83,28 @@ export async function startAstriaGeneration(
   }
 
   // Phase 2: persist tuneId ------------------------------------------------
-  // tuneId is known — persist it before doing anything else.
-  // If this save fails, the tune IS created on Astria's side. Mark ambiguous
-  // so claimGenerationForProcessing blocks retry; the Astria callback will
-  // still deliver images via appendGenerationOutputs.
-  try {
-    await updateGenerationStatus({
-      id: claimed.id,
-      status: "processing",
-      tuneId,
-    });
-  } catch (saveError) {
+  // tuneId is now known — save it before doing anything else.
+  // Retry up to 3× with backoff so a brief DB glitch doesn't permanently lose
+  // the connection between the paid order and the created Astria tune.
+  // If all retries fail, mark ASTRIA_STATUS_UNKNOWN to block duplicate retry;
+  // the Astria callback will still deliver images via appendGenerationOutputs
+  // once the row is in a reachable state.
+  let saveError: unknown = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await updateGenerationStatus({
+        id: claimed.id,
+        status: "processing",
+        tuneId,
+      });
+      saveError = null;
+      break;
+    } catch (err) {
+      saveError = err;
+      if (attempt < 2) await new Promise<void>((r) => setTimeout(r, 200 * (attempt + 1)));
+    }
+  }
+  if (saveError !== null) {
     const message = safeErrorMessage(saveError);
     await updateGenerationStatus({
       id: claimed.id,
