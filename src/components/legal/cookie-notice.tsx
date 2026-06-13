@@ -33,10 +33,10 @@ export function CookieNotice() {
     <div
       role="dialog"
       aria-label="Уведомление о cookie"
-      className="fixed inset-x-0 bottom-0 z-[100] border-t border-gray-200 bg-white/95 p-4 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:p-5"
+      className="fixed inset-x-3 bottom-3 z-[100] mx-auto max-w-2xl border border-black/10 bg-[#edede7]/95 p-3 shadow-[0_16px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:bottom-5"
     >
-      <div className="mx-auto flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm leading-relaxed text-gray-600">
+      <div className="mx-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[11px] leading-relaxed text-gray-600 sm:text-xs">
           Мы используем только необходимые cookie (сессия и безопасность). Без рекламных и трекинговых cookie.{" "}
           <Link href="/privacy#cookies" className="font-medium text-gray-900 underline underline-offset-4">
             Подробнее
@@ -45,7 +45,7 @@ export function CookieNotice() {
         <button
           type="button"
           onClick={dismiss}
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-full bg-gray-900 px-5 text-sm font-semibold text-white transition hover:bg-gray-800"
+          className="inline-flex min-h-[40px] shrink-0 self-start items-center justify-center bg-[#11110f] px-5 text-xs font-semibold text-white transition hover:bg-black sm:self-auto"
         >
           Понятно
         </button>

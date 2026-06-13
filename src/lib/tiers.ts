@@ -1,4 +1,5 @@
 import type { ProductStyleKey } from "@/lib/display-styles";
+import { PRICE_RUB } from "@/lib/landing-config";
 
 /**
  * Единый источник правды по тарифам. Управляет:
@@ -7,8 +8,8 @@ import type { ProductStyleKey } from "@/lib/display-styles";
  *  - выбором оффера LavaTop (offerEnvKey).
  *
  * ВАЖНО: priceLabel — только отображение. Реальное списание = цена оффера
- * LavaTop. Держи их в синхроне: цена оффера LAVATOP_OFFER_ID_<TIER> == priceRub.
- * Тариф появляется в прайсинге, только когда задан его оффер (см. purchasableTiers).
+ * LavaTop. Пока цены всех тарифов равны PRICE_RUB, они могут использовать общий
+ * тестовый оффер. При разных ценах каждому нужен LAVATOP_OFFER_ID_<TIER>.
  */
 
 export type TierId = "basic" | "pro" | "premium";
@@ -122,11 +123,13 @@ export function getTier(id: string | null | undefined): Tier {
 }
 
 /**
- * Тарифы, у которых задан собственный оффер LavaTop (server-only).
- * Пока owner не создал отдельные офферы, возвращает пусто → UI показывает
- * один тестовый тариф по PRICE_LABEL (см. landing-config). Так цена на сайте
- * никогда не расходится с реальным списанием.
+ * Тарифы, которые можно безопасно продать прямо сейчас.
+ * Собственный оффер всегда разрешает тариф. Общий тестовый оффер разрешает
+ * тариф только когда его отображаемая цена совпадает с PRICE_RUB.
  */
 export function purchasableTiers(): Tier[] {
-  return TIER_ORDER.map((id) => TIERS[id]).filter((t) => !!process.env[t.offerEnvKey]);
+  const hasSharedOffer = !!process.env.LAVATOP_OFFER_ID?.trim();
+  return TIER_ORDER.map((id) => TIERS[id]).filter(
+    (tier) => !!process.env[tier.offerEnvKey]?.trim() || (hasSharedOffer && tier.priceRub === PRICE_RUB)
+  );
 }

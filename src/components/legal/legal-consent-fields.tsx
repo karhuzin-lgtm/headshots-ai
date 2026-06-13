@@ -38,8 +38,8 @@ function CheckboxRow({
     <label
       htmlFor={id}
       className={cn(
-        "flex cursor-pointer items-start gap-3 text-sm leading-relaxed",
-        variant === "dark" ? "text-white/85" : "text-gray-600"
+        "group flex cursor-pointer items-start gap-3 text-sm leading-relaxed",
+        variant === "dark" ? "text-white/70" : "text-black/60"
       )}
     >
       <input
@@ -48,7 +48,10 @@ function CheckboxRow({
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         required={required}
-        className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+        className={cn(
+          "mt-1 h-4 w-4 shrink-0 rounded-sm focus:ring-black",
+          variant === "dark" ? "border-white/30 bg-transparent text-white" : "border-black/20 bg-transparent text-black"
+        )}
       />
       <span>{children}</span>
     </label>
@@ -61,7 +64,7 @@ function LegalLink({ href, variant }: { href: string; variant: "light" | "dark" 
       href={href}
       className={cn(
         "font-medium underline underline-offset-4",
-        variant === "dark" ? "text-white" : "text-gray-900"
+        variant === "dark" ? "text-white" : "text-black"
       )}
       target="_blank"
       rel="noopener noreferrer"
@@ -108,7 +111,13 @@ export function PhotoProcessingConsentFields({ value, onChange, variant = "light
   const set = (patch: Partial<LegalConsentState>) => onChange({ ...value, ...patch });
 
   return (
-    <div className={cn("space-y-3 rounded-2xl border border-gray-100 bg-[#f9fafb] p-4", className)}>
+    <div
+      className={cn(
+        "space-y-4 border-t pt-5",
+        variant === "dark" ? "border-white/15" : "border-black/10",
+        className
+      )}
+    >
       <CheckboxRow
         id="photo-age"
         checked={value.ageConfirmed}

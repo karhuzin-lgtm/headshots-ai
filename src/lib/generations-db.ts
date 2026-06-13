@@ -491,3 +491,27 @@ export async function claimGenerationForProcessing(
   return rows[0] ? mapGeneration(rows[0]) : null;
 }
 
+/**
+ * Paid orders that are stuck and need a recovery nudge (cron /api/cron/recover).
+ * Read-only — does not change any order itself. The cron then either re-drives
+ * via startAstriaGeneration (no tune yet → claimGenerationForProcessing applies
+ * its own billing guards) or syncGenerationFromAstria (tune exists → pulls
+ * finished images, no re-billing). Bounded to the last 24h and to rows untouched
+ * for a few minutes so a just-started/in-flight order isn't disturbed.
+ */
+export async function findRecoverableGenerations(limit = 25): Promise<GenerationRow[]> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`
+    select *
+    from generations
+    where paid = true
+      and status in ('processing', 'failed', 'pending')
+      and created_at > now() - interval '24 hours'
+      and updated_at < now() - interval '4 minutes'
+    order by updated_at asc
+    limit ${limit}
+  `;
+  return rows.map((row) => mapGeneration(row));
+}
+

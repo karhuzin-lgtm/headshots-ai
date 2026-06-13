@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useEffect } from "react";
+
+import { BrandMark } from "@/components/site/brand-mark";
 
 export default function Error({
   error,
@@ -16,28 +19,32 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-[#faf8f5] px-5 py-20 text-[#111827]">
-      <div className="mx-auto max-w-lg rounded-2xl border border-gray-200/80 bg-white px-8 py-12 text-center shadow-lg">
-        <h1 className="font-display text-3xl font-normal tracking-tight text-[#111827] sm:text-4xl">
+    <div className="flex min-h-dvh flex-col bg-[#11110f] px-5 py-6 text-white sm:px-8">
+      <BrandMark light />
+      <div className="mx-auto flex w-full max-w-5xl flex-1 items-center">
+        <div className="border-l border-white/20 pl-6 sm:pl-10">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">Системная ошибка</p>
+        <h1 className="mt-6 max-w-2xl font-display text-5xl font-medium tracking-[-0.065em] sm:text-7xl">
           Что-то пошло не так
         </h1>
-        <p className="mt-4 text-sm leading-relaxed text-gray-600">
+        <p className="mt-6 max-w-md text-sm leading-relaxed text-white/50">
           Произошла непредвиденная ошибка. Попробуйте обновить страницу — обычно это помогает.
         </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
             onClick={reset}
-            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-[#111827] px-7 text-sm font-semibold text-white transition hover:bg-black sm:w-auto"
+            className="inline-flex min-h-[50px] items-center justify-center bg-white px-6 text-sm font-semibold text-black transition hover:bg-[#edede7]"
           >
             Попробовать снова
           </button>
           <Link
             href="/"
-            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full border border-gray-200 px-7 text-sm font-semibold text-[#111827] transition hover:bg-[#faf8f5] sm:w-auto"
+            className="group inline-flex min-h-[50px] items-center justify-between gap-8 border border-white/20 px-5 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
           >
-            На главную
+            На главную <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
           </Link>
+        </div>
         </div>
       </div>
     </div>

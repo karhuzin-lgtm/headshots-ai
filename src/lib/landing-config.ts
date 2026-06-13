@@ -22,7 +22,7 @@ export const TURNAROUND = "~20 минут";
  * Куда ведёт главный CTA. По умолчанию — рабочий флоу загрузки/оплаты на
  * /try/generate. Можно переопределить внешней ссылкой через NEXT_PUBLIC_CHECKOUT_URL.
  */
-const FALLBACK_GET_STARTED = "/try/generate";
+const FALLBACK_GET_STARTED = "/try/generate#choose";
 
 export const GET_STARTED_URL =
   process.env.NEXT_PUBLIC_CHECKOUT_URL?.trim() || FALLBACK_GET_STARTED;

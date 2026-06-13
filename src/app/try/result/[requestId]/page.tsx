@@ -10,15 +10,19 @@ type PageProps = {
 
 export default function TryResultPage({ params }: PageProps) {
   return (
-    <div className="flex min-h-dvh flex-col bg-[#faf8f5] text-[#111827]">
-      <TryFlowHeader />
-      <main className="relative flex-1">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -left-40 top-0 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(201,169,110,0.12),transparent_70%)]" />
+    <div className="flex min-h-dvh flex-col bg-[#11110f] text-white">
+      <TryFlowHeader step="02 / Оплата и результат" />
+      <main className="relative flex-1 overflow-hidden">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] opacity-25">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/generated/hero-atmosphere.jpg"
+            alt=""
+            className="h-full w-full object-cover object-center grayscale"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#11110f]/30 via-[#11110f]/80 to-[#11110f]" />
         </div>
-        <div className="relative">
-          <TryResultClient requestId={params.requestId} />
-        </div>
+        <TryResultClient requestId={params.requestId} />
       </main>
       <LandingFooter />
     </div>

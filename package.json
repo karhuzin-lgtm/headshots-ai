@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "backup": "bash scripts/backup.sh"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

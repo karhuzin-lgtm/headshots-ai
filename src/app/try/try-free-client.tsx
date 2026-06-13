@@ -1,7 +1,7 @@
 "use client";
 
 import { upload } from "@vercel/blob/client";
-import { Check, Loader2, Upload } from "lucide-react";
+import { ArrowRight, Check, Loader2, Upload } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -12,10 +12,10 @@ import {
   PhotoProcessingConsentFields,
   type LegalConsentState,
 } from "@/components/legal/legal-consent-fields";
-import { DISPLAY_STYLES } from "@/lib/display-styles";
+import { DISPLAY_STYLES, type ProductStyleKey } from "@/lib/display-styles";
 import { HEADSHOT_COUNT, PRICE_LABEL, STYLE_COUNT } from "@/lib/landing-config";
 import type { Tier } from "@/lib/tiers";
-import { cn } from "@/lib/utils";
+import { cn, pluralRu } from "@/lib/utils";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -108,24 +108,22 @@ async function compressImage(file: File): Promise<File> {
   });
 }
 
-function StylePreviewStrip() {
+function StylePreviewStrip({ styleKeys }: { styleKeys?: readonly ProductStyleKey[] }) {
+  const visibleStyles = styleKeys?.length
+    ? DISPLAY_STYLES.filter((style) => styleKeys.includes(style.key))
+    : DISPLAY_STYLES;
+
   return (
-    <div className="flex justify-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      {DISPLAY_STYLES.map((style) => (
-        <div
-          key={style.key}
-          className="relative h-14 w-11 shrink-0 overflow-hidden rounded-lg ring-1 ring-gray-200/80"
-          title={style.name}
-        >
-          <Image
-            src={style.photo}
-            alt=""
-            width={44}
-            height={56}
-            className="h-full w-full object-cover object-top"
-            sizes="44px"
-          />
-        </div>
+    <div className="grid grid-cols-3 gap-2">
+      {visibleStyles.map((style, index) => (
+        <figure key={style.key} className={index > 2 ? "hidden sm:block" : ""}>
+          <div className="relative aspect-[5/6] overflow-hidden border border-white/10 bg-white/[0.04] shadow-[0_12px_24px_rgba(0,0,0,0.16)]">
+            <Image src={style.photo} alt="" fill className="object-contain" sizes="130px" />
+          </div>
+          <figcaption className="mt-2 truncate font-mono text-[7px] uppercase tracking-[0.18em] text-white/35">
+            {style.name}
+          </figcaption>
+        </figure>
       ))}
     </div>
   );
@@ -147,25 +145,25 @@ function PreviewTile({
 }) {
   const [broken, setBroken] = useState(false);
   return (
-    <div className="relative aspect-square overflow-hidden rounded-xl ring-1 ring-gray-200/80">
+    <div className="relative aspect-[3/4] overflow-hidden border border-black/10 bg-[#d8d8d2]">
       {broken ? (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-[#faf8f5] text-center">
-          <Check className="h-4 w-4 text-emerald-500" aria-hidden />
-          <span className="text-[10px] font-medium text-gray-500">Фото {index + 1}</span>
+        <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-[#dfdfd9] text-center">
+          <Check className="h-4 w-4 text-black" aria-hidden />
+          <span className="text-[10px] font-medium text-black/45">Фото {index + 1}</span>
         </div>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={url}
           alt=""
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
           onError={() => setBroken(true)}
         />
       )}
       <button
         type="button"
         onClick={onRemove}
-        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs leading-none text-white"
+        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center border border-white/20 bg-black/75 text-xs leading-none text-white backdrop-blur-sm"
         aria-label="Удалить фото"
       >
         ×
@@ -186,20 +184,14 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
   const [isDragging, setIsDragging] = useState(false);
   const [processing, setProcessing] = useState(false);
 
-  // Tier selection. When no per-tier LavaTop offers are configured, `tiers` is
-  // empty and we fall back to the single default offer + landing-config price.
   const searchParams = useSearchParams();
   const hasTiers = tiers.length > 0;
-  const requestedTier = searchParams.get("tier");
-  const defaultTier =
-    tiers.find((t) => t.id === requestedTier) ?? tiers.find((t) => t.popular) ?? tiers[0];
-  const [tierId, setTierId] = useState<string | undefined>(defaultTier?.id);
-  const selectedTier = hasTiers ? tiers.find((t) => t.id === tierId) ?? defaultTier : undefined;
+  const [tierId, setTierId] = useState<string | undefined>();
+  const selectedTier = tiers.find((t) => t.id === tierId);
   const priceLabel = selectedTier?.priceLabel ?? PRICE_LABEL;
   const photoCount = selectedTier?.expectedCount ?? HEADSHOT_COUNT;
   const styleCount = selectedTier?.styleKeys.length ?? STYLE_COUNT;
-  const perStyle = Math.max(1, Math.round(photoCount / styleCount));
-  const postTier = selectedTier?.id ?? "pro";
+  const perStyle = selectedTier ? selectedTier.imagesPerStyle : Math.max(1, Math.round(photoCount / styleCount));
 
   useEffect(() => {
     const urls = files.map((f) => URL.createObjectURL(f));
@@ -237,6 +229,12 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
+    if (!selectedTier) {
+      setError("Сначала выберите один из трёх наборов.");
+      document.getElementById("choose")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!EMAIL_RE.test(normalizedEmail)) {
@@ -281,7 +279,7 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
         body: JSON.stringify({
           email: normalizedEmail,
           photoUrls,
-          tier: postTier,
+          tier: selectedTier.id,
           testKey: searchParams.get("test") ?? undefined,
         }),
       });
@@ -318,179 +316,373 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
   }
 
   return (
-    <div className="relative mx-auto w-full max-w-2xl px-5 pb-20 sm:px-6">
-      <form
-        onSubmit={onSubmit}
-        className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-lg sm:p-8"
-      >
-        <div>
-          <label htmlFor="try-email" className="text-sm font-semibold text-[#111827]">
-            Email
-          </label>
-          <input
-            id="try-email"
-            type="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="вы@почта.рф"
-            className="mt-2 min-h-[52px] w-full rounded-xl border border-gray-200 bg-white px-4 text-base text-[#111827] outline-none transition placeholder:text-gray-400 focus:border-[#111827] focus:ring-2 focus:ring-[#111827]/10"
-          />
-          <p className="mt-2 text-xs text-gray-500">
-            Результат придёт на почту примерно через 20 минут. Аккаунт не нужен.
-          </p>
-        </div>
-
-        {hasTiers && tiers.length > 1 && (
-          <div className="mt-8">
-            <p className="text-sm font-semibold text-[#111827]">Тариф</p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
-              {tiers.map((t) => (
-                <button
-                  type="button"
-                  key={t.id}
-                  onClick={() => setTierId(t.id)}
-                  className={cn(
-                    "rounded-xl border p-3 text-left transition",
-                    selectedTier?.id === t.id
-                      ? "border-[#111827] bg-white ring-2 ring-[#111827]/10"
-                      : "border-gray-200 bg-[#faf8f5] hover:border-[#c9a96e]/50"
-                  )}
-                >
-                  <span className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#111827]">{t.name}</span>
-                    {t.popular && (
-                      <span className="rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-semibold text-white">
-                        Хит
-                      </span>
-                    )}
-                  </span>
-                  <span className="mt-1 block text-sm font-semibold text-[#9a7b4f]">{t.priceLabel}</span>
-                  <span className="mt-0.5 block text-xs text-gray-500">
-                    {t.expectedCount} фото · {t.styleKeys.length} стилей
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 rounded-xl border border-[#c9a96e]/20 bg-[#faf8f5] p-4">
-          <p className="text-sm font-medium text-[#111827]">
-            Вы получите {photoCount} фотографий — {styleCount} профессиональных стилей × {perStyle} фото в каждом.
-          </p>
-          <div className="mt-4">
-            <StylePreviewStrip />
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <p className="text-sm font-semibold text-[#111827]">Советы для лучшего результата</p>
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-            {TIPS_GOOD.map((text) => (
-              <li key={text} className="flex items-start gap-2 text-xs text-gray-600">
-                <span className="mt-0.5 font-bold text-[#c9a96e]">✓</span>
-                {text}
-              </li>
-            ))}
-            {TIPS_BAD.map((text) => (
-              <li key={text} className="flex items-start gap-2 text-xs text-gray-600">
-                <span className="mt-0.5 font-bold text-red-500">✗</span>
-                {text}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="mt-8">
-          <label className="text-sm font-semibold text-[#111827]">
-            Селфи
-            <span className="ml-2 font-normal text-gray-500">8–20 фото</span>
-          </label>
-          <label
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDragging(false);
-              if (e.dataTransfer.files?.length) addFiles(Array.from(e.dataTransfer.files));
-            }}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            className={cn(
-              "mt-3 flex min-h-[160px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-8 text-center transition",
-              isDragging
-                ? "border-[#c9a96e]/60 bg-[#faf8f5]"
-                : "border-gray-200 bg-[#faf8f5] hover:border-[#c9a96e]/40 hover:bg-white"
-            )}
-          >
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-gray-700 shadow-sm ring-1 ring-gray-100">
-              <Upload className="h-5 w-5" aria-hidden />
-            </span>
-            <span className="mt-4 text-sm font-medium text-gray-900">Перетащите файлы или нажмите для выбора</span>
-            <span className="mt-1 text-xs text-gray-500">JPG, PNG, WebP, HEIC · максимум 20 файлов</span>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-              multiple
-              className="sr-only"
-              onChange={(event) => {
-                if (event.target.files?.length) addFiles(Array.from(event.target.files));
-                event.target.value = "";
-              }}
-            />
-          </label>
-
-          {processing && (
-            <p className="mt-3 flex items-center gap-2 text-xs text-gray-500">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Обрабатываем фото…
-            </p>
-          )}
-
-          {files.length > 0 && (
-            <div className="mt-4">
-              <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-                {previews.map((url, idx) => (
-                  <PreviewTile
-                    key={url}
-                    url={url}
-                    index={idx}
-                    onRemove={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                  />
-                ))}
+    <div id="choose" className="relative mx-auto w-full max-w-[1500px] scroll-mt-24 px-5 pb-24 sm:px-7">
+      <form onSubmit={onSubmit} className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
+        <aside className="hidden lg:sticky lg:top-24 lg:block lg:self-start">
+          <div className="overflow-hidden border border-white/10 bg-[#11110f] p-5 text-white sm:p-7">
+            <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-6">
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.24em] text-white/35">Ваш заказ</p>
+                <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.06em]">
+                  {selectedTier?.name ?? "Выберите набор"}
+                </h2>
+                <p className="mt-2 text-sm text-white/40">
+                  {selectedTier?.tagline ?? "Сравните условия и выберите подходящий объём"}
+                </p>
               </div>
-              <p className="mt-3 text-xs text-gray-500">
-                Выбрано {files.length}/20 фото
-                {files.length < 8 && ` — добавьте ещё ${8 - files.length}, чтобы продолжить`}
+              <span className="border border-white/10 px-3 py-2 font-mono text-[8px] uppercase tracking-[0.18em] text-white/40">
+                {selectedTier ? `${photoCount} фото` : "Не выбран"}
+              </span>
+            </div>
+
+            <div className="mt-7">
+              <StylePreviewStrip styleKeys={selectedTier?.styleKeys} />
+            </div>
+
+            <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden border border-white/10 bg-white/10">
+              <div className="bg-[#11110f] p-4">
+                <p className="font-display text-3xl font-semibold tracking-[-0.07em]">{selectedTier ? styleCount : "—"}</p>
+                <p className="mt-1 font-mono text-[7px] uppercase tracking-[0.2em] text-white/30">{selectedTier ? pluralRu(styleCount, "стиль", "стиля", "стилей") : "стилей"}</p>
+              </div>
+              <div className="bg-[#11110f] p-4">
+                <p className="font-display text-3xl font-semibold tracking-[-0.07em]">{selectedTier ? perStyle : "—"}</p>
+                <p className="mt-1 font-mono text-[7px] uppercase tracking-[0.2em] text-white/30">фото на стиль</p>
+              </div>
+            </div>
+
+            <div className="mt-7 flex items-end justify-between border-t border-white/10 pt-6">
+              <div>
+                <p className="font-display text-5xl font-semibold tracking-[-0.08em]">{selectedTier ? priceLabel : "—"}</p>
+                <p className="mt-1 font-mono text-[7px] uppercase tracking-[0.2em] text-white/30">разовый платёж</p>
+              </div>
+              <p className="max-w-[150px] text-right text-xs leading-5 text-white/35">
+                Результат на почту примерно через 20 минут
               </p>
             </div>
-          )}
+          </div>
+        </aside>
+
+        <div className="bg-[#edede7] p-5 text-[#11110f] sm:p-8 lg:p-10">
+          <section>
+            <div className="flex items-center gap-4 border-b border-black/10 pb-5">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-black/30">01</span>
+              <div className="flex-1">
+                <h2 className="font-display text-2xl font-semibold tracking-[-0.05em]">Выберите набор</h2>
+                <p className="mt-1 text-xs leading-5 text-black/45">Ничего не выбрано заранее. Сравните состав и нажмите на подходящий вариант.</p>
+              </div>
+            </div>
+            {hasTiers ? (
+              <div className="mt-6 grid gap-3 xl:grid-cols-3">
+                {tiers.map((tier) => {
+                  const active = selectedTier?.id === tier.id;
+                  return (
+                    <button
+                      type="button"
+                      key={tier.id}
+                      aria-pressed={active}
+                      onClick={() => {
+                        setTierId(tier.id);
+                        setError(null);
+                      }}
+                      className={cn(
+                        "group flex min-h-[310px] flex-col border p-5 text-left transition duration-300",
+                        active
+                          ? "border-[#11110f] bg-[#11110f] text-white shadow-[0_18px_45px_rgba(17,17,15,0.18)]"
+                          : "border-black/10 bg-white/40 text-[#11110f] hover:-translate-y-1 hover:border-black/35 hover:bg-white/80"
+                      )}
+                    >
+                      <span className="flex items-start justify-between gap-3">
+                        <span>
+                          <span className={cn("font-mono text-[8px] uppercase tracking-[0.2em]", active ? "text-white/40" : "text-black/35")}>
+                            {tier.popular ? "Самый популярный" : tier.id === "basic" ? "Для старта" : "Максимум выбора"}
+                          </span>
+                          <span className="mt-3 block font-display text-2xl font-semibold tracking-[-0.05em]">{tier.name}</span>
+                        </span>
+                        <span
+                          className={cn(
+                            "flex h-7 w-7 items-center justify-center border transition",
+                            active ? "border-white/30 bg-white text-black" : "border-black/15 group-hover:border-black"
+                          )}
+                        >
+                          {active ? <Check className="h-3.5 w-3.5" /> : null}
+                        </span>
+                      </span>
+
+                      <span className={cn("mt-2 block text-xs leading-5", active ? "text-white/48" : "text-black/45")}>{tier.tagline}</span>
+                      <span className="mt-5 block font-display text-4xl font-semibold tracking-[-0.07em]">{tier.priceLabel}</span>
+                      <span className={cn("mt-1 block font-mono text-[7px] uppercase tracking-[0.18em]", active ? "text-white/30" : "text-black/30")}>
+                        разовый платёж
+                      </span>
+
+                      <span className={cn("mt-5 block border-t pt-4 text-sm font-medium", active ? "border-white/12" : "border-black/10")}>
+                        {tier.expectedCount} фото · {tier.styleKeys.length} {pluralRu(tier.styleKeys.length, "стиль", "стиля", "стилей")} · {tier.imagesPerStyle} на стиль
+                      </span>
+                      <span className="mt-4 space-y-2">
+                        {tier.features.slice(0, 3).map((feature) => (
+                          <span key={feature} className={cn("flex items-start gap-2 text-[11px] leading-4", active ? "text-white/55" : "text-black/48")}>
+                            <Check className="mt-0.5 h-3 w-3 shrink-0" />
+                            {feature}
+                          </span>
+                        ))}
+                      </span>
+                      <span className={cn("mt-auto flex items-center justify-between border-t pt-4 font-mono text-[8px] uppercase tracking-[0.18em]", active ? "border-white/12 text-white" : "border-black/10 text-black/45")}>
+                        {active ? "Выбран" : "Выбрать набор"}
+                        <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="mt-6 border border-red-900/15 bg-red-50 p-4 text-sm text-red-700">
+                Наборы временно недоступны для оплаты. Попробуйте немного позже.
+              </p>
+            )}
+          </section>
+
+          <section className="mt-14">
+            <div className="flex items-center gap-4 border-b border-black/10 pb-5">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-black/30">02</span>
+              <div className="flex-1">
+                <h2 className="font-display text-2xl font-semibold tracking-[-0.05em]">Какие стили вы получите</h2>
+                <p className="mt-1 text-xs leading-5 text-black/45">
+                  {selectedTier
+                    ? `В набор «${selectedTier.name}» входят отмеченные стили.`
+                    : "Выберите набор выше — сразу увидите, какие стили входят."}
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {DISPLAY_STYLES.map((style) => {
+                const included = selectedTier?.styleKeys.includes(style.key) ?? false;
+                return (
+                  <article
+                    key={style.key}
+                    className={cn(
+                      "overflow-hidden border transition duration-300",
+                      !selectedTier
+                        ? "border-black/10 bg-white/35"
+                        : included
+                          ? "border-black/25 bg-white shadow-[0_14px_30px_rgba(17,17,15,0.08)]"
+                          : "border-black/5 bg-black/[0.025] opacity-35"
+                    )}
+                  >
+                    <div className="relative aspect-[5/6] bg-[#d5d5cf]">
+                      <Image src={style.photo} alt={`${style.name} — пример стиля`} fill className="object-contain" sizes="(max-width: 640px) 50vw, 220px" />
+                      <span
+                        className={cn(
+                          "absolute left-2 top-2 border px-2 py-1 font-mono text-[7px] uppercase tracking-[0.14em] backdrop-blur",
+                          included
+                            ? "border-white/20 bg-black/75 text-white"
+                            : "border-black/10 bg-[#edede7]/85 text-black/50"
+                        )}
+                      >
+                        {selectedTier ? (included ? "Входит" : "Не входит") : "Стиль"}
+                      </span>
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-display text-base font-semibold tracking-[-0.035em]">{style.name}</h3>
+                      <p className="mt-1 text-[10px] leading-4 text-black/42">{style.tagline}</p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="mt-14">
+            <div className="flex items-center gap-4 border-b border-black/10 pb-5">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-black/30">03</span>
+              <h2 className="font-display text-2xl font-semibold tracking-[-0.05em]">Куда отправить результат</h2>
+            </div>
+            <label htmlFor="try-email" className="mt-6 block font-mono text-[8px] uppercase tracking-[0.22em] text-black/40">
+              Email
+            </label>
+            <input
+              id="try-email"
+              type="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="вы@почта.рф"
+              className="mt-3 min-h-[58px] w-full border border-black/10 bg-white/65 px-5 text-base text-[#11110f] outline-none transition placeholder:text-black/25 focus:border-black/35 focus:bg-white"
+            />
+            <p className="mt-2 text-xs text-black/38">Аккаунт не нужен. На этот адрес придёт ссылка на галерею.</p>
+          </section>
+
+          <section className="mt-14">
+            <div className="flex items-center gap-4 border-b border-black/10 pb-5">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-black/30">04</span>
+              <h2 className="font-display text-2xl font-semibold tracking-[-0.05em]">Подготовьте селфи</h2>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="border border-black/10 bg-white/45 p-5">
+                <p className="font-mono text-[8px] uppercase tracking-[0.2em] text-black/40">Подойдёт</p>
+                <ul className="mt-4 space-y-3">
+                  {TIPS_GOOD.slice(0, 4).map((text) => (
+                    <li key={text} className="flex items-start gap-3 text-xs leading-5 text-black/52">
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-black" />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="border border-black/10 bg-white/20 p-5">
+                <p className="font-mono text-[8px] uppercase tracking-[0.2em] text-black/40">Не подойдёт</p>
+                <ul className="mt-4 space-y-3">
+                  {TIPS_BAD.map((text) => (
+                    <li key={text} className="flex items-start gap-3 text-xs leading-5 text-black/52">
+                      <span className="mt-0.5 text-black/35">×</span>
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-8">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.22em] text-black/40">Загрузка</p>
+                <p className="mt-2 text-sm font-medium">Добавьте от 8 до 20 фотографий</p>
+              </div>
+              <span className="font-mono text-[9px] tracking-[0.18em] text-black/35">{files.length}/20</span>
+            </div>
+            <label
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                if (e.dataTransfer.files?.length) addFiles(Array.from(e.dataTransfer.files));
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              className={cn(
+                "mt-4 flex min-h-[210px] cursor-pointer flex-col items-center justify-center border border-dashed px-5 py-10 text-center transition",
+                isDragging
+                  ? "border-black bg-white"
+                  : "border-black/20 bg-white/35 hover:border-black/45 hover:bg-white/65"
+              )}
+            >
+              <span className="flex h-12 w-12 items-center justify-center border border-black/10 bg-white/70 text-black">
+                <Upload className="h-4 w-4" aria-hidden />
+              </span>
+              <span className="mt-5 font-display text-xl font-semibold tracking-[-0.04em]">Перетащите фото сюда</span>
+              <span className="mt-2 text-xs text-black/40">или нажмите для выбора · JPG, PNG, WebP, HEIC</span>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                multiple
+                className="sr-only"
+                onChange={(event) => {
+                  if (event.target.files?.length) addFiles(Array.from(event.target.files));
+                  event.target.value = "";
+                }}
+              />
+            </label>
+
+            {processing && (
+              <p className="mt-3 flex items-center gap-2 text-xs text-black/45">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Обрабатываем фото…
+              </p>
+            )}
+
+            {files.length > 0 && (
+              <div className="mt-5">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
+                  {previews.map((url, idx) => (
+                    <PreviewTile
+                      key={url}
+                      url={url}
+                      index={idx}
+                      onRemove={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                    />
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-black/45">
+                  Выбрано {files.length}/20 фото
+                  {files.length < 8 && ` · добавьте ещё ${8 - files.length}, чтобы продолжить`}
+                </p>
+              </div>
+            )}
+          </section>
+
+          <section className="mt-12">
+            <div className="flex items-center gap-4 border-b border-black/10 pb-5">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-black/30">05</span>
+              <h2 className="font-display text-2xl font-semibold tracking-[-0.05em]">Проверьте заказ и оплатите</h2>
+            </div>
+
+            <div className="mt-5 border border-black/10 bg-white/45 p-5">
+              {selectedTier ? (
+                <>
+                  <div className="flex items-start justify-between gap-5 border-b border-black/10 pb-4">
+                    <div>
+                      <p className="font-mono text-[8px] uppercase tracking-[0.2em] text-black/35">Выбранный набор</p>
+                      <p className="mt-2 font-display text-2xl font-semibold tracking-[-0.05em]">{selectedTier.name}</p>
+                      <p className="mt-1 text-xs text-black/45">{selectedTier.tagline}</p>
+                    </div>
+                    <p className="font-display text-3xl font-semibold tracking-[-0.06em]">{selectedTier.priceLabel}</p>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
+                    <p><span className="block font-mono text-[7px] uppercase tracking-[0.18em] text-black/35">Результат</span><span className="mt-1 block font-medium">{selectedTier.expectedCount} фото</span></p>
+                    <p><span className="block font-mono text-[7px] uppercase tracking-[0.18em] text-black/35">Стили</span><span className="mt-1 block font-medium">{selectedTier.styleKeys.length} {pluralRu(selectedTier.styleKeys.length, "стиль", "стиля", "стилей")}</span></p>
+                    <p><span className="block font-mono text-[7px] uppercase tracking-[0.18em] text-black/35">Оплата</span><span className="mt-1 block font-medium">Разовая, картой</span></p>
+                  </div>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("choose")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                  className="flex w-full items-center justify-between gap-5 text-left"
+                >
+                  <span>
+                    <span className="font-display text-xl font-semibold tracking-[-0.04em]">Набор ещё не выбран</span>
+                    <span className="mt-1 block text-xs text-black/45">Вернитесь к первому шагу и выберите подходящий вариант.</span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0" />
+                </button>
+              )}
+            </div>
+
+            <PhotoProcessingConsentFields value={consent} onChange={setConsent} className="mt-5" />
+
+            {error && (
+              <p className="mt-5 border border-red-900/15 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
+              </p>
+            )}
+
+            <button
+              type={selectedTier ? "submit" : "button"}
+              onClick={
+                selectedTier
+                  ? undefined
+                  : () => document.getElementById("choose")?.scrollIntoView({ behavior: "smooth", block: "start" })
+              }
+              disabled={loading}
+              className="mt-6 inline-flex min-h-[58px] w-full items-center justify-center bg-[#11110f] px-6 font-mono text-[10px] uppercase tracking-[0.18em] text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {uploadProgress ?? "Готовим оплату…"}
+                </>
+              ) : (
+                selectedTier ? `Перейти к оплате · ${priceLabel}` : "Сначала выберите набор"
+              )}
+            </button>
+            <p className="mt-3 text-center text-xs text-black/38">
+              {selectedTier
+                ? `Разовый платёж · ${photoCount} фото в ${styleCount} стилях · оплата картой`
+                : "После выбора набора здесь появится точный состав заказа"}
+            </p>
+          </section>
         </div>
-
-        <PhotoProcessingConsentFields value={consent} onChange={setConsent} className="mt-8" />
-
-        <button
-          type="submit"
-          disabled={loading || !isPhotoConsentValid(consent)}
-          className="mt-8 inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#111827] text-base font-semibold text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {uploadProgress ?? "Готовим оплату…"}
-            </>
-          ) : (
-            `Сгенерировать портреты — ${priceLabel} →`
-          )}
-        </button>
-
-        <p className="mt-3 text-center text-xs text-gray-500">
-          Разовый платёж {priceLabel} · {photoCount} фото в {styleCount} стилях · оплата картой
-        </p>
-
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       </form>
     </div>
   );

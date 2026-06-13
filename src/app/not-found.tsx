@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
+import { BrandMark } from "@/components/site/brand-mark";
 
 export const metadata = {
   title: "Страница не найдена — Headshots",
@@ -6,21 +9,24 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-[#faf8f5] px-5 py-20 text-[#111827]">
-      <div className="mx-auto max-w-lg rounded-2xl border border-gray-200/80 bg-white px-8 py-12 text-center shadow-lg">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a7b4f]">404</p>
-        <h1 className="mt-4 font-display text-3xl font-normal tracking-tight text-[#111827] sm:text-4xl">
+    <div className="flex min-h-dvh flex-col bg-[#11110f] px-5 py-6 text-white sm:px-8">
+      <BrandMark light />
+      <div className="mx-auto flex w-full max-w-5xl flex-1 items-center">
+        <div className="border-l border-white/20 pl-6 sm:pl-10">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">Ошибка / 404</p>
+          <h1 className="mt-6 max-w-2xl font-display text-5xl font-medium tracking-[-0.065em] sm:text-7xl">
           Страница не найдена
         </h1>
-        <p className="mt-4 text-sm leading-relaxed text-gray-600">
+        <p className="mt-6 max-w-md text-sm leading-relaxed text-white/50">
           Возможно, ссылка устарела или была введена с ошибкой. Проверьте адрес или вернитесь на главную.
         </p>
         <Link
           href="/"
-          className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-[#111827] px-7 text-sm font-semibold text-white transition hover:bg-black"
+          className="group mt-9 inline-flex min-h-[50px] items-center gap-8 bg-white px-5 text-sm font-semibold text-black transition hover:bg-[#edede7]"
         >
-          На главную
+          На главную <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
         </Link>
+        </div>
       </div>
     </div>
   );

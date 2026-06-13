@@ -1,14 +1,23 @@
 import Link from "next/link";
 
-export function TryFlowHeader() {
+import { BrandMark } from "@/components/site/brand-mark";
+
+export function TryFlowHeader({ step = "Создание портретов" }: { step?: string }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200/60 bg-[#faf8f5]/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
-        <Link href="/" className="font-display text-xl font-semibold tracking-[-0.03em] text-[#111827]">
-          Headshots
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#090909]/90 text-white backdrop-blur-xl">
+      <div className="mx-auto flex h-20 max-w-[1500px] items-center justify-between px-5 sm:px-7">
+        <Link href="/" aria-label="Headshots — главная">
+          <BrandMark light />
         </Link>
-        <Link href="/" className="text-sm font-medium text-gray-600 transition hover:text-gray-900">
-          ← На главную
+        <div className="hidden items-center gap-3 sm:flex">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#edc894]" />
+          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/45">{step}</span>
+        </div>
+        <Link
+          href="/"
+          className="rounded-full border border-white/15 px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/60 transition hover:border-white/35 hover:text-white"
+        >
+          На главную
         </Link>
       </div>
     </header>

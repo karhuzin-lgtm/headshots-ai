@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LegalPageFooter } from "@/components/legal/legal-page-footer";
+import { LegalPageHeader } from "@/components/legal/legal-page-header";
 
 export const metadata = {
   title: "Согласие на обработку биометрических данных — Headshots",
@@ -10,25 +11,17 @@ export const metadata = {
 
 export default function ConsentPage() {
   return (
-    <div className="min-h-dvh bg-white text-[#111827]">
-      <header className="border-b border-gray-100">
-        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-5 sm:px-6">
-          <Link href="/" className="font-display text-lg font-semibold tracking-tight">
-            Headshots
-          </Link>
-          <Link href="/" className="text-sm text-gray-500 transition hover:text-gray-900">
-            ← На главную
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-dvh bg-[#edede7] text-[#11110f]">
+      <LegalPageHeader />
 
-      <main className="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
-        <h1 className="font-display text-4xl font-normal tracking-tight">
+      <main className="mx-auto max-w-5xl px-5 py-14 sm:px-8 sm:py-20">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-black/45">Документы / 04</p>
+        <h1 className="mt-5 max-w-5xl font-display text-5xl font-medium tracking-[-0.06em] sm:text-7xl">
           Согласие на обработку персональных данных, в том числе биометрических
         </h1>
-        <p className="mt-3 text-sm text-gray-500">Обновлено: июнь 2026</p>
+        <p className="mt-5 text-xs uppercase tracking-[0.14em] text-black/40">Обновлено: июнь 2026</p>
 
-        <div className="mt-10 space-y-10 text-base leading-relaxed text-gray-600">
+        <div className="legal-document mt-14 text-base leading-relaxed text-black/60">
           <section>
             <h2 className="text-lg font-semibold text-[#111827]">Оператор</h2>
             <p className="mt-3">
