@@ -8,6 +8,7 @@ import {
   markGenerationPaidTestMode,
 } from "@/lib/generations-db";
 import { createPaymentInvoice, PENDING_GENERATION_COOKIE } from "@/lib/lavatop";
+import { esc, notifyOperator } from "@/lib/notify";
 import { startAstriaGeneration } from "@/lib/start-generation";
 import { DEFAULT_TIER, getTier, purchasableTiers } from "@/lib/tiers";
 
@@ -116,6 +117,12 @@ export async function POST(request: Request) {
       trainingSteps: tier.trainingSteps,
     });
 
+    // Notify operator of every new order (test + real), fire-and-forget.
+    notifyOperator(
+      `🆕 Новый заказ\nEmail: ${esc(email)}\nТариф: ${tier.name} (${tier.priceLabel})\nФото: ${tier.expectedCount}` +
+        (isTest ? "\n(тест-режим, без оплаты)" : "")
+    );
+
     // TEST MODE: mark paid + start generation immediately, no LavaTop charge.
     if (isTest) {
       const paid = await markGenerationPaidTestMode(generation.id);
@@ -147,6 +154,9 @@ export async function POST(request: Request) {
       invoiceId = invoice.invoiceId;
     } catch (error) {
       console.error("LavaTop createInvoice failed:", error);
+      notifyOperator(
+        `⚠️ Сбой оплаты у клиента\nEmail: ${esc(email)}\nТариф: ${tier.name}\nне удалось создать инвойс`
+      );
       return NextResponse.json(
         { error: "Не удалось перейти к оплате. Попробуйте ещё раз." },
         { status: 502 }
@@ -177,6 +187,9 @@ export async function POST(request: Request) {
     if (!attached) {
       console.error(
         `CRITICAL: invoice created but not attached. Manual reconciliation needed. invoiceId=${invoiceId} generationId=${generation.id}`
+      );
+      notifyOperator(
+        `⚠️ Сбой оплаты у клиента\nEmail: ${esc(email)}\nТариф: ${tier.name}\nне удалось привязать инвойс`
       );
       return NextResponse.json(
         { error: "Не удалось перейти к оплате. Попробуйте ещё раз." },
