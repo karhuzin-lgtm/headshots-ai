@@ -7,6 +7,7 @@ import {
   type GenerationRow,
 } from "@/lib/generations-db";
 import { sendGenerationFailed, sendHeadshotsStarted, sendOwnerAlert } from "@/lib/email";
+import { esc, notifyOperator } from "@/lib/notify";
 
 /**
  * Strip credentials using explicit patterns rather than a suffix-based regex.
@@ -97,6 +98,10 @@ export async function startAstriaGeneration(
     });
 
     if (isFirstAttempt && !ambiguous) {
+      // Confirmed failure surfaced to the client, fired once (first attempt only).
+      notifyOperator(
+        `❌ Генерация упала\nEmail: ${esc(claimed.email)}\nПричина: ${esc(message)}`
+      );
       await sendGenerationFailed(claimed.email, `/try/result/${claimed.id}`).catch((e) =>
         console.error("failed-generation email failed:", e)
       );

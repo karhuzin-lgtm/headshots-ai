@@ -14,6 +14,7 @@ import Link from "next/link";
 
 import { CtaButton } from "@/components/marketing/cta-button";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { VisitTracker } from "@/components/marketing/visit-tracker";
 import { BrandMark } from "@/components/site/brand-mark";
 import { DISPLAY_STYLES } from "@/lib/display-styles";
 import { PRIMARY_CTA, TEAM_CTA, SUPPORT_TELEGRAM_URL } from "@/lib/landing-config";
@@ -217,6 +218,7 @@ function TierCard({ tier }: { tier: Tier }) {
 export function CinematicLanding() {
   return (
     <div className="overflow-clip bg-[#edede7] text-[#11110f]">
+      <VisitTracker path="/" />
       <section className="relative min-h-[100svh] overflow-hidden bg-[#081018] text-white">
         <Image
           src="/generated/hero-atmosphere.jpg"

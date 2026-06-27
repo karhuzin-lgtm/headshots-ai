@@ -7,7 +7,9 @@ import {
   setGenerationPaymentId,
 } from "@/lib/generations-db";
 import { getLavaWebhookSecret } from "@/lib/lavatop";
+import { esc, notifyOperator } from "@/lib/notify";
 import { startAstriaGeneration } from "@/lib/start-generation";
+import { getTier } from "@/lib/tiers";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -72,6 +74,18 @@ async function handlePaymentSuccess(data: PaymentSuccessData): Promise<void> {
     return;
   }
   generation = paid;
+
+  // markGenerationPaid is atomic: it flips paid=false→true on the first event and
+  // on idempotent retries (already paid + same payment_id) returns the existing
+  // row, so retries still reach startAstriaGeneration below — the retry path is
+  // intact. It returns null only on a genuine mismatch/not-found (handled above).
+  // The "💰 paid" alert may therefore repeat across LavaTop retries; acceptable
+  // for an operator heads-up (no side effects), and startAstriaGeneration's
+  // atomic claim prevents any duplicate generation/billing.
+  const paidTier = getTier(generation.tier);
+  notifyOperator(
+    `💰 Оплата прошла\nEmail: ${esc(generation.email)}\nТариф: ${paidTier.name} (${paidTier.priceLabel})\nЗапускаю генерацию`
+  );
 
   // Throws on Astria failure → caught by POST → 5xx → LavaTop retries.
   await startAstriaGeneration(generation);

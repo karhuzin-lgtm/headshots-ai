@@ -14,6 +14,7 @@ import {
 } from "@/components/legal/legal-consent-fields";
 import { DISPLAY_STYLES, type ProductStyleKey } from "@/lib/display-styles";
 import { HEADSHOT_COUNT, PRICE_LABEL, STYLE_COUNT } from "@/lib/landing-config";
+import { trackClient } from "@/lib/track-client";
 import type { Tier } from "@/lib/tiers";
 import { cn, pluralRu } from "@/lib/utils";
 
@@ -216,6 +217,8 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
     // accept= only constrains the picker, not drag-drop — filter to images here.
     const images = incoming.filter((f) => f.type.startsWith("image/") || isHeic(f));
     if (!images.length) return;
+    // Funnel: first real selfie selection of the session (once per session).
+    trackClient("upload_started", {}, { oncePerSessionKey: "upload_started" });
     setProcessing(true);
     try {
       // Convert HEIC → JPEG up front (previewable + Astria-compatible).
@@ -252,6 +255,11 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       return;
     }
 
+    // Open the checkout tab synchronously, inside the user gesture, so the
+    // browser doesn't popup-block it after the long async upload chain. We
+    // navigate it to the real URL once we have it (or close it on failure).
+    const payWindow = window.open("about:blank", "_blank");
+
     setLoading(true);
     setUploadProgress(null);
 
@@ -262,11 +270,25 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       for (let i = 0; i < compressed.length; i++) {
         setUploadProgress(`Загружаем фото ${i + 1} из ${compressed.length}…`);
         const file = compressed[i];
-        const pathname = `try-free/${crypto.randomUUID()}.jpg`;
+        // Don't upload a HEIC/HEIF (or otherwise unconverted) blob masquerading
+        // as JPEG — conversion may have failed and left the original bytes.
+        // Only real jpeg/png blobs go up, with their true content type + ext.
+        const blobType = file.type;
+        let ext: string;
+        if (blobType === "image/jpeg") {
+          ext = "jpg";
+        } else if (blobType === "image/png") {
+          ext = "png";
+        } else {
+          throw new Error(
+            "Не удалось обработать файл (формат HEIC). Загрузите фото в JPEG или PNG."
+          );
+        }
+        const pathname = `try-free/${crypto.randomUUID()}.${ext}`;
         const blob = await upload(pathname, file, {
           access: "public",
           handleUploadUrl: "/api/try-free/upload",
-          contentType: "image/jpeg",
+          contentType: blobType,
         });
         photoUrls.push(blob.url);
       }
@@ -303,12 +325,38 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       // Test mode returns an internal /try/result url → just navigate. Normal
       // flow returns the LavaTop (http) url → open it in a new tab + go to the
       // waiting page in this tab.
+      // Funnel: checkout is opening (payment session created successfully).
+      trackClient("checkout_opened", { tier: selectedTier.id });
+
       if (json.url.startsWith("http")) {
-        window.open(json.url, "_blank", "noopener");
+        // External LavaTop checkout. Send the pre-opened tab there. If it was
+        // popup-blocked (null), fall back to navigating THIS tab to checkout
+        // and do NOT also go to the waiting page (we'd lose the buyer).
+        if (payWindow) {
+          // Sever the opener link before sending the tab to an external site so
+          // it can't reverse-tabnab us (redirect our tab to a phishing page).
+          // We can't pass "noopener" to window.open (it nulls the reference we
+          // need), so we drop opener here instead.
+          try {
+            payWindow.opener = null;
+          } catch {
+            // Cross-origin/blocked access — best effort.
+          }
+          payWindow.location.href = json.url;
+        } else {
+          window.location.href = json.url;
+          return;
+        }
+      } else {
+        // Internal (test mode) url → no separate tab needed; close the blank one.
+        payWindow?.close();
       }
       window.location.href = `/try/result/${json.id}`;
       return;
     } catch (e) {
+      // Submit failed before we had a checkout URL — close the blank tab so it
+      // doesn't linger.
+      payWindow?.close();
       setError(e instanceof Error ? e.message : "Не удалось перейти к оплате.");
       setLoading(false);
       setUploadProgress(null);

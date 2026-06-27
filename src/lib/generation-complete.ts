@@ -8,6 +8,7 @@ import {
   getGeneration,
   type GenerationRow,
 } from "@/lib/generations-db";
+import { esc, notifyOperator } from "@/lib/notify";
 
 /** Per-generation token so the global secret never travels in a callback URL. */
 function astriaToken(generationId: string, secret: string): string {
@@ -68,6 +69,11 @@ export async function mergeGenerationOutputs(
 
   const { row, becameDone } = result;
   if (becameDone) {
+    // becameDone is the atomic once-per-order transition to done — fire here so
+    // the alert never duplicates across partial Astria callbacks or sync polls.
+    notifyOperator(
+      `✅ Портреты готовы\nEmail: ${esc(row.email)}\nФото: ${row.output_urls.length}`
+    );
     try {
       await sendHeadshotsReady(row.email, `/try/result/${row.id}`, row.output_urls);
     } catch (error) {
