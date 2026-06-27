@@ -94,6 +94,7 @@ export async function resolveOfferId(tier: Tier): Promise<string> {
 
   const id = extractUuid(ref);
 
+  let apiFailed = false;
   try {
     const client = getLavaClient();
     const products = await client.getProducts(
@@ -135,10 +136,18 @@ export async function resolveOfferId(tier: Tier): Promise<string> {
       }
     }
   } catch (error) {
+    apiFailed = true;
     console.error(
       "LavaTop: offer resolution via products API failed, using configured id directly.",
       error
     );
+  }
+
+  // Products API succeeded but the offer wasn't found: cache the configured id.
+  // If the API itself failed, do NOT cache — retry resolution on the next call
+  // so a transient outage doesn't pin a wrong id for the lambda's lifetime.
+  if (apiFailed) {
+    return id;
   }
 
   offerIdCache.set(ref, id);
@@ -175,17 +184,37 @@ export async function createPaymentInvoice(input: {
   const offerId = await resolveOfferId(input.tier);
   const currency = input.currency ?? getPaymentCurrency();
 
-  const invoice = await client.createOneTimePayment(
-    input.email,
-    offerId,
-    currency,
-    undefined,
-    Language.RU
-  );
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, 200 * 2 ** (attempt - 1))
+      );
+    }
+    try {
+      const invoice = await client.createOneTimePayment(
+        input.email,
+        offerId,
+        currency,
+        undefined,
+        Language.RU
+      );
 
-  if (!invoice?.paymentUrl) {
-    throw new Error("LavaTop did not return a payment URL");
+      if (!invoice?.paymentUrl) {
+        throw new Error("LavaTop did not return a payment URL");
+      }
+
+      return { invoiceId: invoice.id, paymentUrl: invoice.paymentUrl };
+    } catch (error) {
+      lastError = error;
+      console.error(
+        `LavaTop createOneTimePayment failed (attempt ${attempt + 1}/3):`,
+        error
+      );
+    }
   }
 
-  return { invoiceId: invoice.id, paymentUrl: invoice.paymentUrl };
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("LavaTop createOneTimePayment failed", { cause: lastError });
 }
