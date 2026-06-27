@@ -17,7 +17,7 @@ import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { VisitTracker } from "@/components/marketing/visit-tracker";
 import { BrandMark } from "@/components/site/brand-mark";
 import { DISPLAY_STYLES } from "@/lib/display-styles";
-import { PRIMARY_CTA, TEAM_CTA, SUPPORT_TELEGRAM_URL } from "@/lib/landing-config";
+import { PRIMARY_CTA, TEAM_CONTACT_URL, TEAM_TELEGRAM_URL, SUPPORT_TELEGRAM_URL } from "@/lib/landing-config";
 import { MY_BEFORE_PHOTO } from "@/lib/my-photos";
 import { TIER_ORDER, TIERS, type Tier } from "@/lib/tiers";
 
@@ -580,15 +580,26 @@ export function CinematicLanding() {
                     </p>
                   ))}
                 </div>
-                <CtaButton
-                  href={TEAM_CTA.href}
-                  event="team_cta_click"
-                  eventProps={{ location: "teams" }}
-                  className="mt-7 min-h-[54px] gap-3 px-6 font-mono text-[10px] uppercase tracking-[0.18em]"
-                >
-                  Рассчитать для команды
-                  <ArrowRight className="h-4 w-4" />
-                </CtaButton>
+                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <CtaButton
+                    href={TEAM_TELEGRAM_URL}
+                    event="team_cta_click"
+                    eventProps={{ location: "teams" }}
+                    className="min-h-[54px] gap-3 px-6 font-mono text-[10px] uppercase tracking-[0.18em]"
+                  >
+                    Написать в Telegram
+                    <ArrowRight className="h-4 w-4" />
+                  </CtaButton>
+                  <CtaButton
+                    href={TEAM_CONTACT_URL}
+                    event="team_cta_click"
+                    eventProps={{ location: "teams_email" }}
+                    variant="secondary"
+                    className="min-h-[54px] gap-3 px-6 font-mono text-[10px] uppercase tracking-[0.18em]"
+                  >
+                    Или на почту
+                  </CtaButton>
+                </div>
               </ScrollReveal>
             </div>
           </div>

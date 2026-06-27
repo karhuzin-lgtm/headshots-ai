@@ -43,6 +43,13 @@ export const TEAM_CONTACT_URL =
   "mailto:aleksei@alekseimedia.com?subject=Портреты%20для%20команды";
 
 /**
+ * Telegram-контакт для командных/корпоративных заказов — основной канал связи.
+ * Переопределяется через NEXT_PUBLIC_TEAM_TELEGRAM_URL.
+ */
+export const TEAM_TELEGRAM_URL =
+  process.env.NEXT_PUBLIC_TEAM_TELEGRAM_URL?.trim() || "https://t.me/alekseimedia";
+
+/**
  * Поддержка в Telegram — куда клиент пишет при проблемах с заказом/оплатой.
  * Переопределяется через NEXT_PUBLIC_SUPPORT_TELEGRAM_URL.
  */
