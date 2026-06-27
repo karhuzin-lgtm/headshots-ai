@@ -5,7 +5,6 @@ import {
   countRecentUnpaidGenerations,
   createGeneration,
   findRateLimitedGeneration,
-  markGenerationPaid,
   markGenerationPaidTestMode,
 } from "@/lib/generations-db";
 import { createPaymentInvoice, PENDING_GENERATION_COOKIE } from "@/lib/lavatop";

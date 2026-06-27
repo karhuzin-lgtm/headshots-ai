@@ -5,7 +5,7 @@ import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { PRICE_LABEL } from "@/lib/landing-config";
 
 const rows = [
-  ["Стоимость", "от 5 000 ₽", `${PRICE_LABEL} за весь набор`],
+  ["Стоимость", "от 5 000 ₽", `от ${PRICE_LABEL} за набор`],
   ["Время", "1–2 недели", "~20 минут"],
   ["Запись", "Нужна", "Не нужна"],
   ["Стили", "Обычно один образ", "6 профессиональных стилей"],

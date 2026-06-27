@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BrandMark } from "@/components/site/brand-mark";
+import { SUPPORT_TELEGRAM_URL } from "@/lib/landing-config";
 
 export function LandingFooter() {
   return (
@@ -20,6 +21,14 @@ export function LandingFooter() {
           <Link href="/legal" className="transition hover:text-white">
             Реквизиты
           </Link>
+          <a
+            href={SUPPORT_TELEGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition hover:text-white"
+          >
+            Поддержка в Telegram
+          </a>
           <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-white">
             Контакт
           </a>

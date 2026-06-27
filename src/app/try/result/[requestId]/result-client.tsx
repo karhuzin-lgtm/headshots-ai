@@ -5,7 +5,7 @@ import Link from "next/link";
 import { type ReactNode, useEffect, useState } from "react";
 
 import { DISPLAY_STYLES } from "@/lib/display-styles";
-import { PRICE_LABEL, PRIMARY_CTA, STYLE_COUNT } from "@/lib/landing-config";
+import { PRICE_LABEL, PRIMARY_CTA, STYLE_COUNT, SUPPORT_TELEGRAM_URL } from "@/lib/landing-config";
 import { getTier } from "@/lib/tiers";
 
 type StatusResponse = {
@@ -139,6 +139,9 @@ export function TryResultClient({ requestId }: { requestId: string }) {
           <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/55">
             Проверьте почту — мы пришлём результат, как только он будет готов.
           </p>
+          <a href={SUPPORT_TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex min-h-[48px] items-center gap-3 border border-white/20 px-5 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white hover:text-black">
+            Написать в поддержку <ArrowRight className="h-4 w-4" />
+          </a>
         </StatusCard>
       </StatusShell>
     );
@@ -160,6 +163,9 @@ export function TryResultClient({ requestId }: { requestId: string }) {
           >
             Вернуться к загрузке <ArrowRight className="h-4 w-4" />
           </Link>
+          <a href={SUPPORT_TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex min-h-[48px] items-center gap-3 border border-white/20 px-5 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white hover:text-black">
+            Написать в поддержку <ArrowRight className="h-4 w-4" />
+          </a>
         </StatusCard>
       </StatusShell>
     );
@@ -203,6 +209,9 @@ export function TryResultClient({ requestId }: { requestId: string }) {
           <p className="mx-auto mt-7 max-w-md border-t border-white/10 pt-5 text-xs leading-relaxed text-white/35">
             Если вы оплатили заказ, напишите нам — поможем без повторной оплаты.
           </p>
+          <a href={SUPPORT_TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex min-h-[48px] items-center gap-3 border border-white/20 px-5 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white hover:text-black">
+            Написать в поддержку <ArrowRight className="h-4 w-4" />
+          </a>
         </StatusCard>
       </StatusShell>
     );
