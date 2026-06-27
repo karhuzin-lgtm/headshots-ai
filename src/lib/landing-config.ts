@@ -5,12 +5,14 @@
  * оффере LavaTop (дашборд). Держи их в соответствии: PRICE_RUB === цена оффера.
  */
 
-/** Цена в рублях (для отображения). Реальное списание — в оффере LavaTop. */
-// ВРЕМЕННО 390 ₽ на период тестов (совпадает с оффером LavaTop). Целевая цена — 1290 ₽:
-// поменяй обе строки ниже и цену оффера в дашборде LavaTop одновременно.
-export const PRICE_RUB = 390;
-/** Готовая строка цены для UI. */
-export const PRICE_LABEL = "390 ₽";
+/**
+ * Стартовая цена «от» для лендинга (для отображения). Реальное списание задаётся
+ * в офферах LavaTop по тарифам. Это цена самого дешёвого тарифа (Базовый).
+ * Тарифы и их цены — в src/lib/tiers.ts; держи это значение = priceRub тарифа basic.
+ */
+export const PRICE_RUB = 790;
+/** Готовая строка цены «от» для UI. */
+export const PRICE_LABEL = "790 ₽";
 /** Сколько фото получает пользователь за один заказ. */
 export const HEADSHOT_COUNT = 18;
 /** Сколько профессиональных стилей в наборе. */
@@ -39,6 +41,13 @@ export const CHECKOUT_IS_EXTERNAL = /^https?:\/\//.test(GET_STARTED_URL);
 export const TEAM_CONTACT_URL =
   process.env.NEXT_PUBLIC_TEAM_CONTACT_URL?.trim() ||
   "mailto:aleksei@alekseimedia.com?subject=Портреты%20для%20команды";
+
+/**
+ * Поддержка в Telegram — куда клиент пишет при проблемах с заказом/оплатой.
+ * Переопределяется через NEXT_PUBLIC_SUPPORT_TELEGRAM_URL.
+ */
+export const SUPPORT_TELEGRAM_URL =
+  process.env.NEXT_PUBLIC_SUPPORT_TELEGRAM_URL?.trim() || "https://t.me/alekseimedia";
 
 export const PRIMARY_CTA = { href: GET_STARTED_URL, label: "Создать мои портреты" } as const;
 export const HERO_CTA = { href: GET_STARTED_URL, label: "Создать мои портреты" } as const;

@@ -16,7 +16,7 @@ import { CtaButton } from "@/components/marketing/cta-button";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { BrandMark } from "@/components/site/brand-mark";
 import { DISPLAY_STYLES } from "@/lib/display-styles";
-import { PRIMARY_CTA, TEAM_CTA } from "@/lib/landing-config";
+import { PRIMARY_CTA, TEAM_CTA, SUPPORT_TELEGRAM_URL } from "@/lib/landing-config";
 import { MY_BEFORE_PHOTO } from "@/lib/my-photos";
 import { TIER_ORDER, TIERS, type Tier } from "@/lib/tiers";
 
@@ -672,6 +672,9 @@ export function CinematicLanding() {
             <Link href="/legal" className="transition hover:text-white">
               Реквизиты
             </Link>
+            <a href={SUPPORT_TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">
+              Поддержка в Telegram
+            </a>
             <a href="mailto:aleksei@alekseimedia.com" className="transition hover:text-white">
               Контакт
             </a>
