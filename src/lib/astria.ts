@@ -372,3 +372,88 @@ export async function fetchTuneOutputUrls(tuneId: string): Promise<string[]> {
   const urls = data.flatMap((prompt) => collectAstriaImageUrls(prompt));
   return Array.from(new Set(urls));
 }
+
+/**
+ * Result of inspecting a tune's prompts to decide whether Astria has produced
+ * everything it ever will for this order.
+ *
+ * - imageUrls: every image URL Astria currently has across all prompts (deduped).
+ * - allPromptsDone: true when every prompt has finished inference. Each Astria
+ *   prompt object exposes `trained_at` (null until that prompt's images are
+ *   generated). When EVERY prompt has a non-null `trained_at`, no further images
+ *   will arrive — so a partial result at this point is final, not in-flight.
+ * - promptCount: number of prompt objects Astria returned for the tune.
+ *
+ * Used by the partial-finalization path: if Astria says all prompts are done but
+ * we received fewer images than expected (some prompts produced nothing / fewer
+ * images), the order can be safely closed with what exists instead of polling
+ * forever.
+ */
+export type TuneCompletion = {
+  imageUrls: string[];
+  allPromptsDone: boolean;
+  promptCount: number;
+};
+
+export async function fetchTuneCompletion(tuneId: string): Promise<TuneCompletion> {
+  if (!/^\d+$/.test(tuneId)) {
+    throw new AstriaValidationError(`Invalid tuneId format: ${tuneId}`);
+  }
+  const apiKey = getAstriaApiKey();
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}/tunes/${encodeURIComponent(tuneId)}/prompts`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: "application/json",
+      },
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch (err) {
+    // GET is idempotent — network errors and timeouts are safe to retry.
+    throw new AstriaApiError(
+      `Network error fetching tune completion: ${err instanceof Error ? err.message : String(err)}`,
+      0,
+      true
+    );
+  }
+
+  const data = await (async () => {
+    const raw = await res.json().catch(() => null);
+    if (!res.ok) {
+      const details = raw ? `: ${JSON.stringify(raw)}` : "";
+      const message =
+        (typeof raw?.message === "string" ? raw.message : null) ??
+        (typeof raw?.error === "string" ? raw.error : null) ??
+        `Astria prompts request failed with status ${res.status}${details}`;
+      throw new AstriaApiError(message, res.status, res.status === 429 || res.status >= 500);
+    }
+    return raw;
+  })();
+
+  if (!Array.isArray(data)) {
+    throw new AstriaApiError(
+      `Unexpected response format from Astria prompts endpoint (expected array, got ${typeof data})`,
+      res.status,
+      true
+    );
+  }
+
+  const imageUrls = Array.from(
+    new Set(data.flatMap((prompt) => collectAstriaImageUrls(prompt)))
+  );
+
+  // A prompt is finished once Astria stamps `trained_at`. Treat an empty prompt
+  // list as NOT done — that means the tune is still being created/trained and we
+  // must not finalize a 0-prompt order as "complete".
+  const promptCount = data.length;
+  const allPromptsDone =
+    promptCount > 0 &&
+    data.every((prompt) => {
+      if (!prompt || typeof prompt !== "object") return false;
+      const trainedAt = (prompt as Record<string, unknown>).trained_at;
+      return typeof trainedAt === "string" && trainedAt.length > 0;
+    });
+
+  return { imageUrls, allPromptsDone, promptCount };
+}

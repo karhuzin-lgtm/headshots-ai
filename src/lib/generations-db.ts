@@ -149,6 +149,12 @@ export async function createGeneration(input: {
     // SSRF proxy to reach private networks or incur unexpected egress costs.
     if (!parsed.hostname.endsWith(".blob.vercel-storage.com"))
       throw new Error(`inputUrls must be from Vercel Blob storage, got ${parsed.hostname}`);
+    // Match astria.ts validateInputUrl so a paid order can never be created with
+    // a URL that createAstrinaTune would later reject (credentials / non-443 port).
+    if (parsed.username || parsed.password)
+      throw new Error("inputUrls must not contain credentials");
+    if (parsed.port !== "" && parsed.port !== "443")
+      throw new Error("inputUrls must use the standard HTTPS port");
   }
   if (!Number.isInteger(expectedCount) || expectedCount <= 0 || expectedCount > 100)
     throw new Error(`expectedCount must be 1–100, got ${expectedCount}`);
@@ -167,6 +173,13 @@ export async function createGeneration(input: {
   if (expectedCount < uniqueStyleKeys.length)
     throw new Error(
       `expectedCount (${expectedCount}) must be >= number of unique styles (${uniqueStyleKeys.length})`
+    );
+  // Mirror createAstrinaTune's divisibility requirement (images split evenly
+  // across styles). Enforcing it here prevents creating — and charging for — an
+  // order whose parameters would later make the Astria tune call fail to start.
+  if (expectedCount % uniqueStyleKeys.length !== 0)
+    throw new Error(
+      `expectedCount (${expectedCount}) must be divisible by the number of unique styles (${uniqueStyleKeys.length})`
     );
 
   const rows = await sql`
@@ -390,7 +403,21 @@ export async function appendGenerationOutputs(
 ): Promise<{ row: GenerationRow; becameDone: boolean } | null> {
   await ensureSchema();
   const sql = getSql();
-  const incomingArr = textArray(incoming);
+  // Harden against malformed external data: Astria payloads are parsed upstream,
+  // but a stray non-string / oversized entry must not crash the whole callback
+  // (textArray would throw on .replace and lose ALL pending results). Keep only
+  // well-formed, bounded strings.
+  const clean = (Array.isArray(incoming) ? incoming : []).filter(
+    (v): v is string => typeof v === "string" && v.length > 0 && v.length <= 2048
+  );
+  if (clean.length === 0) {
+    // Nothing valid to append — treat as a no-op merge. Return current state so
+    // callers (sync/finalize) can still observe and act on the existing row.
+    const existing = await sql`select * from generations where id = ${id} limit 1`;
+    if (!existing[0]) return null;
+    return { row: mapGeneration(existing[0]), becameDone: false };
+  }
+  const incomingArr = textArray(clean);
   const rows = await sql`
     update generations
     set
@@ -417,6 +444,72 @@ export async function appendGenerationOutputs(
   // the WHERE status <> 'done' guard ensures it was not done before.
   const becameDone = row.status === "done";
   return { row, becameDone };
+}
+
+/** Hard backstop: after this long since the order was created, finalize a
+ *  partial result even if Astria's completion status can't be confirmed. Sized
+ *  above typical end-to-end time (training ~10-15 min + inference) but well under
+ *  the user-facing "longer than usual" poll window so a stuck order still closes. */
+export const PARTIAL_FINALIZE_TIMEOUT_MINUTES = 40;
+
+/**
+ * Atomically finalize an under-delivered order (Astria returned SOME but fewer
+ * images than expected_count) as 'done', exactly once.
+ *
+ * Mirrors the becameDone contract of appendGenerationOutputs: a single
+ * conditional UPDATE flips processing→done and the `status <> 'done'` guard plus
+ * row-level lock guarantee that only the winning caller observes becameDone=true.
+ * That makes the ready-email/notify fire exactly once across racing polls/cron.
+ *
+ * Finalizes ONLY when ALL hold (otherwise no-op, returns becameDone=false):
+ *  - status = 'processing' (never touches done/failed/pending),
+ *  - at least 1 image is present (0 images = failure, not a partial success —
+ *    left for the existing failed/recover path),
+ *  - fewer than expected_count images (a full set finalizes via the normal path),
+ *  - AND either Astria confirmed all prompts are done (no more images coming),
+ *    OR the hard timeout elapsed since created_at (backstop when Astria status
+ *    is unreachable).
+ *
+ * Returns null if the row is missing. Otherwise returns the current row and
+ * whether THIS call performed the transition.
+ */
+export async function finalizePartialGeneration(input: {
+  id: string;
+  astriaConfirmedDone: boolean;
+  timeoutMinutes?: number;
+}): Promise<{ row: GenerationRow; becameDone: boolean } | null> {
+  await ensureSchema();
+  const sql = getSql();
+  const timeoutMinutes = input.timeoutMinutes ?? PARTIAL_FINALIZE_TIMEOUT_MINUTES;
+  if (!Number.isInteger(timeoutMinutes) || timeoutMinutes <= 0 || timeoutMinutes > 1440)
+    throw new Error(`timeoutMinutes must be 1–1440, got ${timeoutMinutes}`);
+
+  const rows = await sql`
+    update generations
+    set
+      status = 'done',
+      updated_at = now()
+    where id = ${input.id}
+      and status = 'processing'
+      and cardinality(output_urls) >= 1
+      and cardinality(output_urls) < expected_count
+      and (
+        ${input.astriaConfirmedDone}
+        or created_at < now() - (${timeoutMinutes} * interval '1 minute')
+      )
+    returning *
+  `;
+  if (rows[0]) {
+    // THIS call won the processing→done transition (the WHERE status='processing'
+    // guard + row lock ensure no other caller also sees the flip).
+    return { row: mapGeneration(rows[0]), becameDone: true };
+  }
+  // No transition: either conditions unmet, or another caller already finalized.
+  // Return the current row (if any) so callers can read final state.
+  const current = await sql`
+    select * from generations where id = ${input.id} limit 1
+  `;
+  return current[0] ? { row: mapGeneration(current[0]), becameDone: false } : null;
 }
 
 export async function getGeneration(id: string): Promise<GenerationRow | null> {
@@ -471,21 +564,15 @@ export async function claimGenerationForProcessing(
     where id = ${id}
       and paid = true
       and tune_id is null
-      and (
-        -- Normal retry: pending or failed (not UNKNOWN-blocked).
-        (
-          status in ('pending', 'failed')
-          and (error_message is null or error_message not like 'ASTRIA_STATUS_UNKNOWN:%')
-        )
-        -- Stale-processing recovery: claimed but tuneId never saved and
-        -- Astria did not callback within 15 minutes → assume no tune was
-        -- created and allow retry. 15 min > typical Astria training time;
-        -- if the tune was created, the callback will arrive and set tune_id.
-        or (
-          status = 'processing'
-          and updated_at < now() - interval '15 minutes'
-        )
-      )
+      -- Normal retry only: pending or failed (not UNKNOWN-blocked).
+      -- A row stuck in status='processing' with tune_id IS NULL is the ambiguous
+      -- crash-between-POST-and-save case: the tune MAY already exist in Astria, so
+      -- auto-reclaiming it could create a second tune and bill twice. We do NOT
+      -- auto-retry it here (mirrors the ASTRIA_STATUS_UNKNOWN policy). Recovery is
+      -- via admin: verify in Astria with fetchTuneOutputUrls, then set tune_id or
+      -- reset status to 'pending'.
+      and status in ('pending', 'failed')
+      and (error_message is null or error_message not like 'ASTRIA_STATUS_UNKNOWN:%')
     returning *
   `;
   return rows[0] ? mapGeneration(rows[0]) : null;

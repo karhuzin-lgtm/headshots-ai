@@ -94,8 +94,9 @@ export function TryResultClient({ requestId }: { requestId: string }) {
     };
   }, [requestId]);
 
-  // Оплата открывается в отдельной вкладке (у LavaTop нет редиректа назад). Эта
-  // страница опрашивает статус и сама переключится на генерацию после оплаты.
+  // Оплата открывается по кнопке в отдельной вкладке (у LavaTop нет редиректа
+  // назад). Эта страница опрашивает статус и сама переключится на генерацию
+  // после оплаты.
   if (status?.awaitingPayment) {
     return (
       <StatusShell>
@@ -105,8 +106,8 @@ export function TryResultClient({ requestId }: { requestId: string }) {
             Завершите оплату
           </h1>
           <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/55">
-            Окно оплаты открылось в новой вкладке. После оплаты эта страница
-            автоматически переключится на создание портретов.
+            Нажмите «Оплатить», чтобы перейти к оплате в новой вкладке. После
+            оплаты эта страница сама переключится на создание портретов.
           </p>
           {status.paymentUrl ? (
             <a
@@ -118,7 +119,9 @@ export function TryResultClient({ requestId }: { requestId: string }) {
               <span>Оплатить {paymentPriceLabel}</span>
               <ExternalLink className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </a>
-          ) : null}
+          ) : (
+            <p className="mx-auto mt-9 text-xs text-white/40">Готовим оплату…</p>
+          )}
           <div className="mt-7 flex items-center justify-center gap-2 text-xs uppercase tracking-[0.12em] text-white/40">
             <Loader2 className="h-4 w-4 animate-spin text-white/60" />
             Ждём подтверждения оплаты…

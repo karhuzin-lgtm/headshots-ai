@@ -255,11 +255,6 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
       return;
     }
 
-    // Open the checkout tab synchronously, inside the user gesture, so the
-    // browser doesn't popup-block it after the long async upload chain. We
-    // navigate it to the real URL once we have it (or close it on failure).
-    const payWindow = window.open("about:blank", "_blank");
-
     setLoading(true);
     setUploadProgress(null);
 
@@ -318,45 +313,24 @@ export function TryFreeClient({ tiers = [] }: { tiers?: Tier[] }) {
         throw new Error(json.error || text || "Не удалось перейти к оплате.");
       }
 
-      // LavaTop has no post-payment redirect back to us, so we DON'T navigate
-      // away to it. Instead: open checkout in a new tab (this is inside the
-      // submit gesture, so it isn't popup-blocked) and send THIS tab to our
-      // waiting page, which polls for payment and shows generation right here.
-      // Test mode returns an internal /try/result url → just navigate. Normal
-      // flow returns the LavaTop (http) url → open it in a new tab + go to the
-      // waiting page in this tab.
+      // We never open the checkout tab ourselves — the long upload chain made a
+      // pre-opened blank tab linger and confuse buyers. Instead we navigate THIS
+      // tab to the waiting page (/try/result), where a prominent "Оплатить"
+      // button opens LavaTop in a new tab. The waiting page polls for payment
+      // and switches to generation right there.
+      // Test mode returns an internal /try/result url → navigate straight to it.
       // Funnel: checkout is opening (payment session created successfully).
       trackClient("checkout_opened", { tier: selectedTier.id });
 
-      if (json.url.startsWith("http")) {
-        // External LavaTop checkout. Send the pre-opened tab there. If it was
-        // popup-blocked (null), fall back to navigating THIS tab to checkout
-        // and do NOT also go to the waiting page (we'd lose the buyer).
-        if (payWindow) {
-          // Sever the opener link before sending the tab to an external site so
-          // it can't reverse-tabnab us (redirect our tab to a phishing page).
-          // We can't pass "noopener" to window.open (it nulls the reference we
-          // need), so we drop opener here instead.
-          try {
-            payWindow.opener = null;
-          } catch {
-            // Cross-origin/blocked access — best effort.
-          }
-          payWindow.location.href = json.url;
-        } else {
-          window.location.href = json.url;
-          return;
-        }
+      if (json.url.startsWith("/")) {
+        // Internal (test mode) url → navigate this tab directly.
+        window.location.href = json.url;
       } else {
-        // Internal (test mode) url → no separate tab needed; close the blank one.
-        payWindow?.close();
+        // Normal flow → go to our waiting page; it shows the pay button.
+        window.location.href = `/try/result/${json.id}`;
       }
-      window.location.href = `/try/result/${json.id}`;
       return;
     } catch (e) {
-      // Submit failed before we had a checkout URL — close the blank tab so it
-      // doesn't linger.
-      payWindow?.close();
       setError(e instanceof Error ? e.message : "Не удалось перейти к оплате.");
       setLoading(false);
       setUploadProgress(null);
